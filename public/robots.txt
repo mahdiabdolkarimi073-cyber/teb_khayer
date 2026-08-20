@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://teb-khayyer.ir/api/sitemap.xml

@@ -1,0 +1,295 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["clientExtensions", "filteredRelationCount"]
+}
+
+// generator custom_generator {
+//   provider = "npx ../prisma-generator-value-from-documentation"
+// }
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String        @id @default(dbgenerated("concat('user_', gen_random_uuid())"))
+  date          DateTime      @default(now())
+  role          UserRole      @default(DEFAULT)
+  name          String
+  password      String
+  token         String        @unique @default(uuid()) @db.VarChar(500)
+  acceptRules   Boolean       @default(false)
+  /// @name شماره تلفن
+  phone         Float         @unique
+  avatar        String        @default("/backend/images/default_avatar.png")
+  likes         Like[]
+  orders        Order[]
+  payments      Payment[]
+  productsLikes ProductLike[]
+  services      ServiceUser[]
+  courses       UserCourse[]
+  views         View[]
+}
+
+model Verify {
+  id         Int      @id @default(autoincrement())
+  phone      Float    @unique
+  code       Int
+  userCode   Int?
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+}
+
+model Category {
+  id         String     @id @default(dbgenerated("concat('cat_', gen_random_uuid())"))
+  name       String
+  thumbnail  String     @default("/backend/images/default_thumbnail.png")
+  parentId   String?
+  created_at DateTime   @default(now())
+  parent     Category?  @relation("SELF", fields: [parentId], references: [id], onDelete: Cascade)
+  children   Category[] @relation("SELF")
+  courses    Course[]
+}
+
+model Course {
+  id          String       @id @default(dbgenerated("concat('crse_', gen_random_uuid())"))
+  name        String
+  categoryId  String
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @default(now()) @updatedAt
+  price       Float
+  description String
+  thumbnail   String       @default("/backend/images/default_thumbnail.png")
+  preview     String?
+  attachments Attachment[]
+  category    Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  likes       Like[]
+  users       UserCourse[]
+  views       View[]
+}
+
+model View {
+  id       Int    @id @default(autoincrement())
+  courseId String
+  userId   String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Like {
+  id       Int    @id @default(autoincrement())
+  courseId String
+  userId   String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Attachment {
+  id       String         @id @default(dbgenerated("concat('atch_', gen_random_uuid())"))
+  name     String
+  type     AttachmentType
+  link     String         @unique
+  courseId String
+  course   Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+model Setting {
+  id    String     @id @default(dbgenerated("concat('setting_', gen_random_uuid())"))
+  key   SettingKey @unique
+  value String
+}
+
+model ProductCategory {
+  id         String            @id @default(dbgenerated("concat('pcat_', gen_random_uuid())"))
+  name       String
+  thumbnail  String            @default("/backend/images/default_thumbnail.png")
+  created_at DateTime          @default(now())
+  parentId   String?
+  products   Product[]
+  parent     ProductCategory?  @relation("SELF", fields: [parentId], references: [id], onDelete: Cascade)
+  children   ProductCategory[] @relation("SELF")
+}
+
+model Product {
+  id               String          @id @default(dbgenerated("concat('prdt_', gen_random_uuid())"))
+  name             String
+  description      String
+  description_text String          @default("")
+  properties       String
+  created_at       DateTime        @default(now())
+  updated_at       DateTime        @default(now()) @updatedAt
+  price            Float
+  images           String[]
+  categoryId       String
+  stock            Int             @default(10)
+  inOrders         OrderProduct[]
+  category         ProductCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  likes            ProductLike[]
+}
+
+model ProductLike {
+  id        Int     @id @default(autoincrement())
+  productId String
+  userId    String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserCourse {
+  id         Int      @id @default(autoincrement())
+  courseId   String
+  userId     String
+  created_at DateTime @default(now())
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id         String          @id @default(dbgenerated("concat('pymt_', gen_random_uuid())"))
+  userId     String
+  amount     Float
+  created_at DateTime        @default(now())
+  type       PaymentType     @default(COURSE)
+  successMsg String          @default("پرداخت شما باموفقیت انجام شد")
+  receipt    String?         @unique
+  redirect   String?         @default("/dashboard/orders")
+  order      Order?
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  actions    PaymentAction[]
+  service    ServiceUser?
+}
+
+model PaymentAction {
+  id           Int        @id @default(autoincrement())
+  paymentId    String
+  type         ActionType @default(CREATE_MODEL)
+  targetModel  String
+  targetRecord String?
+  data         Json       @default("{}")
+  payment      Payment    @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id         Int            @id @default(autoincrement())
+  userId     String
+  paymentId  String         @unique
+  info       Json           @default("{}")
+  created_at DateTime       @default(now())
+  status     OrderStatus    @default(PENDING)
+  payment    Payment        @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products   OrderProduct[]
+}
+
+model OrderProduct {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  productId String
+  count     Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Service {
+  id            ServiceType   @id
+  amount        Float
+  beforeContent String        @default("فاقد توضیحات")
+  afterContent  String        @default("فاقد توضیحات")
+  disabled      Boolean       @default(false)
+  users         ServiceUser[]
+}
+
+model ServiceUser {
+  id        Int         @id @default(autoincrement())
+  serviceId ServiceType
+  paid_at   DateTime    @default(now())
+  userId    String
+  paymentId String      @unique
+  payment   Payment     @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  service   Service     @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Taghvim {
+  id         TaghvimType    @id
+  updated_at DateTime       @default(now()) @updatedAt
+  type       AttachmentType
+  link       String
+}
+
+model BlogPost {
+  id          String   @id @default(dbgenerated("concat('post_', gen_random_uuid())"))
+  thumbnail   String   @default("/img/logo.png")
+  title       String
+  link        String   @unique
+  contentHtml String
+  contentText String
+  tags        String
+  description String
+  created_at  DateTime @default(now())
+}
+
+enum OrderStatus {
+  /// @name درحال آماده سازی سفارش شما هستیم
+  PENDING
+  /// @name سفارش شما تحویل پست یا تیپاکس شد
+  SENDED
+  /// @name کد رهگیری پیامک شده توسط پست یا تیپاکس را وارد سامانه مذکورکرده و پیگیری نمایید
+  DELAY
+  /// @name سفارش شما لغو شد
+  CANCELED
+}
+
+enum UserRole {
+  DEFAULT
+  ADMIN
+}
+
+enum SettingKey {
+  /// @name مدت زمان اعتبار کد تایید به دقیقه
+  /// @default 5
+  VERCODE_EXPIRE_MINUTES
+  /// @name شماره تلفن ثابت
+  /// @default "045-33790667"
+  MAIN_PHONE
+  /// @name هزینه ارسال پست (تومان)
+  /// @default 36000
+  PRODUCT_POST_FEE
+  /// @name هزینه بسته بندی (تومان)
+  /// @default 36000
+  PRODUCT_BOX_FEE
+}
+
+enum AttachmentType {
+  PDF
+  IMG
+  VIDEO
+}
+
+enum PaymentType {
+  COURSE
+  PRODUCT
+}
+
+enum ActionType {
+  CREATE_MODEL
+  CHANGE_MODEL
+  CREATE_MANY
+}
+
+enum ServiceType {
+  /// @name برگه آزمایش سونوگرافی
+  EXPLAIN
+  /// @name تشخیص بیماری
+  IDENTIFY
+  /// @name ویزیت آنلاین
+  VISIT
+}
+
+enum TaghvimType {
+  /// @name تقویم قمر در عقرب
+  AGHRAB
+  /// @name تقویم حجامت
+  HEJAMAT
+}

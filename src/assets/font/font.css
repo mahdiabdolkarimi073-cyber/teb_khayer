@@ -1,0 +1,18 @@
+@font-face {
+    font-family: 'YekanBakh';
+    font-weight: normal;
+    src: url(../font/ttf/YekanBakhFaNum-VF.ttf);
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'YekanBakh';
+    font-weight: bold;
+    src: url(../font/woff/YekanBakhFaNum-Bold.woff);
+    font-display: swap;
+}
+
+body {
+    font-size: 100%;
+    font-family: 'YekanBakh', "Segoe UI", sans-serif;
+}
