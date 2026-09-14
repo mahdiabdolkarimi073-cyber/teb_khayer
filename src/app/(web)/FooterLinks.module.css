@@ -3,6 +3,8 @@
     background-color: #082b54;
     color: #dce9f5;
     border-top: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .logo {
@@ -31,6 +33,7 @@
     @media (max-width: $mantine-breakpoint-sm) {
         flex-direction: column;
         align-items: center;
+        text-align: center;
     }
 }
 
@@ -45,16 +48,23 @@
 
 .wrapper {
     width: rem(160px);
+
+    @media (max-width: $mantine-breakpoint-xs) {
+        width: rem(140px);
+    }
 }
 
 .link {
     display: block;
-    color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-1));
+    color: #a3bdd6;
     font-size: var(--mantine-font-size-sm);
     padding-top: rem(3px);
     padding-bottom: rem(3px);
+    transition: color .15s;
+    -webkit-transition: color .15s;
 
     &:hover {
+        color: #fff;
         text-decoration: underline;
     }
 }
@@ -66,7 +76,7 @@
             Greycliff CF,
             var(--mantine-font-family);
     margin-bottom: calc(var(--mantine-spacing-xs) / 2);
-    color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
+    color: #fff;
 }
 
 .afterFooter {
@@ -76,10 +86,13 @@
     margin-top: var(--mantine-spacing-xl);
     padding-top: var(--mantine-spacing-xl);
     padding-bottom: var(--mantine-spacing-xl);
-    border-top: rem(1px) solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-4));
+    border-top: rem(1px) solid rgba(255,255,255,.1);
+    gap: 16px;
 
     @media (max-width: $mantine-breakpoint-sm) {
         flex-direction: column;
+        text-align: center;
+        gap: 12px;
     }
 }
 
