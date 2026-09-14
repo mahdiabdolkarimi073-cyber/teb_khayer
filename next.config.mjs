@@ -52,6 +52,7 @@ const nextConfig = {
     },
     webpack: (config) => {
         config.externals = [...config.externals, {canvas: "canvas", "@ryancavanaugh/lls": "@ryancavanaugh/lls"}];
+        config.parallelism = 1;
         return config;
     },
 };
