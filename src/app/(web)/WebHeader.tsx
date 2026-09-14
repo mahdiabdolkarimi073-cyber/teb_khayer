@@ -138,6 +138,7 @@ export function WebHeader(parentProps: {
 
   return (
     <Box>
+      <div className={classes.announcement}>ارسال رایگان سفارش‌های بالای ۵۰۰ هزار تومان در سراسر کشور</div>
       <header className={classes.header}>
         <Group justify="space-between" className={"container mx-auto"} h="100%">
           <Link href={"/"} className="block h-full">
