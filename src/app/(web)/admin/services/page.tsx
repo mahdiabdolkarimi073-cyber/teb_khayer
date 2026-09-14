@@ -1,7 +1,7 @@
 'use client';
 
 import ServiceTypeEnum from "@/generated/ServiceType.enum";
-import {Button, TextInput} from "@mantine/core";
+import {Button, Switch, TextInput} from "@mantine/core";
 import React from "react";
 import Link from "next/link";
 import TaghvimTypeEnum from "@/generated/TaghvimType.enum";
@@ -40,7 +40,7 @@ const Page = (props: any) => {
 
 				return (
 					<div className={'center justify-between w-full gap-2 flex-wrap border p-2 rounded-lg'}>
-						<h5>{name}</h5>
+						<h5 className={'whitespace-pre-line text-right'}>{name}</h5>
 						<div className={'center gap-1'}>
 							<Link href={`/admin/services/${key}`}>
 								<Button size={'xs'}>
@@ -65,7 +65,7 @@ const Page = (props: any) => {
 				return (
 					<div className={'center justify-between w-full border p-2 rounded-lg'}>
 						<div>
-							<h5>{name}</h5>
+							<h5 className={'whitespace-pre-line text-right'}>{name}</h5>
 							<p>{taghvim?.updated_at && new Date(taghvim.updated_at).toLocaleString('fa')}</p>
 						</div>
 						<div className={'center gap-2'}>
@@ -87,6 +87,8 @@ const Page = (props: any) => {
 				{Object.entries(SettingKeyEnum).map(([key, name]) => {
 					const info = SettingKeyInfo[key as keyof typeof SettingKeyInfo];
 					const defaultValue = settings?.find(s => s.key === key)?.value || info?.default;
+					const isBoolean = info?.default === "true" || info?.default === "false";
+					const checked = (defaultValue + "").toLowerCase() === "true";
 					return (
 						<form action={async (form) => {
 							const json = formDataToJson(form);
@@ -96,15 +98,34 @@ const Page = (props: any) => {
 							})
 						}} className={'flex items-end gap-2 w-full'}>
 							<input hidden name={'key'} value={key}/>
-							<TextInput
-								name={'value'}
-								label={name+` (${defaultValue})`}
-								placeholder={info?.default as any}
-								defaultValue={defaultValue}
-							/>
-							<Button type={'submit'}>
-								ذخیره
-							</Button>
+							{isBoolean ? (
+								<>
+									<input hidden name={'value'} value={checked ? "true" : "false"}/>
+									<Switch
+										label={name}
+										defaultChecked={checked}
+										onChange={(e) => {
+											const v = e.currentTarget.checked ? "true" : "false";
+											setVar(key as SettingKey, v).finally(() => {
+												action3.refetch();
+												router.refresh();
+											});
+										}}
+									/>
+								</>
+							) : (
+								<>
+									<TextInput
+										name={'value'}
+										label={name+` (${defaultValue})`}
+										placeholder={info?.default as any}
+										defaultValue={defaultValue}
+									/>
+									<Button type={'submit'}>
+										ذخیره
+									</Button>
+								</>
+							)}
 						</form>
 					)
 				})}

@@ -1,6 +1,7 @@
 "use client";
 import { getCart, removeFromCart, useCart } from "@/utils/localCart";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
+import { Loader } from "@mantine/core";
 import {
   ActionIcon,
   Button,
@@ -35,6 +36,8 @@ const Page = (props: any) => {
     "PRODUCT_POST_FEE" as SettingKey
   );
   const cart = useCart();
+  const [submitting, setSubmitting] = useState(false);
+  const requestIdRef = useRef<string>('');
   const finalData = Object.values(cart).map(({ product, quantity }) => ({
     name: product.name,
     quantity: quantity + " عدد",
@@ -105,6 +108,11 @@ const Page = (props: any) => {
       <form
         className={`${!rows?.length && "hidden"}`}
         action={async (formData) => {
+          if (submitting) return;
+          setSubmitting(true);
+          if (!requestIdRef.current) {
+            requestIdRef.current = Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+          }
           let json = formDataToJson(formData);
           createOrderPortal(
             Object.fromEntries(
@@ -113,14 +121,32 @@ const Page = (props: any) => {
                 quantity,
               ])
             ),
-            json as any
+            json as any,
+            requestIdRef.current
           ).then((res) => {
-            alert(res.message);
+            console.log('[CHECKOUT] response:', res);
             if (res.token) {
               window.localStorage.setItem("localInfo", JSON.stringify(json));
               window.localStorage.removeItem("cart");
               window.doPayment(res.token);
+            } else {
+              const errMap: Record<number, string> = {
+                401: 'لطفاً ابتدا وارد حساب خود شوید.',
+                400: res.message || 'اطلاعات سفارش نامعتبر است.',
+                404: 'یکی از محصولات سفارش یافت نشد. لطفاً سبد خرید را بررسی کنید.',
+                409: 'این سفارش قبلاً ثبت شده است.',
+                500: 'خطای سرور در ثبت سفارش. لطفاً دوباره تلاش کنید.',
+              };
+              const userMsg = errMap[res.status] || res.message || 'خطای ناشناخته در پرداخت';
+              alert(userMsg);
+              console.error('[CHECKOUT] no token received:', res);
             }
+          }).catch((err) => {
+            console.error('[CHECKOUT] form submission error:', err);
+            const isNetworkErr = err?.message?.includes?.('fetch') || err?.message?.includes?.('network') || err?.message?.includes?.('Failed');
+            alert(isNetworkErr ? 'ارتباط با سرور برقرار نشد. اینترنت خود را بررسی کنید و دوباره تلاش کنید.' : 'خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.');
+          }).finally(() => {
+            setSubmitting(false);
           });
         }}
       >
@@ -156,8 +182,13 @@ const Page = (props: any) => {
             <p>مجموع</p>
             <h3>{total.toLocaleString("fa")} تومان</h3>
           </div>
-          <Button disabled={BOXFeePending || POSTFeePending} type={"submit"}>
-            پرداخت
+          <Button disabled={BOXFeePending || POSTFeePending || submitting} type={"submit"}>
+            {submitting ? (
+              <div className="flex items-center gap-2">
+                <Loader size="xs" color="white" />
+                <span>در حال پردازش...</span>
+              </div>
+            ) : "پرداخت"}
           </Button>
         </div>
       </form>

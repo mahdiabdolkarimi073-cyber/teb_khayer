@@ -18,8 +18,8 @@ const Page = (props: any) => {
 			<Banner title={'تشخیص بیماری ها از روی زبان'} className={'from-sky-500 to-teal-500'} description={'جهت ارسال عکس زبان کلیک کنید'}
 				   link={'/app/service/IDENTIFY'}/>
 			<div className={'grid grid-cols-2 gap-3'}>
-				<Banner title={'تفسیر برگه آزمایش تفسیر سونوگرافی'} className={'from-emerald-500 to-teal-500'} description={'جهت  تفسیر کلیک کنید'} link={'/app/service/EXPLAIN'} />
-				<Banner title={'وزیزیت انلاین'} className={' from-cyan-400 to-cyan-600'} description={'جهت مشاوره کلیک کنید'} link={'/app/service/VISIT'} />
+				<Banner title={<>تفسیر برگه آزمایش<br/>تفسیر سونوگرافی</>} className={'from-emerald-500 to-teal-500'} description={'جهت تفسیر کلیک کنید'} link={'/app/service/EXPLAIN'} />
+				<Banner title={'ویزیت آنلاین'} className={'from-cyan-400 to-cyan-600'} description={'جهت مشاوره کلیک کنید'} link={'/app/service/VISIT'} />
 			</div>
 			<EitaaBanner/>
 			<div className={'grid grid-cols-2 gap-3'}>
@@ -35,8 +35,8 @@ const Page = (props: any) => {
 	)
 }
 
-export function Banner(props: {
-	title: string,
+function Banner(props: {
+	title: React.ReactNode,
 	description: string,
 	link: string,
 	className?: string

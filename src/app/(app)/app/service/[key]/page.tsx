@@ -30,7 +30,8 @@ const Page = async (props: any) => {
 
 	return (
 		<div className={'p-4'}>
-			<div dangerouslySetInnerHTML={{__html: service.beforeContent}}></div>
+			<h1 className={'whitespace-pre-line text-center text-xl font-bold mb-6'}>{name}</h1>
+				<div dangerouslySetInnerHTML={{__html: service.beforeContent}}></div>
 			<div className={'center justify-between flex-wrap'}>
 				<h4>{!!service.amount ?`${service.amount.toLocaleString('fa')} تومان `:"رایگان"}</h4>
 				<PaymentButton service={service} disabled={!!exists} />

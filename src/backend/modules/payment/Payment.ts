@@ -6,45 +6,97 @@ export default class Payment {
 	static TID = AppConfig.TID;
 	static MID = "982024031001819"
 
-	static async getToken(amount: number, invoice: string, email?: string) {
-		if (process.env.NODE_ENV === "development") return invoice;
-		const payload = {
-			"Amount": (amount * 10)+"",
-			"callbackURL": "https://teb-khayyer.ir/api/payment",
+	static async getToken(amount: number, invoice: string, cellNumber?: string) {
+		console.log(`[PAYMENT] getToken START - amount: ${amount}, invoice: ${invoice}, TID: ${Payment.TID}, cellNumber: ${cellNumber || 'N/A'}`);
+
+		if (process.env.NODE_ENV === "development") {
+			console.log('[PAYMENT] getToken - development mode, returning invoice as token');
+			return invoice;
+		}
+
+		const callbackURL = (process.env.PAYMENT_CALLBACK_URL || "https://teb-khayyer.ir/api/payment").trim();
+		console.log('[PAYMENT] getToken - callbackURL:', callbackURL);
+
+		const payload: Record<string, string> = {
+			"Amount": (amount * 10) + "",
+			"callbackURL": callbackURL,
 			"invoiceID": invoice,
 			"terminalID": Payment.TID,
-			...(email && ({
-				email,
-				"CellNumber": email
-			}))
 		};
-		const res = await Payment.fetch('/PeymentApi/GetToken', payload) as ({
-			"Status": 0,
-			"Accesstoken": "PORTAL_TOKEN",
-			"AccessToken": "PORTAL_TOKEN"
-		});
-		console.log(payload, res);
-		if (res.Status !== 0) {
-			console.log(res);
-			throw(`FAILED TO CREATE PAYMENT TOKEN: ${res.Status}`);
+
+		if (cellNumber) {
+			const cleanPhone = cellNumber.replace(/[^0-9]/g, "");
+			if (cleanPhone.length >= 10) {
+				const formattedPhone = cleanPhone.startsWith("0") ? cleanPhone : "0" + cleanPhone;
+				payload["CellNumber"] = formattedPhone;
+				console.log('[PAYMENT] getToken - CellNumber set to:', formattedPhone);
+			} else {
+				console.log('[PAYMENT] getToken - CellNumber too short, skipping:', cleanPhone);
+			}
 		}
-		return res.Accesstoken ?? res.AccessToken;
+
+		console.log('[PAYMENT] getToken - sending request to Sepehr:', JSON.stringify({...payload, Amount: payload.Amount}));
+
+		let res;
+		try {
+			res = await Payment.fetch('/PeymentApi/GetToken', payload) as ({
+				"Status": number,
+				"Accesstoken": string,
+				"AccessToken": string,
+				"Message": string,
+				"Description": string
+			});
+			console.log('[PAYMENT] getToken - Sepehr response:', JSON.stringify(res));
+		} catch (fetchError) {
+			console.error('[PAYMENT] getToken - NETWORK ERROR calling Sepehr:', fetchError);
+			throw new Error(`خطا در ارتباط با درگاه پرداخت: ${fetchError instanceof Error ? fetchError.message : String(fetchError)}`);
+		}
+
+		if (res.Status !== 0) {
+			console.error(`[PAYMENT] getToken FAILED - Status: ${res.Status}, Message: ${res.Message || res.Description || 'N/A'}`);
+			throw new Error(`درگاه پرداخت توکن صادر نکرد (کد: ${res.Status}${res.Message ? ' - ' + res.Message : ''}${res.Description ? ' - ' + res.Description : ''})`);
+		}
+
+		const token = res.Accesstoken ?? res.AccessToken;
+		if (!token) {
+			console.error('[PAYMENT] getToken FAILED - Status 0 but no token in response:', JSON.stringify(res));
+			throw new Error('درگاه پرداخت توکن صادر نکرد');
+		}
+
+		console.log(`[PAYMENT] getToken SUCCESS - token received (length: ${token.length})`);
+		return token;
 	}
 
 	static async acceptReceipt(digitalReceipt: string) {
-		if (process.env.NODE_ENV === "development") return true;
+		console.log(`[PAYMENT] acceptReceipt START - digitalReceipt: ${digitalReceipt}`);
 
-		const res = await Payment.fetch("/PeymentApi/Advice", {
-			digitalreceipt: digitalReceipt,
-			Tid: Payment.TID
-		}) as ({
-			Status: "Ok" | "Duplicate" | "NOk";
-			ReturnId: string;
-			Message: string;
-		});
+		if (process.env.NODE_ENV === "development") {
+			console.log('[PAYMENT] acceptReceipt - development mode, skipping verification');
+			return true;
+		}
 
-		if (res.Status !== 'Ok') throw(res.Message);
+		let res;
+		try {
+			res = await Payment.fetch("/PeymentApi/Advice", {
+				digitalreceipt: digitalReceipt,
+				Tid: Payment.TID
+			}) as ({
+				Status: "Ok" | "Duplicate" | "NOk";
+				ReturnId: string;
+				Message: string;
+			});
+			console.log('[PAYMENT] acceptReceipt - Sepehr response:', JSON.stringify(res));
+		} catch (fetchError) {
+			console.error('[PAYMENT] acceptReceipt - NETWORK ERROR:', fetchError);
+			throw new Error(`خطا در تایید پرداخت: ${fetchError instanceof Error ? fetchError.message : String(fetchError)}`);
+		}
 
+		if (res.Status !== 'Ok') {
+			console.error(`[PAYMENT] acceptReceipt FAILED - Status: ${res.Status}, Message: ${res.Message}`);
+			throw new Error(res.Message || `تایید پرداخت ناموفق (${res.Status})`);
+		}
+
+		console.log('[PAYMENT] acceptReceipt SUCCESS');
 		return true;
 	}
 
@@ -63,8 +115,21 @@ export default class Payment {
 			body: urlencoded
 		};
 		const base = process.env.NODE_ENV === "production" ? "https://sepehr.shaparak.ir:8081/V1" : "https://teb-khayyer.ir/api/proxy/sepehr.shaparak.ir:8081/V1";
-		return await fetch(base+path, requestOptions)
-			.then(r => r.json());
+		const url = base + path;
+		console.log(`[PAYMENT] fetch - POST ${url}`);
+
+		const response = await fetch(url, requestOptions);
+		if (!response.ok) {
+			console.error(`[PAYMENT] fetch - HTTP ${response.status} ${response.statusText}`);
+		}
+		const text = await response.text();
+		console.log(`[PAYMENT] fetch - raw response: ${text.substring(0, 500)}`);
+		try {
+			return JSON.parse(text);
+		} catch {
+			console.error('[PAYMENT] fetch - failed to parse JSON response');
+			return { Status: -1, Message: "Invalid JSON response from gateway" };
+		}
 	}
 
 	static async handlePaymentAction(payment: PaymentType & {actions: PaymentAction[]}) {

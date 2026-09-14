@@ -12,19 +12,11 @@ import {getVar} from "@backend/utils/setting";
 
 export async function createOrderPortal(products: {
 	[key: string]: number
-}, fields: typeof CheckoutFields) {
-	// ===== لاگ شروع =====
-	console.log('🚀 [CHECKOUT] createOrderPortal START');
-	console.log('📦 Products:', Object.keys(products).length);
-	console.log('📋 Fields:', Object.keys(fields));
-	// ====================
-
+}, fields: typeof CheckoutFields, requestId: string) {
+	console.log('[CHECKOUT] createOrderPortal START - products:', Object.keys(products).length, 'items');
 	try {
 		const user = await getUserFromCookie();
-		
-		// ===== لاگ کاربر =====
-		console.log('👤 User ID:', user?.id || '❌ کاربر پیدا نشد');
-		// =====================
+		console.log('[CHECKOUT] user:', user?.id || 'NOT FOUND');
 
 		if (!user) {
 			return {
@@ -33,19 +25,24 @@ export async function createOrderPortal(products: {
 			}
 		}
 
+		const saleEnabled = (await getVar<string>("PRODUCTS_SALE_ENABLED")) !== "false";
+		if (!saleEnabled) {
+			return {
+				message: "فعلاً فروش محصولات غیرفعال است",
+				status: 400
+			}
+		}
+
 		let total = 0;
 		let fetchedProduct: {[key: string]: Product} = {};
 
 		// محاسبه مجموع قیمت محصولات
 		for (let [id, count] of Object.entries(products)) {
-			console.log(`🔍 Checking product: ${id}, count: ${count}`);
-			
 			const product = await prisma.product.findUnique({
 				where: { id }
 			});
 			
 			if (!product) {
-				console.error(`❌ Product not found: ${id}`);
 				return {
 					message: `محصول با شناسه ${id} یافت نشد`,
 					status: 404
@@ -53,7 +50,6 @@ export async function createOrderPortal(products: {
 			}
 
 			if (product.stock < count) {
-				console.error(`❌ Stock insufficient: ${product.name} (stock: ${product.stock}, requested: ${count})`);
 				return {
 					message: `موجودی محصول ${product.name} کافی نیست (${product.stock} عدد موجود است)`,
 					status: 400
@@ -62,7 +58,6 @@ export async function createOrderPortal(products: {
 
 			total += (+(product.price+"") * count);
 			fetchedProduct[product.id] = product;
-			console.log(`✅ Product ${product.name} added, price: ${product.price}, subtotal: ${+(product.price+"") * count}`);
 		}
 
 		// اضافه کردن هزینه بسته‌بندی و پست
@@ -70,21 +65,26 @@ export async function createOrderPortal(products: {
 		const postFee = +(await getVar<string>("PRODUCT_POST_FEE") || "0");
 		total += boxFee + postFee;
 
-		console.log('💰 Total amount:', total);
-		console.log('📦 Box fee:', boxFee);
-		console.log('📬 Post fee:', postFee);
+
+		const paymentId = `pymt_${requestId}`;
+		const existingPayment = await prisma.payment.findUnique({where: {id: paymentId}});
+		if (existingPayment) {
+			if (existingPayment.receipt) return {message: 'این سفارش قبلاً پرداخت شده است', status: 409};
+			const token = await existingPayment.getToken();
+			return {message: 'درحال انتقال...', token, paymentId: existingPayment.id};
+		}
 
 		// ایجاد پرداخت
+		console.log('[CHECKOUT] creating payment record, total:', total);
 		const payment = await prisma.payment.create({
 			data: {
+				id: paymentId,
 				amount: total,
 				type: "PRODUCT",
 				successMsg: "سفارش شما ثبت شد",
 				userId: user.id
 			}
 		});
-
-		console.log('💳 Payment created:', payment.id);
 
 		// تولید ID برای سفارش
 		let orderId = 1;
@@ -93,7 +93,6 @@ export async function createOrderPortal(products: {
 			if (!(await prisma.order.findUnique({where: {id: orderId}}))) break;
 		} while (true);
 
-		console.log('📋 Order ID:', orderId);
 
 		// ایجاد PaymentAction برای Order
 		await prisma.paymentAction.create({
@@ -141,29 +140,23 @@ export async function createOrderPortal(products: {
 					} as OrderProductCreateArgs['data']
 				}
 			});
-			console.log(`✅ OrderProduct created for ${product.name} (${count}x)`);
 		}
 
-		console.log('✅ All PaymentActions created');
 
 		// تولید توکن
+		console.log('[CHECKOUT] generating payment token...');
 		let token;
 		try {
-			console.log('🔑 Generating token...');
 			token = await payment.getToken();
-			console.log('✅ Token generated:', token);
+			console.log('[CHECKOUT] token generated successfully');
 		} catch (tokenError) {
-			console.error('❌ Token generation failed:', tokenError);
-			if (tokenError instanceof Error) {
-				console.error('❌ Error message:', tokenError.message);
-				console.error('❌ Error stack:', tokenError.stack);
-			}
-			// استفاده از توکن موقت
-			token = `TEMP_TOKEN_${payment.id}_${Date.now()}`;
-			console.log('🔑 Using fallback token:', token);
+			console.error('[CHECKOUT] token generation FAILED:', tokenError);
+			await prisma.payment.delete({where: {id: payment.id}}).catch(() => {});
+			return {
+				message: 'خطا در ایجاد توکن پرداخت: ' + (tokenError instanceof Error ? tokenError.message : String(tokenError)),
+				status: 500
+			};
 		}
-
-		console.log('🏁 [CHECKOUT] createOrderPortal END - SUCCESS');
 
 		return {
 			message: "درحال انتقال...",
@@ -172,15 +165,7 @@ export async function createOrderPortal(products: {
 		};
 
 	} catch (error) {
-		// ===== لاگ خطای کلی =====
-		console.error('💥 [CHECKOUT] createOrderPortal FAILED');
-		console.error('💥 Error type:', typeof error);
-		console.error('💥 Error details:', error);
-		if (error instanceof Error) {
-			console.error('💥 Error message:', error.message);
-			console.error('💥 Error stack:', error.stack);
-		}
-		// =========================
+		console.error('Checkout failed:', error);
 
 		return {
 			message: 'خطا در ایجاد سفارش: ' + (error instanceof Error ? error.message : 'خطای ناشناخته'),

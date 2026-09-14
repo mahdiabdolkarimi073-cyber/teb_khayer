@@ -259,6 +259,21 @@ enum SettingKey {
   /// @name هزینه بسته بندی (تومان)
   /// @default 36000
   PRODUCT_BOX_FEE
+  /// @name فروش محصولات فعال است
+  /// @default true
+  PRODUCTS_SALE_ENABLED
+  /// @name متن نماد اعتماد الکترونیکی
+  /// @default "طب خیر دارای نماد الکترونیکی (اینماد) از وزارت صنعت، معدن و تجارت می‌باشد. این نماد نشان‌دهنده اصالت و اعتبار فروشگاه آنلاین ماست."
+  TRUST_ENAMAD
+  /// @name حساب بانکی طب خیر
+  /// @default "بانک ملت - به نام بهزاد خیّر - شماره کارت: 6104-xxxx-xxxx-xxxx"
+  TRUST_BANK_ACCOUNT
+  /// @name آدرس
+  /// @default "آدرس: تهران، خیابان ولیعصر، پلاک ۱۲۳"
+  TRUST_ADDRESS
+  /// @name آدرس وب‌سایت
+  /// @default "https://teb-khayyer.ir"
+  TRUST_WEBSITE
 }
 
 enum AttachmentType {
@@ -292,4 +307,14 @@ enum TaghvimType {
   AGHRAB
   /// @name تقویم حجامت
   HEJAMAT
+}
+
+model BackupLog {
+  id         Int      @id @default(autoincrement())
+  action     String
+  status     String
+  fileName   String?
+  fileSize   Int?
+  message    String?
+  created_at DateTime @default(now())
 }

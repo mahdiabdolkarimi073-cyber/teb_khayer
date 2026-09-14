@@ -2,18 +2,22 @@ export async function sendSMSCode(phone: string, code: string) {
 	return await fetch("https://api.sms.ir/v1/send/verify", {
 		method: "POST",
 		headers: {
-			"X-API-KEY": "2i7SXKuwAdd2QiN4zD22KOBwPvPjQ4yt8seig0udUCL4bGO4qGk7ubYg3uFW7gvl",
+			"X-API-KEY": "EIRbpHiltcCYi0F1DOcpxYOpXfdthSUyJWu1XXThKaRCF8VuGLySVI2cMrBAYIjE",
 			"Content-Type": "application/json"
 		},
 		body: JSON.stringify({
 			"mobile": (+phone)+"",
-			"templateId": 100000,
+			"templateId": 527837,
 			"parameters": [
 				{
-					"name": "Code",
+					"name": "CODE",
 					"value": code
 				}
 			]
 		})
-	}).then(r => r.json());
+	}).then(async (r)=>{
+		const json = await r.json();
+		console.log(phone,code,json);
+		return json;
+	});
 }

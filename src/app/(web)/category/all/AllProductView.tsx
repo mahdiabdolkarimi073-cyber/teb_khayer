@@ -12,7 +12,8 @@ import {useDebouncedState} from "@mantine/hooks";
 const AllProductView = (props: {
 	products: Product[],
 	count: number,
-	search?: string
+	search?: string,
+	saleEnabled?: boolean
 }) => {
 	const MAX = 20;
 	const [search, setSearch] = useState(props.search || "")
@@ -61,7 +62,7 @@ const AllProductView = (props: {
 				<Loading />
 			):(
 				<div className={'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-2 gap-2'}>
-					{products?.map?.(p => <ProductCard key={p?.id} product={p}/>)}
+					{products?.map?.(p => <ProductCard key={p?.id} product={p} saleEnabled={props.saleEnabled}/>)}
 				</div>
 			)}
 			{pagination}

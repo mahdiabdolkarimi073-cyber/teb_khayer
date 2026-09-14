@@ -1,8 +1,8 @@
 "use client";
 
 import {Course, Prisma, User} from "@prisma/client";
-import React from "react";
-import {Button} from "@mantine/core";
+import React, { useState } from "react";
+import {Button, Loader} from "@mantine/core";
 import {useRouter} from "next/navigation";
 import {createPortalForCourse} from "@backend/modules/payment/action";
 import {__PAGE_LOAD} from "@/app/OverrideWindow";
@@ -50,6 +50,7 @@ const CoursePaymentBtn = (props: {
 	disabled?: boolean
 }) => {
 	const router = useRouter();
+	const [loading, setLoading] = useState(false);
 
 	async function onSuccess() {
 		const query: UserCourseCreateArgs = {
@@ -65,48 +66,63 @@ const CoursePaymentBtn = (props: {
 
 	return (
 		<Button onClick={async () => {
+			if (loading) return;
+			setLoading(true);
+			try {
 
 
-			if (!props.user) router.push(`/app/login?redirect=${window.location.pathname}`);
-			else {
-				__PAGE_LOAD(true);
-				if (props.disabled) {
-					router.push(`/app/dashboard/courses`)
-				} else {
-					if (window.ReactNativeWebView && window.appType !== 'other') {
-						if (props.course.price <= 0) {
-							onSuccess().catch(console.error);
-							return;
-						}
-
-						sendReactNativeData({
-							type: "course",
-							id: props.course.id,
-							userId: props.user.id
-						}, async (r) => {
-							__PAGE_LOAD(false);
-							if (r.error) {
-								alert("خطا در پرداخت!");
-							} else {
-								onSuccess().catch(console.error);
-							}
-						})
+				if (!props.user) router.push(`/app/login?redirect=${window.location.pathname}`);
+				else {
+					__PAGE_LOAD(true);
+					if (props.disabled) {
+						router.push(`/app/dashboard/courses`)
 					} else {
-						const token = await createPortalForCourse(props.course)
-						__PAGE_LOAD(false);
+						if (window.ReactNativeWebView && window.appType !== 'other') {
+							if (props.course.price <= 0) {
+								await onSuccess().catch(console.error);
+								return;
+							}
 
-						if (token === "FREE") {
-							alert("دوره باموفقیت فعال شد")
-							router.push(`/app/dashboard/courses`);
-							return;
+							sendReactNativeData({
+								type: "course",
+								id: props.course.id,
+								userId: props.user.id
+							}, async (r) => {
+								__PAGE_LOAD(false);
+								setLoading(false);
+								if (r.error) {
+									alert("خطا در پرداخت!");
+								} else {
+									onSuccess().catch(console.error);
+								}
+							})
+						} else {
+							const token = await createPortalForCourse(props.course)
+							__PAGE_LOAD(false);
+
+							if (token === "FREE") {
+								alert("دوره باموفقیت فعال شد")
+								router.push(`/app/dashboard/courses`);
+								return;
+							}
+
+							window.doPayment(token)
 						}
-
-						window.doPayment(token)
 					}
 				}
+			} catch(e) {
+				console.error('Course payment error:', e);
+				alert('خطا در پرداخت');
+			} finally {
+				setLoading(false);
 			}
-		}} type='submit' color={'green'}>
-			{props.disabled ? "مشاهده" : "پرداخت"}
+		}} type='submit' color={'green'} disabled={loading}>
+			{loading ? (
+				<div className="flex items-center gap-2">
+					<Loader size="xs" color="white" />
+					<span>در حال پردازش...</span>
+				</div>
+			) : (props.disabled ? "مشاهده" : "پرداخت")}
 		</Button>
 	)
 }

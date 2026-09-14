@@ -2,3 +2,18 @@
 @import "./tailwind.css";
 @import "../assets/font/font.css";
 @import "@mantine/core/styles.css";
+
+.product-image-wrapper {
+  position: relative;
+  overflow: hidden;
+  background-color: #f8f9fa;
+}
+
+.product-image-wrapper img {
+  object-fit: contain;
+  padding: 8px;
+}
+
+.product-gallery img {
+  object-fit: contain;
+}

@@ -4,7 +4,6 @@ import {ActionIcon, Group, rem} from "@mantine/core";
 import React from "react";
 import AppConfig from "@/config/AppConfig";
 import classes from '../FooterLinks.module.css';
-import Link from "next/link";
 
 const socials = {
 	WECHAT: (props: any) => (
@@ -88,7 +87,7 @@ export const SocialsComponent = () => {
 		<Group gap={0} className={classes.social} justify="flex-end" wrap="nowrap">
 			{Object.entries(AppConfig.contact).map(([key, link]) => {
 				return (
-					<a target={'_blank'} href={link}>
+					<a target={'_blank'} rel={'noopener noreferrer'} href={link} aria-label={socialsNames[key.toUpperCase() as keyof typeof socialsNames] || key}>
 						<SocialIcon social={key}  />
 					</a>
 				);

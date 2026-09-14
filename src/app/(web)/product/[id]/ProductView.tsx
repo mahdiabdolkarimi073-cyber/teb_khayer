@@ -10,9 +10,11 @@ import Link from "next/link";
 import ProductCartHandler from "@/app/(web)/product/[id]/ProductCartHandler";
 import {modal} from "@/utils/modal";
 import HowCanITrust from "@/app/(web)/product/[id]/HowCanITrust";
+import ProductImageGallery from "@/components/shop/ProductImageGallery";
 
 const ProductView = (props: {
-	product: Product & { category?: ProductCategory & { products?: Product[] } }
+	product: Product & { category?: ProductCategory & { products?: Product[] } },
+	saleEnabled?: boolean
 }) => {
 	let {
 		categoryId,
@@ -27,7 +29,7 @@ const ProductView = (props: {
 		updated_at,
 		stock = 0
 	} = props.product;
-	const [active, setActive] = useState(images?.[0]);
+	const available = (props.saleEnabled !== false) && stock > 0;
 	const cart = useCart();
 	const productCart = cart[props?.product?.id];
 	const related = props?.product?.category?.products?.filter?.(c => c?.id !== props?.product?.id);
@@ -38,29 +40,7 @@ const ProductView = (props: {
 				<div className="flex flex-wrap -mx-4">
 					<div className="w-full px-4 md:w-1/2 ">
 						<div className="sticky top-5 z-10 overflow-hidden ">
-							<div className="relative mb-6 lg:mb-10 lg:h-2/4 ">
-								<img loading='lazy'
-									src={active}
-									alt={name}
-									className="object-cover w-full lg:h-full "
-								/>
-							</div>
-							<div className="flex-wrap hidden md:flex ">
-								{images?.map?.(src => (
-									<div className="w-1/2 p-2 sm:w-1/4">
-										<div
-											onClick={() => setActive(src)}
-											className="block cursor-pointer border border-blue-300 dark:border-transparent dark:hover:border-blue-300 hover:border-blue-300"
-										>
-											<img loading='lazy'
-												src={src}
-												alt={name}
-												className="object-cover w-full lg:h-20"
-											/>
-										</div>
-									</div>
-								))}
-							</div>
+							<ProductImageGallery images={images || []} alt={name}/>
 						</div>
 					</div>
 					<div className="w-full px-4 md:w-1/2 relative">
@@ -72,7 +52,7 @@ const ProductView = (props: {
 
 									</h1>
 									<p
-										className={`${stock <= 0 ? "bg-red-400" : "bg-green-400"} text-white p-2 rounded-xl font-bold`}>{stock <= 0 ? "ناموجود" : "موجود"}</p>
+										className={`${available ? "bg-green-400" : "bg-red-400"} text-white p-2 rounded-xl font-bold`}>{available ? "موجود" : "ناموجود"}</p>
 								</div>
 								<div className="flex items-center mb-6">
 
@@ -102,11 +82,11 @@ const ProductView = (props: {
 					<div className={'sticky sm:rounded-full md:px-5 bottom-[65px] sm:bottom-12 w-full z-30 p-3 bg-white shadow center justify-between'}>
 						<div className={'center justify-between w-full'}>
 							{!productCart ? (
-								<Button onClick={()=>{
+								<Button disabled={!available} onClick={()=>{
 									setLocalCart(props.product, 1);
 									modal("به سبد خرید اضافه شد" , <HowCanITrust product={props.product} />)
 								}}>
-									افزودن به سبد خرید
+									{available ? "افزودن به سبد خرید" : "ناموجود"}
 								</Button>
 							):(
 								<div className={'center gap-2'}>

@@ -41,7 +41,9 @@ const prisma = instance.$extends({
 								return `FREE:${payment.redirect}`
 							} else return "NOTFOUND";
 						}
-						return Payment.getToken(amount, id, payment ? "0" + payment?.user?.phone + "" : undefined);
+						const userPhone = payment?.user?.phone ? "0" + payment.user.phone : undefined;
+						console.log('[PAYMENT] getToken extension - amount:', amount, 'invoice:', id, 'phone:', userPhone);
+						return Payment.getToken(amount, id, userPhone);
 					}
 				}
 			}

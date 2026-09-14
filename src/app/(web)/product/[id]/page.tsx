@@ -3,6 +3,9 @@ import {notFound} from "next/navigation";
 import React from "react";
 import ProductView from "@/app/(web)/product/[id]/ProductView";
 import {Metadata} from "next";
+import {getVar} from "@backend/utils/setting";
+import {productMetadata} from "@/config/seo";
+import {JsonLd, productJsonLd, breadcrumbJsonLd} from "@/components/seo/JsonLd";
 
 const Page = async (props: any) => {
 	const product = await prisma.product.findUnique({
@@ -25,35 +28,29 @@ const Page = async (props: any) => {
 		return;
 	}
 
+	const saleEnabled = (await getVar<string>("PRODUCTS_SALE_ENABLED")) !== "false";
+
 	return (
-		<ProductView product={product}/>
+		<>
+			<JsonLd data={productJsonLd(product)}/>
+			<JsonLd data={breadcrumbJsonLd([
+				{name: "صفحه اصلی", url: "/"},
+				{name: product.category?.name || "محصولات", url: `/category/${product.categoryId}`},
+				{name: product.name, url: `/product/${product.id}`},
+			])}/>
+			<ProductView product={product} saleEnabled={saleEnabled}/>
+		</>
 	)
 }
 
-export const generateMetadata = async (props: any) => {
+export const generateMetadata = async (props: any): Promise<Metadata> => {
 	const product = await prisma.product.findUnique({
 		where: {
 			id: props?.params?.id
 		}
 	});
 	if (!product) return {};
-	const custom = Object.fromEntries([
-		`product_id:${product.id}`,
-		`product_name:${product.name}`,
-		`og-image:${product.images?.at?.(0)}`,
-		`product_price:${product.price}`,
-		`product_old_price:${product.price}`,
-		`availability:${product.stock > 0 ? "instock":"outofstock"}`
-	].map(o => (
-		[o.split(":")[0].replace("-",":"),o.split(":")?.at?.(-1)+""]
-	)))
-
-	return {
-		title: product.name,
-		description: product.description_text,
-		keywords: product.name.split(" "),
-		other: custom
-	} as Metadata
+	return productMetadata(product);
 }
 
 export const dynamic = 'force-dynamic'

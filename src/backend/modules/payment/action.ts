@@ -6,7 +6,9 @@ import prisma from "@backend/modules/prisma/Prisma";
 import UserCourseCreateArgs = Prisma.UserCourseCreateArgs;
 
 export async function createPortalForCourse(course: Course) {
+	console.log('[COURSE-PAYMENT] START - course:', course.id, 'price:', course.price);
 	const user = await getUserFromCookie();
+	console.log('[COURSE-PAYMENT] user:', user?.id || 'NOT FOUND');
 	if (!user) return null;
 
 	const creationData = {
@@ -28,6 +30,7 @@ export async function createPortalForCourse(course: Course) {
 		return "FREE";
 	}
 
+	console.log('[COURSE-PAYMENT] creating payment record, amount:', +(course.price+""));
 	const payment = await prisma.payment.create({
 		data: {
 			amount: +(course.price+""),
@@ -35,6 +38,7 @@ export async function createPortalForCourse(course: Course) {
 			successMsg: `دوره ${course.name} باموفقیت خریداری شد`
 		}
 	});
+	console.log('[COURSE-PAYMENT] payment created:', payment.id);
 
 	await prisma.paymentAction.create({
 		data: {
@@ -45,5 +49,15 @@ export async function createPortalForCourse(course: Course) {
 		}
 	})
 
-	return await payment.getToken();
+	console.log('[COURSE-PAYMENT] generating token...');
+	let token;
+	try {
+		token = await payment.getToken();
+		console.log('[COURSE-PAYMENT] token generated:', !!token);
+	} catch (tokenError) {
+		console.error('[COURSE-PAYMENT] token generation FAILED:', tokenError);
+		await prisma.payment.delete({where: {id: payment.id}}).catch(() => {});
+		throw new Error('خطا در ایجاد توکن پرداخت: ' + (tokenError instanceof Error ? tokenError.message : String(tokenError)));
+	}
+	return token;
 }

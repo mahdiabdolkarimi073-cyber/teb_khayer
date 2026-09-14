@@ -1,13 +1,13 @@
 
   const ServiceTypeEnum = { 
-  EXPLAIN: "برگه آزمایش سونوگرافی",
+  EXPLAIN: "تفسیر برگه آزمایش\nتفسیر سونوگرافی",
   IDENTIFY: "تشخیص بیماری",
   VISIT: "ویزیت آنلاین"
  }
   export type ServiceTypeEnumType = typeof ServiceTypeEnum;
   export const ServiceTypeInfo = {
   EXPLAIN: {
-    name: "برگه آزمایش سونوگرافی"
+    name: "تفسیر برگه آزمایش\nتفسیر سونوگرافی"
   },
   IDENTIFY: {
     name: "تشخیص بیماری"

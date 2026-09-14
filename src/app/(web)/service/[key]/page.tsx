@@ -20,7 +20,8 @@ const Page = async (props: any) => {
 
 	return (
 		<div className={'p-2 max-w-[700px] mx-auto center flex-col py-10'}>
-			<div dangerouslySetInnerHTML={{__html: service.afterContent}}></div>
+			<h1 className={'whitespace-pre-line text-center text-xl font-bold mb-6'}>{name}</h1>
+				<div dangerouslySetInnerHTML={{__html: service.afterContent}}></div>
 			<h4>راه های ارتباطی</h4>
 			<div className={'scale-125'}>
 				<SocialsComponent />

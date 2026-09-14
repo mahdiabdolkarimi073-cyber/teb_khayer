@@ -5,6 +5,7 @@ import {IconChevronLeft, IconSparkles, IconStars, IconStarsFilled} from "@tabler
 import React from "react";
 import {Button} from "@mantine/core";
 import Link from "next/link";
+import {getVar} from "@backend/utils/setting";
 
 const HomeProduct = async (props: any) => {
 	const products = await prisma.product.findMany({
@@ -13,6 +14,7 @@ const HomeProduct = async (props: any) => {
 			category: true
 		}
 	});
+	const saleEnabled = (await getVar<string>("PRODUCTS_SALE_ENABLED")) !== "false";
 
 	return (
 		<div className={'container mx-auto p-2 lg:p-0'}>
@@ -29,7 +31,7 @@ const HomeProduct = async (props: any) => {
 			</div>
 			<br/>
 			<div className={'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-2 gap-2'}>
-				{products?.map?.(p => <ProductCard product={p} />)}
+				{products?.map?.(p => <ProductCard product={p} saleEnabled={saleEnabled} />)}
 			</div>
 		</div>
 	)

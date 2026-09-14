@@ -29,7 +29,7 @@ const Page = async (props: any) => {
 	return (
 		<div>
 			<div className={'center justify-between'}>
-				<h4>{name}</h4>
+				<h4 className={'whitespace-pre-line text-right'}>{name}</h4>
 				<Link href={`./${service.id}/list`}>
 					<Button>
 						مشاهده کاربران

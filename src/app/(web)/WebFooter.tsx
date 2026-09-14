@@ -1,5 +1,5 @@
-import {Text, Container, ActionIcon, Group, rem} from '@mantine/core';
-import {IconBrandTwitter, IconBrandYoutube, IconBrandInstagram} from '@tabler/icons-react';
+import {Text, Container, ActionIcon, Group, rem, ThemeIcon, Anchor} from '@mantine/core';
+import {IconBrandTwitter, IconBrandYoutube, IconBrandInstagram, IconPhoneCall} from '@tabler/icons-react';
 
 import classes from './FooterLinks.module.css';
 import AppConfig from "@/config/AppConfig";
@@ -8,6 +8,8 @@ import React from "react";
 import prisma from "@backend/modules/prisma/Prisma";
 import {SocialsComponent} from "@/app/(web)/contact/socials";
 import WebFooterEnamad from "@/app/(web)/WebFooter.enamad";
+import {getVar} from "@backend/utils/setting";
+import {SettingKeyInfo} from "@/generated/SettingKey.enum";
 
 
 
@@ -23,13 +25,15 @@ export async function WebFooter() {
 			}
 		}
 	});
+	const phone = await getVar('MAIN_PHONE') || SettingKeyInfo["MAIN_PHONE"]?.default;
 
 	const data = [
 		{
 			title: 'منو',
 			links: [
 				{label: 'خانه', link: '/'},
-				{label: 'محصولات', link: '/category/all'},
+				{label: 'فروشگاه', link: '/category/all'},
+				{label: 'دسته‌بندی‌ها', link: '/category/list'},
 				{label: 'ارتباط باما', link: '/contact'},
 				{label: 'پیگیری سفارشات', link: "/track"},
 				{label: 'درباره ما', link: '/about'},
@@ -101,6 +105,17 @@ export async function WebFooter() {
 							طراحی و پشتیبانی سایت مهندسی نوآوران نوین بین
 						</Text>
 					</a>
+				</div>
+				<div className={'center gap-2 flex-col'}>
+					<Group gap={6} align="center">
+						<ThemeIcon variant="light" color="blue" size="sm" radius="xl">
+							<IconPhoneCall size="0.9rem" />
+						</ThemeIcon>
+						<Text size="xs" fw={500} c="dimmed">شماره تماس فروشگاه</Text>
+					</Group>
+					<Anchor href={`tel:${phone}`} c="blue" fw={700} size="lg" className="dir-ltr">
+						{phone}
+					</Anchor>
 				</div>
 				<div className={'h-[70px] w-fit'}>
 					<WebFooterEnamad/>

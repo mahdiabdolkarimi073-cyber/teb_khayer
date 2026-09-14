@@ -156,6 +156,12 @@ export function WebHeader(parentProps: {
             <Link href="/" className={classes.link}>
               خانه
             </Link>
+            <Link href="/category/all" className={classes.link}>
+              فروشگاه
+            </Link>
+            <Link href="/category/list" className={classes.link}>
+              دسته‌بندی‌ها
+            </Link>
             <HoverCard
               width={800}
               position="bottom"
@@ -194,6 +200,9 @@ export function WebHeader(parentProps: {
                 </SimpleGrid>
               </HoverCard.Dropdown>
             </HoverCard>
+            <Link href="/track" className={classes.link}>
+              پیگیری سفارش
+            </Link>
             <Link href="/contact" className={classes.link}>
               ارتباط باما
             </Link>
@@ -229,6 +238,12 @@ export function WebHeader(parentProps: {
           <Link href="/" className={classes.link}>
             خانه
           </Link>
+          <Link href="/category/all" className={classes.link}>
+            فروشگاه
+          </Link>
+          <Link href="/category/list" className={classes.link}>
+            دسته‌بندی‌ها
+          </Link>
           <UnstyledButton className={classes.link} onClick={toggleLinks}>
             <Center inline>
               <Box component="span" mr={5}>
@@ -241,6 +256,9 @@ export function WebHeader(parentProps: {
             </Center>
           </UnstyledButton>
           <Collapse in={linksOpened}>{links}</Collapse>
+          <Link href="/track" className={classes.link}>
+            پیگیری سفارش
+          </Link>
           <Link href="/contact" className={classes.link}>
             ارتباط باما
           </Link>

@@ -7,39 +7,22 @@ import ServiceUserCreateArgs = Prisma.ServiceUserCreateArgs;
 import { isApplication } from "@/utils/serverComponents/app";
 
 export async function handleServicePayment(id: ServiceType) {
-	// ===== لاگ‌های دیباگ (قابل حذف) =====
-	console.log('🚀 [DEBUG] handleServicePayment START');
-	console.log('📌 Service ID:', id);
-	console.log('📱 isApplication:', isApplication());
-	// ====================================
-
+	console.log('[SERVICE-PAYMENT] START - service:', id);
 	try {
 		const user = await getUserFromCookie();
-		
-		// ===== لاگ کاربر =====
-		console.log('👤 User ID:', user?.id || '❌ کاربر پیدا نشد');
-		// =====================
+		console.log('[SERVICE-PAYMENT] user:', user?.id || 'NOT FOUND');
 
 		if (!user) {
-			return { 
-				ok: false, 
-				message: "باید وارد شوید", 
-				link: `${isApplication() ? "/app" : ""}/auth/login` 
+			return {
+				ok: false,
+				message: "باید وارد شوید",
+				link: `${isApplication() ? "/app" : ""}/auth/login`
 			};
 		}
 
 		const service = await prisma.service.findUnique({
 			where: { id }
 		});
-		
-		// ===== لاگ سرویس =====
-		console.log('📦 Service found:', !!service);
-		if (service) {
-			console.log('📦 Service name:', service.id);
-			console.log('💰 Service amount:', service.amount);
-			console.log('🚫 Service disabled:', service.disabled);
-		}
-		// =====================
 
 		if (!service) {
 			return { ok: false, message: "سرویس یافت نشد" };
@@ -49,7 +32,6 @@ export async function handleServicePayment(id: ServiceType) {
 			return { ok: false, message: "موقتا غیرفعال میباشد" };
 		}
 
-		// بررسی اینکه کاربر قبلاً این سرویس رو تهیه نکرده
 		const existingService = await prisma.serviceUser.findFirst({
 			where: {
 				serviceId: service.id,
@@ -57,15 +39,11 @@ export async function handleServicePayment(id: ServiceType) {
 			}
 		});
 
-		// ===== لاگ سرویس قبلی =====
-		console.log('🔄 Existing service:', !!existingService);
-		// ===========================
-
 		if (existingService) {
 			return { ok: false, message: "شما قبلاً این سرویس را تهیه کرده‌اید" };
 		}
 
-		// ایجاد پرداخت
+		console.log('[SERVICE-PAYMENT] creating payment, amount:', service.amount);
 		const payment = await prisma.payment.create({
 			data: {
 				amount: service.amount,
@@ -74,13 +52,7 @@ export async function handleServicePayment(id: ServiceType) {
 				successMsg: "سرویس با موفقیت پرداخت شد"
 			}
 		});
-		
-		// ===== لاگ پرداخت =====
-		console.log('💳 Payment created with ID:', payment.id);
-		console.log('💳 Payment amount:', payment.amount);
-		// ======================
 
-		// ایجاد PaymentAction
 		await prisma.paymentAction.create({
 			data: {
 				paymentId: payment.id,
@@ -93,43 +65,20 @@ export async function handleServicePayment(id: ServiceType) {
 				} as ServiceUserCreateArgs['data']
 			}
 		});
-		
-		// ===== لاگ PaymentAction =====
-		console.log('✅ PaymentAction created successfully');
-		// =============================
 
-		// تولید توکن
+		console.log('[SERVICE-PAYMENT] generating token...');
 		let token;
 		try {
-			// ===== لاگ getToken =====
-			console.log('🔑 Attempting to generate token...');
-			// ========================
-			
 			token = await payment.getToken();
-			
-			// ===== لاگ موفقیت =====
-			console.log('✅ Token generated:', token);
-			// ======================
-			
+			console.log('[SERVICE-PAYMENT] token generated successfully');
 		} catch (tokenError) {
-			// ===== لاگ خطا =====
-			console.error('❌ Error generating token:', tokenError);
-			console.error('❌ Token error type:', typeof tokenError);
-			if (tokenError instanceof Error) {
-				console.error('❌ Token error message:', tokenError.message);
-				console.error('❌ Token error stack:', tokenError.stack);
-			}
-			// =====================
-			
-			// استفاده از توکن موقت
-			token = `TEMP_TOKEN_${payment.id}_${Date.now()}`;
-			console.log('🔑 Using fallback token:', token);
+			console.error('[SERVICE-PAYMENT] token generation FAILED:', tokenError);
+			await prisma.payment.delete({where: {id: payment.id}}).catch(() => {});
+			return {
+				ok: false,
+				message: 'خطا در ایجاد توکن پرداخت: ' + (tokenError instanceof Error ? tokenError.message : String(tokenError))
+			};
 		}
-
-		// ===== لاگ نهایی =====
-		console.log('🏁 [DEBUG] handleServicePayment END - SUCCESS');
-		console.log('📤 Returning token:', !!token);
-		// =====================
 
 		return {
 			ok: true,
@@ -137,15 +86,7 @@ export async function handleServicePayment(id: ServiceType) {
 		};
 
 	} catch (error) {
-		// ===== لاگ خطای کلی =====
-		console.error('💥 [ERROR] handleServicePayment FAILED');
-		console.error('💥 Error type:', typeof error);
-		console.error('💥 Error details:', error);
-		if (error instanceof Error) {
-			console.error('💥 Error message:', error.message);
-			console.error('💥 Error stack:', error.stack);
-		}
-		// =========================
+		console.error('Service payment failed:', error);
 
 		return {
 			ok: false,

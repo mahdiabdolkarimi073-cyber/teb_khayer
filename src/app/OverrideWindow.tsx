@@ -132,11 +132,15 @@ if (typeof window !== 'undefined') {
 
 	window.doPayment = (token) => {
 		try {
+			console.log('[DO_PAYMENT] START - token:', token?.substring(0, 20) + '...', 'length:', token?.length);
+
 			if (!token) {
+				console.error('[DO_PAYMENT] no token provided');
 				alert("توکن یافت نشد")
 				return;
 			}
 			if (isCSApplication()) {
+				console.log('[DO_PAYMENT] CS application detected, redirecting to /doPayment');
 				alert("به صفحه پرداخت هدایت میشوید...");
 				const a = document.createElement("a");
 				a.href = window.location.origin + `/doPayment?token=${token}`;
@@ -148,6 +152,7 @@ if (typeof window !== 'undefined') {
 
 			const args = token.split(":");
 			if (args?.[0] === 'FREE') {
+				console.log('[DO_PAYMENT] FREE token, redirecting to:', args?.[1]);
 				window.location.href = args?.[1];
 				return;
 			}
@@ -177,6 +182,8 @@ if (typeof window !== 'undefined') {
 				"getMethod": "1"
 			};
 
+			console.log('[DO_PAYMENT] submitting form to:', form.action, 'TID:', TID, 'isLocal:', isLocal);
+
 			for (const i in params) {
 				if (params.hasOwnProperty(i)) {
 					const input = document.createElement('input');
@@ -192,6 +199,7 @@ if (typeof window !== 'undefined') {
 			form.parentNode?.removeChild(form);
 
 		} catch(e: any) {
+			console.error('[DO_PAYMENT] ERROR:', e);
 			alert(`خطا: ${e?.message ?? e}`)
 		}
 	}

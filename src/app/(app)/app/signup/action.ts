@@ -6,6 +6,7 @@ import {cookies} from "next/headers";
 import AppConfig from "@/config/AppConfig";
 import {generateRandomNumber} from "@backend/utils/string";
 import {getVar} from "@backend/utils/setting";
+import {sendSMSCode} from "@backend/utils/sms";
 
 
 export async function handleSignup(name: string, phone: string, password: string) {
@@ -116,30 +117,6 @@ export async function sendCode(phone: string) {
 	return {
 		message: msg,
 	}
-}
-
-export async function sendSMSCode(phone: string, code: string) {
-	return await fetch("https://api.sms.ir/v1/send/verify", {
-		method: "POST",
-		headers: {
-			"X-API-KEY": "EIRbpHiltcCYi0F1DOcpxYOpXfdthSUyJWu1XXThKaRCF8VuGLySVI2cMrBAYIjE",
-			"Content-Type": "application/json"
-		},
-		body: JSON.stringify({
-			"mobile": (+phone)+"",
-			"templateId": 527837 || 100000,
-			"parameters": [
-				{
-					"name": "CODE",
-					"value": code
-				}
-			]
-		})
-	}).then(async (r)=>{
-		const json = await r.json();
-		console.log(phone,code,json);
-		return json;
-	});
 }
 
 export async function checkExists(phone: string) {

@@ -7,7 +7,7 @@ import {getUserFromCookie} from "@/utils/serverComponents/user";
 import {useAction} from "@/utils/server";
 import {User} from "@prisma/client";
 import AppConfig from "@/config/AppConfig";
-import {IconChevronRight, IconHome, IconPhone, IconStars, IconUser} from "@tabler/icons-react";
+import {IconChevronRight, IconHome, IconPhone, IconStars, IconUser, IconPhotoVideo} from "@tabler/icons-react";
 import Link from "next/link";
 
 
@@ -33,14 +33,19 @@ const BurgerMenu = (props: any) => {
 			icon: IconHome
 		},
 		{
-			href: "/contact",
-			name: "ارتباط باما",
-			icon: IconPhone
-		},
-		{
 			href: "/shop",
 			name: "فروشگاه",
 			icon: IconStars
+		},
+		{
+			href: "/courses",
+			name: "دوره ها",
+			icon: IconPhotoVideo
+		},
+		{
+			href: "/contact",
+			name: "ارتباط باما",
+			icon: IconPhone
 		}
 	]
 

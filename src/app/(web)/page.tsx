@@ -5,7 +5,7 @@ import HomeProduct from "@/app/(web)/HomeProduct";
 import HomeCategoryList from "@/app/(web)/HomeCategoryList";
 import HomeHero from "@/app/(web)/HomeHero";
 import HomeCourseCategoryList from "@/app/(web)/HomeCourseCategoryList";
-import ApplicationAd from "@/app/(web)/ApplicationAd";
+import AppDownloadSection from "@/app/(web)/AppDownloadSection";
 
 
 export default function Home() {
@@ -13,7 +13,7 @@ export default function Home() {
 		<div className="flex min-h-screen flex-col items-center justify-start  my-5 relative">
 			<p className="blinking-text absolute -top-3 left-0 right-0 mx-auto w-full text-center p-2">فیلتر شکن خود را خاموش کنید</p>
 			<HomeSlider/>
-			<ApplicationAd />
+			<AppDownloadSection />
 {/*			<br/>
 			<HomeProduct/>
 			<br/>
