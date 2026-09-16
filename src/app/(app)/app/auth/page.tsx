@@ -1,11 +1,7 @@
 import AuthGate from "@/app/(web)/auth/page";
 
 function Page() {
-    return (
-        <div>
-            <AuthGate login="/app/login" signup="/app/signup" />
-        </div>
-    );
-};
+  return <AuthGate login="/app/login" signup="/app/signup" />;
+}
 
 export default Page;

@@ -1,0 +1,143 @@
+.loginPage {
+  min-height: 100svh;
+  min-height: 100dvh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(20px, 5vw, 56px);
+  background-image: linear-gradient(90deg, rgba(5, 38, 75, .18), rgba(5, 38, 75, .06)), url('/ChatGPT_Image_Sep_16,_2026,_09_13_08_AM.png');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  direction: rtl;
+}
+
+.loginShell {
+  width: min(100%, 460px);
+  padding: clamp(24px, 5vw, 44px);
+  border: 1px solid rgba(255, 255, 255, .62);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, .2);
+  box-shadow: 0 24px 70px rgba(4, 34, 67, .28), inset 0 1px 0 rgba(255, 255, 255, .62);
+  -webkit-backdrop-filter: blur(22px) saturate(130%);
+  backdrop-filter: blur(22px) saturate(130%);
+  color: #082b54;
+}
+
+.loginBrand {
+  display: block;
+  width: 74px;
+  height: 74px;
+  margin: 0 auto 18px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 14px rgba(8, 43, 84, .22));
+}
+
+.heading {
+  margin: 0;
+  color: #082b54;
+  font-size: clamp(25px, 5vw, 34px);
+  font-weight: 800;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.subtitle {
+  margin: 8px 0 22px;
+  color: #355a79;
+  font-size: 14px;
+  line-height: 1.8;
+  text-align: center;
+}
+
+.signupRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 0 0 18px;
+  color: #244b6d;
+  font-size: 13px;
+}
+
+.signupLink,
+.terms a {
+  color: #086bc7;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.signupLink:hover,
+.terms a:hover { text-decoration: underline; }
+
+.divider {
+  height: 1px;
+  margin: 0 0 20px;
+  background: rgba(8, 43, 84, .18);
+}
+
+.formCard :global(.mantine-NumberInput-label),
+.formCard :global(.mantine-PasswordInput-label),
+.formCard :global(.mantine-TextInput-label) {
+  color: #173f62;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.formCard :global(.mantine-NumberInput-input),
+.formCard :global(.mantine-PasswordInput-input),
+.formCard :global(.mantine-TextInput-input) {
+  min-height: 50px;
+  border: 1px solid rgba(255, 255, 255, .82);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .63);
+  color: #082b54;
+  box-shadow: inset 0 1px 2px rgba(8, 43, 84, .05);
+}
+
+.formCard :global(.mantine-NumberInput-input):focus,
+.formCard :global(.mantine-PasswordInput-input):focus,
+.formCard :global(.mantine-TextInput-input):focus {
+  border-color: #2584d8;
+  background: rgba(255, 255, 255, .84);
+}
+
+.formCard :global(.mantine-Button-root) {
+  width: 100%;
+  min-height: 50px;
+  margin-top: 8px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, #147be0, #075bb5);
+  box-shadow: 0 12px 22px rgba(7, 91, 181, .25);
+  font-size: 15px;
+}
+
+.loginShell :global(.mantine-Button-root) {
+  min-height: 50px;
+  border-radius: 15px;
+  font-size: 15px;
+}
+
+.terms {
+  margin: 20px 0 0;
+  color: #244b6d;
+  font-size: 11px;
+  line-height: 2;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .loginPage { align-items: flex-start; padding: 20px 14px; }
+  .loginShell { margin-top: max(0px, 4vh); border-radius: 22px; }
+}
+
+@media (max-width: 380px) {
+  .loginPage { padding: 12px 10px; }
+  .loginShell { padding: 22px 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loginShell { scroll-behavior: auto; }
+}
