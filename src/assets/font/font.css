@@ -1,14 +1,14 @@
 @font-face {
     font-family: 'YekanBakh';
-    font-weight: normal;
-    src: url(../font/ttf/YekanBakhFaNum-VF.ttf);
+    font-weight: bold;
+    src: url(../font/woff/YekanBakhFaNum-Bold.woff) format('woff');
     font-display: swap;
 }
 
 @font-face {
     font-family: 'YekanBakh';
-    font-weight: bold;
-    src: url(../font/woff/YekanBakhFaNum-Bold.woff);
+    font-weight: normal;
+    src: url(../font/ttf/YekanBakhFaNum-VF.ttf) format('truetype');
     font-display: swap;
 }
 

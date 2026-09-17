@@ -19,6 +19,24 @@ const nextConfig = {
                     {key: "X-XSS-Protection", value: "1; mode=block"},
                 ],
             },
+            {
+                source: "/_next/static/(.*)",
+                headers: [
+                    {key: "Cache-Control", value: "public, max-age=31536000, immutable"},
+                ],
+            },
+            {
+                source: "/fonts/(.*)",
+                headers: [
+                    {key: "Cache-Control", value: "public, max-age=31536000, immutable"},
+                ],
+            },
+            {
+                source: "/sw.js",
+                headers: [
+                    {key: "Cache-Control", value: "no-cache, no-store, must-revalidate"},
+                ],
+            },
         ];
     },
     async redirects() {
@@ -31,6 +49,10 @@ const nextConfig = {
             },
         ];
     },
+    compress: true,
+    poweredByHeader: false,
+    reactStrictMode: true,
+    productionBrowserSourceMaps: false,
     experimental: {
         serverActions: {
             allowedForwardedHosts: ["teb-khayyer.ir", "www.teb-khayyer.ir", "sepehr.shaparak.ir"],
@@ -38,6 +60,7 @@ const nextConfig = {
         },
         esmExternals: "loose",
         instrumentationHook: true,
+        optimizePackageImports: ["@tabler/icons-react", "@mantine/core", "@mantine/hooks", "@mantine/modals"],
     },
     typescript: {
         ignoreBuildErrors: true,
@@ -49,6 +72,7 @@ const nextConfig = {
         ],
         deviceSizes: [320, 420, 640, 768, 1024, 1200, 1600],
         imageSizes: [16, 32, 48, 64, 96, 128, 150, 256, 384, 400, 512, 800],
+        minimumCacheTTL: 86400,
     },
     webpack: (config) => {
         config.externals = [...config.externals, {canvas: "canvas", "@ryancavanaugh/lls": "@ryancavanaugh/lls"}];

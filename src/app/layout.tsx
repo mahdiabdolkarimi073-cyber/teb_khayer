@@ -24,6 +24,7 @@ export default function RootLayout({children}: Readonly<{children: React.ReactNo
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
         <meta name="theme-color" content="#082b54"/>
         <meta name="format-detection" content="telephone=no"/>
+        <link rel="preload" href="/_next/static/media/YekanBakhFaNum-Bold.woff" as="font" type="font/woff" crossOrigin="anonymous" />
         <meta httpEquiv="Content-Security-Policy" content="upgrade-insecure-requests; default-src https: 'self'; script-src https: 'self' 'unsafe-inline' 'unsafe-eval'; style-src https: 'self' 'unsafe-inline'; img-src https: 'self' data: blob:; font-src https: 'self' data:; connect-src https: 'self' wss:; form-action https: 'self' sepehr.shaparak.ir;"/>
       </head>
       <body>

@@ -7,6 +7,7 @@ import {_openCart} from "@/app/(web)/WebHeader";
 import ProductCard from "@/app/(web)/ProductCard";
 import {IconError404, IconInfoCircle} from "@tabler/icons-react";
 import Link from "next/link";
+import {useRouter} from "next/navigation";
 import ProductCartHandler from "@/app/(web)/product/[id]/ProductCartHandler";
 import {modal} from "@/utils/modal";
 import HowCanITrust from "@/app/(web)/product/[id]/HowCanITrust";
@@ -31,6 +32,7 @@ const ProductView = (props: {
 	} = props.product;
 	const available = (props.saleEnabled !== false) && stock > 0;
 	const cart = useCart();
+	const router = useRouter();
 	const productCart = cart[props?.product?.id];
 	const related = props?.product?.category?.products?.filter?.(c => c?.id !== props?.product?.id);
 
@@ -84,7 +86,7 @@ const ProductView = (props: {
 							{!productCart ? (
 								<Button disabled={!available} onClick={()=>{
 									setLocalCart(props.product, 1);
-									modal("به سبد خرید اضافه شد" , <HowCanITrust product={props.product} />)
+									router.push("/dashboard/cart");
 								}}>
 									{available ? "افزودن به سبد خرید" : "ناموجود"}
 								</Button>
@@ -93,7 +95,7 @@ const ProductView = (props: {
 									<div className={'rounded-full text-lg center p-1 bg-primary text-white min-w-[50px] min-h-[50px]'}>
 										{productCart.quantity}
 									</div>
-									<div className={'cursor-pointer'} onClick={()=>_openCart()}>
+									<div className={'cursor-pointer'} onClick={()=>router.push("/dashboard/cart")}>
 										<p>در سبد خرید</p>
 										<p>مشاهده
 										<span className={'text-primary'}> سبد خرید</span>

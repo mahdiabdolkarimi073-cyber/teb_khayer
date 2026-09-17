@@ -1,13 +1,13 @@
-import React, {useEffect, useState} from "react";
-import {ActionIcon, Button, NumberInput} from "@mantine/core";
 import {getCart, removeFromCart, setLocalCart} from "@/utils/localCart";
 import {Product} from "@prisma/client";
 import {IconTrash} from "@tabler/icons-react";
 import {closeLastModal, modal} from "@/utils/modal";
 import {_closeCart, _openCart} from "@/app/(web)/WebHeader";
+import {useRouter} from "next/navigation";
 
 const ProductCartHandler = (props: Product & {remove?: boolean, hideBtn?: boolean,second?: boolean}) => {
 	let {id, stock} = props;
+	const router = useRouter();
 	const [quantity, setQuantity] = useState(getCart(props.second)?.[props?.id]?.quantity ?? 0)
 
 	useEffect(() => {
@@ -66,7 +66,7 @@ const ProductCartHandler = (props: Product & {remove?: boolean, hideBtn?: boolea
 					{!props.remove ? (
 						<Button disabled={stock <= 0} onClick={() => {
 							setLocalCart(props, quantity || 1,props.second);
-							alert("به سبد خرید اضافه شد")
+							router.push("/dashboard/cart");
 						}}>
 							{props.stock <= 0 ? "ناموجود" : "افزودن به سبدخرید"}
 						</Button>

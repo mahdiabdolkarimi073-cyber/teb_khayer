@@ -20,9 +20,9 @@ const CartList = (props: any) => {
   return (
     <div>
       <div className={"center justify-between"}>
-        <Link href={second ? "#" : "/dashboard/checkout"}>
+        <Link href={second ? "#" : "/dashboard/cart"}>
           <Button size={"xs"} disabled={second} color="#158b3f">
-            تسویه حساب میکنم
+            مشاهده سبد خرید
           </Button>
         </Link>
         <Button

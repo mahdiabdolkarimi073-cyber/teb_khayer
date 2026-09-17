@@ -129,7 +129,7 @@ export function WebHeader(parentProps: {
           </Link>
         </>
       ) : (
-        <Link href={"/dashboard/checkout"}>
+        <Link href={"/dashboard/cart"}>
           <Button>داشبورد</Button>
         </Link>
       )}

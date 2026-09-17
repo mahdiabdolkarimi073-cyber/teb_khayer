@@ -1,7 +1,7 @@
 import {getUserFromCookie} from "@/utils/serverComponents/user";
 import {redirect} from "next/navigation";
 import Dashboard from "@/components/ui/Dashboard";
-import {IconGardenCart, IconHeart, IconListDetails, IconLogout} from "@tabler/icons-react";
+import {IconGardenCart, IconHeart, IconListDetails, IconLogout, IconShoppingCart} from "@tabler/icons-react";
 
 const Layout = async (props: any)=>{
     const user = await getUserFromCookie();
@@ -16,6 +16,11 @@ const Layout = async (props: any)=>{
             <Dashboard basePath={'/dashboard'} sections={[
                 {
                     name: "سبد خرید من",
+                    path: "/cart",
+                    icon: <IconShoppingCart />
+                },
+                {
+                    name: "تسویه و پرداخت",
                     path: "/checkout",
                     icon: <IconGardenCart />
                 },

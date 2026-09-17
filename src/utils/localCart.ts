@@ -4,6 +4,11 @@ import {Product} from "@prisma/client";
 import {useEffect, useState} from "react";
 import {useLocalStorage} from "@mantine/hooks";
 
+function notifyCartUpdate() {
+	if (typeof window === 'undefined') return;
+	window.dispatchEvent(new Event("cart-updated"));
+}
+
 export function setLocalCart(product: Partial<Product>, quantity: number,second = false) {
 	if (!product?.id) {
 		alert("INVALID");
@@ -26,6 +31,7 @@ export function setLocalCart(product: Partial<Product>, quantity: number,second 
 
 	cart[product?.id] = pre;
 	window.localStorage.setItem(second ? "cart2":"cart", JSON.stringify(cart));
+	notifyCartUpdate();
 }
 
 export function removeFromCart(product: Partial<Product> | string,second = false) {
@@ -33,6 +39,7 @@ export function removeFromCart(product: Partial<Product> | string,second = false
 	let cart = getCart(second);
 	delete cart[typeof product === 'object' ? product.id+"" : product]
 	window.localStorage.setItem(second ? "cart2":"cart", JSON.stringify(cart));
+	notifyCartUpdate();
 }
 
 export type CartItem = {
@@ -54,11 +61,14 @@ export function useCart(second = false): CartListType {
 	const [cart, setCart] = useState(getCart(second));
 
 	useEffect(() => {
-		const thread = setInterval(()=>{
-			setCart(getCart(second));
-		}, 500);
-
-		return ()=>clearInterval(thread);
+		const update = () => setCart(getCart(second));
+		update();
+		window.addEventListener("storage", update);
+		window.addEventListener("cart-updated", update);
+		return () => {
+			window.removeEventListener("storage", update);
+			window.removeEventListener("cart-updated", update);
+		};
 	}, [second]);
 
 	return cart;
