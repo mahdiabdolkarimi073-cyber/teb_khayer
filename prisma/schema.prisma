@@ -120,6 +120,10 @@ model Product {
   created_at       DateTime        @default(now())
   updated_at       DateTime        @default(now()) @updatedAt
   price            Float
+  originalPrice    Float?          
+  discountPercent  Float           @default(0)
+  isSpecial        Boolean         @default(false)
+  isBestSeller     Boolean         @default(false)
   images           String[]
   categoryId       String
   stock            Int             @default(10)

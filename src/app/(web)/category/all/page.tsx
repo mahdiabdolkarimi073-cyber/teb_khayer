@@ -1,12 +1,17 @@
 import {notFound} from "next/navigation";
 import AllProductView from "@/app/(web)/category/all/AllProductView";
-import {getAllProductCount, getProducts} from "@/app/(web)/category/all/action";
+import {getAllProductCount, getProducts, SortOption} from "@/app/(web)/category/all/action";
 import {getVar} from "@backend/utils/setting";
 import styles from "./all-products.module.css";
 
+const validSorts: SortOption[] = ["new", "priceLow", "priceHigh", "bestSeller", "discount", "special"];
+
 const Page = async (props: any) => {
   const search = props.searchParams.query;
-  const products = await getProducts(0, search);
+  const sortRaw = props.searchParams.sort as string | undefined;
+  const sort: SortOption = validSorts.includes(sortRaw as SortOption) ? (sortRaw as SortOption) : "new";
+
+  const products = await getProducts(0, search, undefined, sort);
   if (!products) {
     notFound();
     return;
@@ -17,7 +22,6 @@ const Page = async (props: any) => {
     <main className={styles.page}>
       <section className={styles.hero}>
         <img className={styles.heroImage} src="/ChatGPT_Image_Sep_16,_2026,_09_13_08_AM.png" alt="طب خیر" />
-        <div className={styles.heroOverlay} />
         <div className={styles.heroContent}>
           <div className={styles.heroCopy}>
             <span className={styles.eyebrow}>تنوع بی‌نظیر، کیفیت تضمینی</span>
@@ -38,7 +42,7 @@ const Page = async (props: any) => {
         <div className={styles.benefit}><span className={styles.benefitIcon}>◉</span><span><strong>پشتیبانی ۲۴ ساعته</strong><small>پاسخ‌گویی در همه روزها</small></span></div>
       </section>
 
-      <AllProductView id="products" search={search} products={products} count={await getAllProductCount(search)} saleEnabled={saleEnabled} />
+      <AllProductView id="products" search={search} sort={sort} products={products} count={await getAllProductCount(search, sort)} saleEnabled={saleEnabled} />
     </main>
   );
 };

@@ -26,11 +26,16 @@ const ProductView = (props: {
 		images,
 		name,
 		price,
+		originalPrice,
+		discountPercent,
+		isSpecial,
+		isBestSeller,
 		properties,
 		updated_at,
 		stock = 0
 	} = props.product;
 	const available = (props.saleEnabled !== false) && stock > 0;
+	const hasDiscount = (discountPercent || 0) > 0 && originalPrice;
 	const cart = useCart();
 	const router = useRouter();
 	const productCart = cart[props?.product?.id];
@@ -56,15 +61,20 @@ const ProductView = (props: {
 									<p
 										className={`${available ? "bg-green-400" : "bg-red-400"} text-white p-2 rounded-xl font-bold`}>{available ? "موجود" : "ناموجود"}</p>
 								</div>
-								<div className="flex items-center mb-6">
-
-								</div>
+								{(isSpecial || isBestSeller || hasDiscount) && (
+									<div className="flex items-center gap-2 mb-4 flex-wrap">
+										{isSpecial && <span className="bg-blue-500 text-white px-3 py-1 rounded-lg text-sm font-bold">محصول ویژه</span>}
+										{isBestSeller && <span className="bg-orange-500 text-white px-3 py-1 rounded-lg text-sm font-bold">پرفروش</span>}
+										{hasDiscount && <span className="bg-red-500 text-white px-3 py-1 rounded-lg text-sm font-bold">٪{Number(discountPercent).toLocaleString("fa")} تخفیف</span>}
+									</div>
+								)}
 								<p className="max-w-md mb-8 text-gray-700 dark:text-gray-400 overflow-hidden"
 								   dangerouslySetInnerHTML={{__html: description}}>
 
 								</p>
-								<p className="inline-block mb-8 text-4xl font-bold text-gray-700 dark:text-gray-400 ">
-									<span>{price.toLocaleString("fa")} تومان</span>
+								<p className="inline-block mb-8 text-4xl font-bold flex items-center gap-3 flex-wrap">
+									<span className="text-blue-600">{price.toLocaleString("fa")} تومان</span>
+									{hasDiscount && <span className="text-xl text-gray-400 line-through">{Number(originalPrice).toLocaleString("fa")} تومان</span>}
 								</p>
 								<br/>
 							</div>
