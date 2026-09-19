@@ -1,0 +1,62 @@
+.page {
+  min-height: 100vh;
+  background: #f7fbff;
+  color: #123b62;
+  direction: rtl;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 72px clamp(24px, 7vw, 96px);
+  border-radius: 0 0 32px 32px;
+  background: linear-gradient(135deg, #e4f3ff 0%, #fafdff 58%, #e8f7ef 100%);
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  width: 340px;
+  height: 340px;
+  left: -120px;
+  bottom: -190px;
+  border-radius: 50%;
+  background: rgba(64, 174, 128, .12);
+}
+
+.content { position: relative; z-index: 1; max-width: 620px; }
+.eyebrow { color: #15936a; font-size: 15px; font-weight: 800; }
+.title { margin: 12px 0 18px; color: #092f59; font-size: clamp(32px, 5vw, 58px); line-height: 1.25; font-weight: 900; }
+.lead { max-width: 590px; color: #496a87; font-size: 16px; line-height: 2.1; }
+.actions { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+.primary { background: #1678d2; box-shadow: 0 10px 22px rgba(22,120,210,.2); }
+.primary:hover { background: #0f62b2; }
+.secondary { color: #126bba; border-color: #bad8ef; }
+
+.story { max-width: 1120px; margin: 0 auto; padding: 64px 24px 80px; }
+.sectionLabel { color: #15936a; font-size: 14px; font-weight: 800; }
+.sectionTitle { margin: 8px 0 16px; color: #092f59; font-size: clamp(26px, 4vw, 38px); line-height: 1.35; }
+.storyText { max-width: 820px; color: #58748d; line-height: 2.1; }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 34px; }
+.card { padding: 26px 22px; border: 1px solid #dcecf7; border-radius: 20px; background: #fff; box-shadow: 0 12px 30px rgba(20, 74, 116, .07); transition: transform .2s, box-shadow .2s; }
+.card:hover { transform: translateY(-4px); box-shadow: 0 18px 36px rgba(20, 74, 116, .12); }
+.icon { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 16px; border-radius: 15px; color: #fff; background: #15936a; }
+.card:nth-child(2) .icon { background: #1678d2; }
+.card:nth-child(3) .icon { background: #e58b32; }
+.cardTitle { margin: 0 0 8px; color: #123b62; font-size: 18px; }
+.cardText { margin: 0; color: #6b8296; font-size: 14px; line-height: 1.9; }
+
+@media (max-width: 700px) {
+  .hero { padding: 52px 20px; border-radius: 0 0 24px 24px; }
+  .lead { font-size: 14px; }
+  .actions > * { width: 100%; }
+  .cards { grid-template-columns: 1fr; }
+  .story { padding: 48px 20px 64px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: none; }
+  .card:hover { transform: none; }
+}

@@ -20,7 +20,7 @@ import styles from "./home.module.css";
 
 const heroImage = "/file_00000000b064820a9cb8bd476301fad1.png";
 const naturalImage = "/ChatGPT_Image_Sep_14,_2026,_11_47_59_AM.png";
-const appImage = "/ChatGPT_Image_Sep_14,_2026,_11_49_32_AM.png";
+const appImage = "/ChatGPT_Image_Sep_14,_2026,_11_47_59_AM.png";
 
 const quickServices = [
   { title: "محصولات گیاهی و سوغات محلی", text: "بهترین محصولات و سوغات سنتی", icon: IconLeaf, tone: "green" },
