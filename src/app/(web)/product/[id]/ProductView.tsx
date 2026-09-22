@@ -1,146 +1,185 @@
 "use client";
+
 import {Product, ProductCategory} from "@prisma/client";
-import React, {useEffect, useState} from "react";
-import {ActionIcon, Button, ButtonGroup, NumberInput} from "@mantine/core";
-import {getCart, setLocalCart, useCart} from "@/utils/localCart";
-import {_openCart} from "@/app/(web)/WebHeader";
-import ProductCard from "@/app/(web)/ProductCard";
-import {IconError404, IconInfoCircle} from "@tabler/icons-react";
+import React, {useMemo, useState} from "react";
+import {IconArrowLeft, IconBuildingStore, IconCheck, IconChevronLeft, IconHeart, IconInfoCircle, IconRefresh, IconShare, IconShieldCheck, IconShoppingCart, IconTruckDelivery} from "@tabler/icons-react";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
-import ProductCartHandler from "@/app/(web)/product/[id]/ProductCartHandler";
+import ProductCard from "@/app/(web)/ProductCard";
 import {modal} from "@/utils/modal";
 import HowCanITrust from "@/app/(web)/product/[id]/HowCanITrust";
 import ProductImageGallery from "@/components/shop/ProductImageGallery";
+import {setLocalCart, useCart} from "@/utils/localCart";
+import classes from "./product-view.module.css";
 
 const ProductView = (props: {
-	product: Product & { category?: ProductCategory & { products?: Product[] } },
-	saleEnabled?: boolean
+  product: Product & {category?: ProductCategory & {products?: Product[]}},
+  saleEnabled?: boolean
 }) => {
-	let {
-		categoryId,
-		created_at,
-		description,
-		description_text,
-		id,
-		images,
-		name,
-		price,
-		originalPrice,
-		discountPercent,
-		isSpecial,
-		isBestSeller,
-		properties,
-		updated_at,
-		stock = 0
-	} = props.product;
-	const available = (props.saleEnabled !== false) && stock > 0;
-	const hasDiscount = (discountPercent || 0) > 0 && originalPrice;
-	const cart = useCart();
-	const router = useRouter();
-	const productCart = cart[props?.product?.id];
-	const related = props?.product?.category?.products?.filter?.(c => c?.id !== props?.product?.id);
+  const {product, saleEnabled = true} = props;
+  const {categoryId, images, name, price, originalPrice, discountPercent, isSpecial, isBestSeller, properties, stock} = product;
+  const cart = useCart();
+  const router = useRouter();
+  const productCart = cart[product.id];
+  const [quantity, setQuantity] = useState(productCart?.quantity || 1);
+  const [activeTab, setActiveTab] = useState(0);
+  const available = saleEnabled && stock > 0;
+  const hasDiscount = Number(discountPercent || 0) > 0 && Boolean(originalPrice);
+  const related = product.category?.products?.filter((item) => item.id !== product.id) || [];
+  const parsedProperties = useMemo(() => properties?.split("\n").map((line) => {
+    const [label, ...rest] = line.split(":");
+    return {label: label?.trim(), value: rest.join(":").trim()};
+  }).filter((item) => item.label), [properties]);
 
-	return (
-		<section className=" py-11 font-poppins dark:bg-gray-800">
-			<div className="max-w-6xl px-4 py-4 mx-auto lg:py-8 md:px-6">
-				<div className="flex flex-wrap -mx-4">
-					<div className="w-full px-4 md:w-1/2 ">
-						<div className="sticky top-5 z-10 overflow-hidden ">
-							<ProductImageGallery images={images || []} alt={name}/>
-						</div>
-					</div>
-					<div className="w-full px-4 md:w-1/2 relative">
-						<div className="lg:pl-20">
-							<div className="mb-8 ">
-								<div className={'center justify-between mt-2 mb-6'}>
-									<h1 className="max-w-xl  text-2xl font-bold dark:text-gray-400 md:text-4xl">
-										{name}
+  const updateCart = (nextQuantity: number) => {
+    const safeQuantity = Math.max(1, Math.min(nextQuantity, stock || 1));
+    setQuantity(safeQuantity);
+    setLocalCart(product, safeQuantity);
+  };
 
-									</h1>
-									<p
-										className={`${available ? "bg-green-400" : "bg-red-400"} text-white p-2 rounded-xl font-bold`}>{available ? "موجود" : "ناموجود"}</p>
-								</div>
-								{(isSpecial || isBestSeller || hasDiscount) && (
-									<div className="flex items-center gap-2 mb-4 flex-wrap">
-										{isSpecial && <span className="bg-blue-500 text-white px-3 py-1 rounded-lg text-sm font-bold">محصول ویژه</span>}
-										{isBestSeller && <span className="bg-orange-500 text-white px-3 py-1 rounded-lg text-sm font-bold">پرفروش</span>}
-										{hasDiscount && <span className="bg-red-500 text-white px-3 py-1 rounded-lg text-sm font-bold">٪{Number(discountPercent).toLocaleString("fa")} تخفیف</span>}
-									</div>
-								)}
-								<p className="max-w-md mb-8 text-gray-700 dark:text-gray-400 overflow-hidden"
-								   dangerouslySetInnerHTML={{__html: description}}>
+  const showTrustModal = () => modal("ضمانت اصالت و اعتماد", <HowCanITrust product={product}/>);
+  const tabs = ["توضیحات محصول", "مشخصات فنی", "نظرات کاربران", "سوالات متداول"];
 
-								</p>
-								<p className="inline-block mb-8 text-4xl font-bold flex items-center gap-3 flex-wrap">
-									<span className="text-blue-600">{price.toLocaleString("fa")} تومان</span>
-									{hasDiscount && <span className="text-xl text-gray-400 line-through">{Number(originalPrice).toLocaleString("fa")} تومان</span>}
-								</p>
-								<br/>
-							</div>
-							<div className={'center gap-5 justify-start flex-wrap'}>
-								{properties?.split?.("\n")?.map?.(line => (
-									<div className={'center justify-start gap-2'}>
-										{line.split(":")?.map((item, i) =>
-											<p className={i === 0 ? "font-bold" : ""}>{item?.trim?.()}{i === 0 && ":"}</p>
-										)}
-									</div>
-								))}
-							</div>
-							<br/>
+  return (
+    <main className={classes.page}>
+      <div className={classes.breadcrumbBar}>
+        <div className={classes.breadcrumbInner}>
+          <Link href="/">خانه</Link><IconChevronLeft size={14}/>
+          <Link href={`/category/${categoryId}`}>{product.category?.name || "محصولات"}</Link><IconChevronLeft size={14}/>
+          <span>{name}</span>
+        </div>
+      </div>
 
-						</div>
-					</div>
-					<div className={'sticky sm:rounded-full md:px-5 bottom-[65px] sm:bottom-12 w-full z-30 p-3 bg-white shadow center justify-between'}>
-						<div className={'center justify-between w-full'}>
-							{!productCart ? (
-								<Button disabled={!available} onClick={()=>{
-									setLocalCart(props.product, 1);
-									router.push("/dashboard/cart");
-								}}>
-									{available ? "افزودن به سبد خرید" : "ناموجود"}
-								</Button>
-							):(
-								<div className={'center gap-2'}>
-									<div className={'rounded-full text-lg center p-1 bg-primary text-white min-w-[50px] min-h-[50px]'}>
-										{productCart.quantity}
-									</div>
-									<div className={'cursor-pointer'} onClick={()=>router.push("/dashboard/cart")}>
-										<p>در سبد خرید</p>
-										<p>مشاهده
-										<span className={'text-primary'}> سبد خرید</span>
-										</p>
-									</div>
-								</div>
-							)}
-							<p className={'text-md md:text-lg lg:text-[25px]'}>{price.toLocaleString("fa")} تومان</p>
-						</div>
-					</div>
-				</div>
-				<br/>
-				<br/>
-				<div className={'center justify-between mb-2'}>
-					<h3>محصولات مرتبط</h3>
-					<Link href={`/category/${categoryId}`}>
-						<Button>
-							مشاهده همه
-						</Button>
-					</Link>
-				</div>
-				<div className={'grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-2 gap-2'}>
-					{!related?.length && (
-						<div className={'center justify-start gap-2'}>
-							<IconInfoCircle size={'2rem'} className={'text-red-400'}/>
-							<p className={'text-xl font-bold'}>موردی یافت نشد</p>
-						</div>
-					)}
-					{related?.map?.(p => <ProductCard product={p}/>)}
-				</div>
-			</div>
+      <section className={classes.productShell}>
+        <div className={classes.galleryColumn}>
+          <div className={classes.galleryCard}>
+            <div className={classes.galleryBadges}>
+              {isSpecial && <span className={classes.bSpecial}>محصول ویژه</span>}
+              {isBestSeller && <span className={classes.bBest}>پرفروش</span>}
+              {hasDiscount && <span className={classes.bDisc}>٪{Number(discountPercent).toLocaleString("fa")} تخفیف</span>}
+            </div>
+            <ProductImageGallery images={images || []} alt={name}/>
+          </div>
+          <div className={classes.galleryActions}>
+            <button type="button" aria-label="افزودن به علاقه‌مندی‌ها"><IconHeart size={18}/>افزودن به علاقه‌مندی‌ها</button>
+            <button type="button" aria-label="اشتراک‌گذاری"><IconShare size={18}/>اشتراک‌گذاری</button>
+          </div>
+        </div>
 
-		</section>
+        <div className={classes.infoColumn}>
+          <div className={classes.productHeading}>
+            <h1>{name}</h1>
+            <div className={classes.ratingRow}>
+              <span className={classes.stars}>★★★★★</span>
+              <span>۴.۹</span>
+              <span className={classes.dot}/>
+              <span className={classes.reviewLink}>۲۴ نظر</span>
+            </div>
+            <span className={available ? `${classes.statusPill} ${classes.available}` : `${classes.statusPill} ${classes.unavailable}`}>
+              <i/> {available ? "موجود در انبار" : "ناموجود"}
+            </span>
+          </div>
 
-	)
-}
+          <div className={classes.priceCard}>
+            <div className={classes.priceMain}>
+              <strong>{price.toLocaleString("fa")}</strong>
+              <span>تومان</span>
+              {hasDiscount && <span className={classes.priceOld}>{Number(originalPrice).toLocaleString("fa")}</span>}
+            </div>
+            {hasDiscount && <span className={classes.priceDiscount}>٪{Number(discountPercent).toLocaleString("fa")} تخفیف</span>}
+          </div>
+
+          <div className={classes.buyCard}>
+            <div className={classes.quantityRow}>
+              <span className={classes.label}>تعداد:</span>
+              <div className={classes.quantity}>
+                <button type="button" onClick={() => updateCart(quantity + 1)} disabled={!available || quantity >= stock}>+</button>
+                <span>{quantity.toLocaleString("fa")}</span>
+                <button type="button" onClick={() => updateCart(quantity - 1)} disabled={!available || quantity <= 1}>−</button>
+              </div>
+              {available && <span className={classes.stockHint}>{Number(stock).toLocaleString("fa")} عدد در انبار</span>}
+            </div>
+            <button type="button" className={classes.addButton} disabled={!available} onClick={() => { updateCart(quantity); router.push("/dashboard/cart"); }}>
+              <IconShoppingCart size={22}/>{available ? "افزودن به سبد خرید" : "ناموجود"}
+            </button>
+          </div>
+
+          <div className={classes.serviceRow}>
+            <span><IconTruckDelivery size={22}/><b>ارسال سریع</b><small>به سراسر کشور</small></span>
+            <span><IconRefresh size={22}/><b>ضمانت بازگشت</b><small>۷ روز مهلت بازگشت</small></span>
+            <span><IconShieldCheck size={22}/><b>خرید مطمئن</b><small>پرداخت امن و معتبر</small></span>
+          </div>
+
+          <button type="button" className={classes.trustBanner} onClick={showTrustModal}>
+            <IconShieldCheck size={28}/><span><b>ضمانت اصالت کالا</b><small>همراه با گواهی اصالت و ضمانت بازگشت</small></span><IconArrowLeft size={18}/>
+          </button>
+        </div>
+
+        <aside className={classes.sideColumn}>
+          <div className={classes.sideCard}>
+            <h3><IconCheck size={18}/>ویژگی‌های محصول</h3>
+            {parsedProperties.length ? parsedProperties.map((item, index) => (
+              <div className={classes.feature} key={`${item.label}-${index}`}>
+                <span className={classes.featureIcon}><IconCheck size={16}/></span>
+                <span><small>{item.label}</small><b>{item.value || "با کیفیت ممتاز"}</b></span>
+              </div>
+            )) : <div className={classes.emptyFeature}><IconInfoCircle size={18}/>ویژگی‌ای ثبت نشده است.</div>}
+          </div>
+
+          <div className={classes.sideCard}>
+            <h3><IconBuildingStore size={18}/>اطلاعات فروشنده</h3>
+            <div className={classes.sellerRow}>
+              <span className={classes.sellerIcon}><IconBuildingStore size={16}/></span>
+              <span><small>فروشگاه</small><b>طب خیّر</b></span>
+            </div>
+            <div className={classes.sellerRow}>
+              <span className={classes.sellerIcon}><IconShieldCheck size={16}/></span>
+              <span><small>امتیاز فروشنده</small><b>۴.۹ از ۵</b></span>
+            </div>
+            <div className={classes.sellerRow}>
+              <span className={classes.sellerIcon}><IconTruckDelivery size={16}/></span>
+              <span><small>آماده ارسال</small><b>در کمترین زمان</b></span>
+            </div>
+            <button type="button" className={classes.trustLink} onClick={showTrustModal}>چطور به این فروشگاه اعتماد کنم؟ <IconArrowLeft size={16}/></button>
+          </div>
+        </aside>
+      </section>
+
+      <section className={classes.detailsSection}>
+        <div className={classes.detailsCard}>
+          <div className={classes.tabs}>
+            {tabs.map((tab, index) => (
+              <button key={tab} type="button" className={activeTab === index ? classes.activeTab : ""} onClick={() => setActiveTab(index)}>{tab}</button>
+            ))}
+          </div>
+          <div className={classes.detailsContent}>
+            <div className={classes.detailsText}>
+              <h3>معرفی محصول</h3>
+              <div dangerouslySetInnerHTML={{__html: product.description}}/>
+              <ul>
+                <li><IconCheck size={16}/>کیفیت و اصالت تضمین‌شده</li>
+                <li><IconCheck size={16}/>بسته‌بندی ایمن و ارسال سریع</li>
+                <li><IconCheck size={16}/>مناسب برای استفاده روزمره</li>
+              </ul>
+            </div>
+            <div className={classes.detailsQuote}>
+              <IconShieldCheck size={36}/>
+              <h3>اصالت، هنر ماندگار</h3>
+              <p>انتخابی مطمئن برای کسانی که کیفیت و زیبایی را هم‌زمان می‌خواهند.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className={classes.relatedSection}>
+        <div className={classes.sectionTitle}>
+          <h2>محصولات مشابه</h2>
+          <Link href={`/category/${categoryId}`}>مشاهده همه <IconArrowLeft size={16}/></Link>
+        </div>
+        {related.length ? <div className={classes.relatedGrid}>{related.map((item) => <ProductCard key={item.id} product={item}/>)}</div> : <div className={classes.relatedEmpty}><IconInfoCircle size={20}/>محصول مشابهی یافت نشد.</div>}
+      </section>
+    </main>
+  );
+};
 
 export default ProductView;

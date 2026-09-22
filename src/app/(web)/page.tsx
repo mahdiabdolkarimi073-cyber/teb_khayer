@@ -18,7 +18,7 @@ import {
 } from "@tabler/icons-react";
 import styles from "./home.module.css";
 
-const heroImage = "/file_00000000b064820a9cb8bd476301fad1.png";
+const heroImage = "/ChatGPT_Image_Sep_22,_2026,_10_51_08_AM.png";
 const naturalImage = "/ChatGPT_Image_Sep_14,_2026,_11_47_59_AM.png";
 const appImage = "/ChatGPT_Image_Sep_14,_2026,_11_47_59_AM.png";
 
