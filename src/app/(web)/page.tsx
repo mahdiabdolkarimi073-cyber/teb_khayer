@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { Button } from "@mantine/core";
 import {
   IconArrowLeft,
@@ -16,11 +17,12 @@ import {
   IconTruckDelivery,
   IconUserCircle,
 } from "@tabler/icons-react";
+import AppDownloadModal from "@/app/(web)/AppDownloadModal";
 import styles from "./home.module.css";
 
 const heroImage = "/ChatGPT_Image_Sep_22,_2026,_10_51_08_AM.png";
 const naturalImage = "/ChatGPT_Image_Sep_14,_2026,_11_47_59_AM.png";
-const appImage = "/ChatGPT_Image_Sep_14,_2026,_11_47_59_AM.png";
+const appImage = "/ChatGPT_Image_Sep_22,_2026,_11_17_00_AM.png";
 
 const quickServices = [
   { title: "محصولات گیاهی و سوغات محلی", text: "بهترین محصولات و سوغات سنتی", icon: IconLeaf, tone: "green" },
@@ -96,17 +98,17 @@ function NaturalProductsBanner() {
   );
 }
 
-function AppSection() {
+function AppSection({onDownload}: {onDownload: () => void}) {
   return (
     <section className={styles.appSection} aria-label="اپلیکیشن طب خیر">
       <div className={styles.appImageWrap}>
-        <img src={appImage} alt="اپلیکیشن طب خیر" loading="lazy" width="390" height="190" />
+        <img src={appImage} alt="اپلیکیشن طب خیر" loading="lazy" width="100%" height="100%" />
       </div>
       <div className={styles.appCopy}>
         <span className={styles.eyebrow}>همراه همیشگی سلامتی شما</span>
         <h2>اپلیکیشن طب خیر</h2>
         <p>با دریافت اپلیکیشن طب خیر، می‌توانید با استفاده از گوشی همراه به راحتی در هر مکان و هر زمان از امکانات مجموعه آموزشی و فروشگاه گیاهان دارویی بهره‌مند شوید.</p>
-        <Button className={styles.primaryButton} rightSection={<IconArrowLeft size={18} />} aria-label="دانلود اپلیکیشن طب خیر">
+        <Button className={styles.primaryButton} rightSection={<IconArrowLeft size={18} />} aria-label="دانلود اپلیکیشن طب خیر" onClick={onDownload}>
           دانلود اپلیکیشن طب خیر
         </Button>
         <div className={styles.appStats}>
@@ -146,13 +148,16 @@ function ProductCategories() {
 }
 
 export function HomePage() {
+  const [downloadOpened, setDownloadOpened] = useState(false);
+
   return (
     <main className={styles.page}>
       <HeroBanner />
       <QuickServices />
       <NaturalProductsBanner />
-      <AppSection />
+      <AppSection onDownload={() => setDownloadOpened(true)} />
       <ProductCategories />
+      <AppDownloadModal opened={downloadOpened} onClose={() => setDownloadOpened(false)} />
     </main>
   );
 }

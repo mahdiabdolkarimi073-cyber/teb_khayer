@@ -54,8 +54,8 @@
 .naturalContent { position: relative; z-index: 1; padding: 36px 7%; text-align: right; }
 .naturalContent > span { color: #b9e7a0; font-size: 15px; font-weight: 700; }.naturalContent h2 { font-size: clamp(27px, 4vw, 42px); margin: 3px 0; color: #fff; }.naturalContent p { margin: 0 0 17px; color: #e5f5d8; }.greenButton { background: #16af72; box-shadow: none; }.greenButton:hover { background: #10915d; }.naturalFeatures { display: flex; gap: 28px; margin-top: 28px; color: #edf9e9; font-size: 12px; }.naturalFeatures span { display: flex; align-items: center; gap: 6px; }
 
-.appSection { max-width: 1270px; margin: 0 auto 40px; padding: 30px 7%; border-radius: 14px; -webkit-border-radius: 14px; -moz-border-radius: 14px; background: #eef7ff; display: flex; align-items: center; gap: 70px; min-height: 250px; }
-.appImageWrap { flex: 1; max-width: 390px; height: 190px; overflow: hidden; border-radius: 55% 45% 48% 52%; -webkit-border-radius: 55% 45% 48% 52%; -moz-border-radius: 55% 45% 48% 52%; background: #d6e8fa; }.appImageWrap img { width: 100%; height: 100%; object-fit: contain; -webkit-object-fit: contain; }.appCopy { flex: 1; }.appCopy h2 { font-size: 34px; margin: 0 0 10px; color: #092b54; }.appCopy p { color: #526e88; line-height: 2; max-width: 560px; margin-bottom: 18px; }.appStats { display: flex; gap: 25px; margin-top: 25px; flex-wrap: wrap; }.appStats span { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #123d68; }
+.appSection { max-width: 1400px; margin: 0 auto 40px; padding: 38px 7%; border-radius: 14px; -webkit-border-radius: 14px; -moz-border-radius: 14px; background: #eef7ff; display: flex; align-items: center; gap: 70px; min-height: 360px; }
+.appImageWrap { flex: 1; width: 100%; max-width: 520px; height: 320px; overflow: hidden; border-radius: 28px; -webkit-border-radius: 28px; -moz-border-radius: 28px; background: #d6e8fa; }.appImageWrap img { display: block; width: 100%; height: 100%; object-fit: cover; -webkit-object-fit: cover; }.appCopy { flex: 1; }.appCopy h2 { font-size: 34px; margin: 0 0 10px; color: #092b54; }.appCopy p { color: #526e88; line-height: 2; max-width: 560px; margin-bottom: 18px; }.appStats { display: flex; gap: 25px; margin-top: 25px; flex-wrap: wrap; }.appStats span { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #123d68; }
 
 .productSection { max-width: 1270px; margin: 0 auto 46px; padding: 0 20px; }.sectionHeading { text-align: center; }.sectionHeading > span { color: #2b75bb; font-size: 14px; font-weight: 700; }.sectionHeading h2 { margin: 4px 0; font-size: 30px; color: #092b54; }.sectionHeading p { color: #7990a5; margin: 0 0 22px; font-size: 13px; }.categoryTabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 50px; }
 .categoryTab { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 22px 16px; border-radius: 13px; -webkit-border-radius: 13px; -moz-border-radius: 13px; text-decoration: none; font-size: 13px; transition: transform .2s, box-shadow .2s; -webkit-transition: transform .2s, box-shadow .2s; -moz-transition: transform .2s, box-shadow .2s; -o-transition: transform .2s, box-shadow .2s; }
@@ -95,7 +95,7 @@
   .naturalContent h2 { font-size: 26px; }
   .naturalFeatures { flex-direction: column; gap: 11px; margin-top: 22px; }
   .appSection { margin: 0 16px 28px; padding: 22px; flex-direction: column; gap: 22px; align-items: stretch; }
-  .appImageWrap { max-width: none; height: 160px; }
+  .appImageWrap { max-width: none; height: 260px; }
   .appCopy h2 { font-size: 25px; }
   .appCopy p { font-size: 14px; }
   .appStats { gap: 12px; }

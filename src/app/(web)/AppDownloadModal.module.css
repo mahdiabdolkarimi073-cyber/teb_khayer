@@ -1,0 +1,94 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(4, 19, 39, .78);
+  backdrop-filter: blur(10px);
+  animation: fadeIn .22s ease-out;
+}
+
+.modal {
+  position: relative;
+  display: grid;
+  grid-template-columns: 300px minmax(320px, 1fr);
+  width: min(820px, 100%);
+  min-height: 440px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 28px;
+  background: #fff;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, .3);
+  animation: riseIn .28s ease-out;
+}
+
+.closeButton {
+  position: absolute;
+  z-index: 2;
+  top: 18px;
+  left: 18px;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(7, 39, 77, .5);
+  cursor: pointer;
+  transition: background .2s, transform .2s;
+}
+
+.closeButton:hover { background: #0b376d; transform: rotate(6deg); }
+
+.phonePanel {
+  position: relative;
+  overflow: hidden;
+  width: 300px;
+  height: 440px;
+  background: #e9f5ff;
+}
+
+.phoneArtwork {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: center;
+}
+
+
+.content { display: flex; flex-direction: column; justify-content: center; padding: 58px 48px 42px; color: #092b54; }
+.kicker { margin-bottom: 12px; color: #1683c9; font-size: 14px; font-weight: 800; }
+.content h2 { margin: 0 0 14px; color: #092b54; font-size: clamp(25px, 4vw, 38px); line-height: 1.35; }
+.content p { margin: 0 0 22px; color: #526e88; font-size: 15px; line-height: 2; }
+.benefits { display: grid; gap: 11px; margin-bottom: 26px; color: #315674; font-size: 13px; }
+.benefits span { display: flex; align-items: center; gap: 8px; }
+.benefits svg { flex: 0 0 auto; padding: 3px; border-radius: 50%; color: #fff; background: #16a56e; }
+.downloadButton { display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 52px; padding: 10px 18px; border-radius: 14px; color: #fff; background: linear-gradient(100deg, #0b62c7, #168dd6); box-shadow: 0 12px 24px rgba(20, 104, 216, .22); font-size: 14px; font-weight: 700; text-decoration: none; transition: transform .2s, box-shadow .2s; }
+.downloadButton:hover { transform: translateY(-2px); box-shadow: 0 16px 30px rgba(20, 104, 216, .3); }
+.platformActions { display: flex; gap: 10px; flex-wrap: wrap; }
+.platformActions > * { flex: 1 1 180px; }
+.storeButton { display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 52px; padding: 10px 18px; border: 1px solid #d4e3f3; border-radius: 14px; color: #092b54; background: #f3f8ff; font-size: 14px; font-weight: 700; cursor: pointer; transition: transform .2s, box-shadow .2s; }
+.storeButton:hover { transform: translateY(-2px); box-shadow: 0 12px 22px rgba(9, 43, 84, .08); }
+.platforms { display: flex; flex-wrap: wrap; gap: 12px 18px; margin-top: 18px; color: #7a8fa4; font-size: 11px; }
+.platforms span { display: flex; align-items: center; gap: 5px; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes riseIn { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@media (max-width: 650px) {
+  .backdrop { padding: 14px; }
+  .modal { display: flex; flex-direction: column; max-height: calc(100vh - 28px); overflow-y: auto; border-radius: 22px; }
+  .phonePanel { width: 100%; height: 300px; flex: 0 0 auto; }
+  .phoneArtwork { width: 100%; }
+  .content { padding: 30px 24px 26px; }
+  .content h2 { font-size: 25px; }
+  .content p { font-size: 13px; }
+  .closeButton { top: 12px; left: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop, .modal { animation: none; }
+}
