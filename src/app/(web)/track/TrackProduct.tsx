@@ -1,77 +1,135 @@
-'use client';
+"use client";
 
-import React, {useState} from "react";
-import {Button, NumberInput, TextInput} from "@mantine/core";
-import {Order} from "@prisma/client";
-import {trackOrder} from "@/app/(web)/track/action";
+import React, { useState } from "react";
+import { trackOrder } from "@/app/(web)/track/action";
 import OrderStatusEnum from "@/generated/OrderStatus.enum";
 import Link from "next/link";
+import styles from "@/app/(web)/track/track.module.css";
 
 const TrackProduct = (props: any) => {
-	const [fields, setFields] = useState<Partial<{
-		orderId: number,
-		phone: number
-	}>>({});
-	const [order, setOrder] = useState<Awaited<ReturnType<typeof trackOrder>>>();
+  const [orderId, setOrderId] = useState("");
+  const [phone, setPhone] = useState("");
+  const [order, setOrder] = useState<Awaited<ReturnType<typeof trackOrder>>>();
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-	const f = (x: keyof typeof fields) => {
+  const handleSubmit = async () => {
+    setError("");
+    setOrder(undefined);
 
-		return {
-			onChange: (e: any) => setFields(pre => ({
-				...pre,
-				[x]: e?.target?.value || e
-			})),
-			value: fields[x]
-		}
-	}
+    if (!orderId || !phone) {
+      setError("لطفاً شماره سفارش و شماره تلفن خود را وارد کنید.");
+      return;
+    }
 
-	return (
-		<div className={'center flex-col gap-5'}>
-			{!!order && (
-				<div className={'center flex-col gap-2'}>
-					<p className={'text-green-400'}>سفارش یافت شد</p>
-					<small>{new Date(order.created_at).toLocaleString('fa')}</small>
-					<h3>{OrderStatusEnum[order.status]}</h3>
-					<h4>{order.payment.amount.toLocaleString('fa')} تومان</h4>
-					<div className={'center gap-2 flex-col'}>
-						{order.products.map(p => (
-							<Link href={`/product/${p?.product?.id}`}>
-								<div className={'center justify-between'}>
-									<p>{p.product.name}</p>
-									<p>{p?.count} عدد</p>
-								</div>
-							</Link>
-						))}
-					</div>
+    setLoading(true);
+    try {
+      const result = await trackOrder(Number(orderId), Number(phone));
+      if (!result) {
+        setError("متأسفانه سفارش شما یافت نشد. لطفاً اطلاعات را بررسی کنید.");
+      } else {
+        setOrder(result);
+      }
+    } catch {
+      setError("متأسفانه سفارش شما یافت نشد. لطفاً اطلاعات را بررسی کنید.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-					<br/>
-					<br/>
-				</div>
-			)}
-			<div className={'center flex-wrap gap-2'}>
-				<NumberInput
-					label={'شناسه سفارش (ID)'}
-					{...f('orderId')}
-				/>
-				<NumberInput
-					label={'شماره تلفن'}
-					{...f('phone')}
-				/>
-			</div>
-			<Button onClick={()=>{
-				console.log(fields)
-				trackOrder(fields.orderId!, fields.phone!).then(order => {
-					if (!alert) alert("متاسفانه سفارش شما یافت نشد");
+  const statusColor: Record<string, string> = {
+    PENDING: "#ed812d",
+    SENDED: "#1468d8",
+    DELAY: "#e8a200",
+    CANCELED: "#c53a2e",
+  };
 
-					setOrder(order);
-				}).catch(()=>{
-					alert("متاسفانه سفارش شما یافت نشد")
-				});
-			}}>
-				پیگیری
-			</Button>
-		</div>
-	)
-}
+  return (
+    <>
+      <div className={styles.formCard}>
+        <h2 className={styles.formTitle}>اطلاعات پیگیری</h2>
+        <p className={styles.formDesc}>
+          شماره سفارش و شماره تلفن خود را وارد کنید تا وضعیت سفارش را مشاهده کنید.
+        </p>
+
+        <div className={styles.form}>
+          <div className={styles.field}>
+            <label className={styles.fieldLabel}>شماره سفارش (ID)</label>
+            <input
+              className={styles.fieldInput}
+              type="number"
+              inputMode="numeric"
+              placeholder="مثال: ۱۲۳۴۵"
+              value={orderId}
+              onChange={(e) => setOrderId(e.target.value)}
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.fieldLabel}>شماره تلفن</label>
+            <input
+              className={styles.fieldInput}
+              type="tel"
+              inputMode="tel"
+              dir="ltr"
+              placeholder="09xxxxxxxxx"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </div>
+
+          <button
+            className={styles.submitBtn}
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? "در حال جستجو..." : "پیگیری سفارش"}
+          </button>
+        </div>
+      </div>
+
+      {error && <div className={styles.error}>{error}</div>}
+
+      {order && (
+        <div className={styles.result}>
+          <div className={styles.resultHeader}>
+            <span
+              className={styles.resultStatus}
+              style={{
+                background: statusColor[order.status] || "#18a56d",
+              }}
+            >
+              {OrderStatusEnum[order.status]}
+            </span>
+            <span className={styles.resultDate}>
+              {new Date(order.created_at).toLocaleString("fa")}
+            </span>
+          </div>
+
+          <p className={styles.resultAmount}>
+            مبلغ سفارش: {Number(order.payment?.amount || 0).toLocaleString("fa")} تومان
+          </p>
+
+          <div className={styles.resultProducts}>
+            {order.products?.map((p: any, idx: number) => (
+              <Link
+                key={idx}
+                href={`/product/${p?.product?.id}`}
+                className={styles.resultProduct}
+              >
+                <span className={styles.resultProductName}>
+                  {p?.product?.name}
+                </span>
+                <span className={styles.resultProductQty}>
+                  {p?.count} عدد
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
 
 export default TrackProduct;

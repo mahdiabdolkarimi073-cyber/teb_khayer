@@ -16,11 +16,22 @@
 .hero {
   position: relative;
   overflow: hidden;
-  max-width: 1280px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 60px clamp(24px, 7vw, 96px);
+  padding: 72px clamp(24px, 7vw, 110px);
   border-radius: 0 0 28px 28px;
-  background: linear-gradient(135deg, #e8f4ff 0%, #f5fbff 50%, #e8f8f0 100%);
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  min-height: 420px;
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(270deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.55) 45%, rgba(255,255,255,.92) 100%);
+  pointer-events: none;
 }
 
 .hero::before {
@@ -48,39 +59,36 @@
 .heroContent {
   position: relative;
   z-index: 1;
-  max-width: 620px;
-  margin: 0 auto;
-  text-align: center;
+  max-width: 580px;
 }
 
 .eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--green);
+  color: var(--blue);
   font-size: 14px;
   font-weight: 700;
   padding: 7px 16px;
   border-radius: 999px;
-  background: rgba(24, 165, 109, .08);
+  background: rgba(20, 104, 216, .08);
   margin-bottom: 16px;
 }
 
 .hero h1 {
   margin: 0 0 14px;
   color: var(--navy);
-  font-size: clamp(32px, 5vw, 50px);
-  line-height: 1.25;
+  font-size: clamp(30px, 4.5vw, 48px);
+  line-height: 1.3;
   font-weight: 800;
   letter-spacing: -.5px;
 }
 
 .hero p {
-  max-width: 560px;
-  margin: 0 auto;
+  max-width: 520px;
   color: var(--muted);
-  font-size: 16px;
-  line-height: 2.1;
+  font-size: 15px;
+  line-height: 2;
 }
 
 /* Form card */
@@ -185,6 +193,12 @@
   transform: translateY(0);
 }
 
+.submitBtn:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* Result */
 .result {
   margin-top: 28px;
@@ -271,6 +285,149 @@
   text-align: center;
 }
 
+/* Status steps section */
+.stepsSection {
+  max-width: 1200px;
+  margin: 64px auto 0;
+  padding: 0 24px;
+}
+
+.stepsHeader {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.stepsLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--green);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(24, 165, 109, .08);
+  margin-bottom: 12px;
+}
+
+.stepsHeader h2 {
+  margin: 0 0 8px;
+  color: var(--navy);
+  font-size: clamp(24px, 3.5vw, 34px);
+  font-weight: 800;
+  letter-spacing: -.3px;
+}
+
+.stepsHeader p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.stepCard {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 28px 22px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(9, 43, 84, .05);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.stepCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 32px rgba(9, 43, 84, .09);
+}
+
+.stepNumber {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #1468d8, #69b5ee);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.stepCard h3 {
+  margin: 0 0 8px;
+  color: var(--navy);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.stepCard p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* Benefits strip */
+.benefitsStrip {
+  max-width: 1200px;
+  margin: 56px auto 0;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.benefitCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 28px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid var(--line);
+  box-shadow: 0 8px 24px rgba(9, 43, 84, .05);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.benefitCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px rgba(9, 43, 84, .09);
+}
+
+.benefitIcon {
+  flex: 0 0 auto;
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+
+.benefitIcon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.benefitTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--navy);
+  margin: 0 0 4px;
+}
+
+.benefitDesc {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+}
+
 /* Responsive: tablet */
 @media (max-width: 900px) {
   .hero {
@@ -286,10 +443,22 @@
   .formTitle {
     font-size: 22px;
   }
+  .stepsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .benefitsStrip {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
 }
 
 /* Responsive: mobile */
 @media (max-width: 600px) {
+  .hero {
+    padding: 44px 18px;
+    border-radius: 0 0 20px 20px;
+    min-height: 380px;
+  }
   .hero h1 {
     font-size: 26px;
   }
@@ -330,6 +499,24 @@
     font-size: 13px;
     border-radius: 12px;
   }
+  .stepsSection {
+    padding: 0 16px;
+    margin-top: 48px;
+  }
+  .stepsGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .stepCard {
+    padding: 22px 18px;
+  }
+  .benefitsStrip {
+    padding: 0 16px;
+    margin-top: 40px;
+  }
+  .benefitCard {
+    padding: 18px 20px;
+  }
 }
 
 @media (max-width: 380px) {
@@ -346,11 +533,15 @@
 
 @media (prefers-reduced-motion: reduce) {
   .submitBtn,
-  .resultProduct {
+  .resultProduct,
+  .stepCard,
+  .benefitCard {
     transition: none;
   }
   .submitBtn:hover,
-  .resultProduct:hover {
+  .resultProduct:hover,
+  .stepCard:hover,
+  .benefitCard:hover {
     transform: none;
   }
 }

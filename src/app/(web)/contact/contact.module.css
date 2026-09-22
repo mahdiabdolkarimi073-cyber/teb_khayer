@@ -18,9 +18,20 @@
   overflow: hidden;
   max-width: 1440px;
   margin: 0 auto;
-  padding: 60px clamp(24px, 7vw, 110px);
+  padding: 72px clamp(24px, 7vw, 110px);
   border-radius: 0 0 28px 28px;
-  background: linear-gradient(135deg, #e8f4ff 0%, #f5fbff 50%, #e8f8f0 100%);
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  min-height: 420px;
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(270deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.55) 45%, rgba(255,255,255,.92) 100%);
+  pointer-events: none;
 }
 
 .hero::before {
@@ -220,12 +231,71 @@
   color: var(--muted);
 }
 
+/* Info strip */
+.infoStrip {
+  max-width: 1200px;
+  margin: 56px auto 0;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.infoCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 28px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid var(--line);
+  box-shadow: 0 8px 24px rgba(9, 43, 84, .05);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.infoCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px rgba(9, 43, 84, .09);
+}
+
+.infoIcon {
+  flex: 0 0 auto;
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+
+.infoIcon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.infoLabel {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0 0 4px;
+}
+
+.infoValue {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--navy);
+  margin: 0;
+  line-height: 1.5;
+}
+
 /* Responsive: laptop */
 @media (max-width: 1200px) {
   .shell {
     max-width: 1000px;
     gap: 28px;
     padding: 48px 20px 0;
+  }
+  .infoStrip {
+    max-width: 1000px;
   }
 }
 
@@ -247,6 +317,10 @@
   }
   .hero h1 {
     font-size: 32px;
+  }
+  .infoStrip {
+    grid-template-columns: 1fr;
+    gap: 14px;
   }
 }
 
@@ -282,6 +356,13 @@
   .sectionTitle {
     font-size: 22px;
   }
+  .infoStrip {
+    padding: 0 16px;
+    margin-top: 40px;
+  }
+  .infoCard {
+    padding: 18px 20px;
+  }
 }
 
 @media (max-width: 380px) {
@@ -299,10 +380,12 @@
 
 @media (prefers-reduced-motion: reduce) {
   .socialCard,
-  .socialIcon {
+  .socialIcon,
+  .infoCard {
     transition: none;
   }
-  .socialCard:hover {
+  .socialCard:hover,
+  .infoCard:hover {
     transform: none;
   }
   .socialCard:hover .socialIcon {
