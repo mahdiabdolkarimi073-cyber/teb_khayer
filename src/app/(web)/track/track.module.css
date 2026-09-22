@@ -1,0 +1,356 @@
+.page {
+  --navy: #092b54;
+  --blue: #1468d8;
+  --green: #18a56d;
+  --ink: #102c4d;
+  --muted: #5c7895;
+  --line: #e2edf6;
+  --bg: #f8fbfe;
+  direction: rtl;
+  background: var(--bg);
+  color: var(--ink);
+  padding-bottom: 90px;
+}
+
+/* Hero */
+.hero {
+  position: relative;
+  overflow: hidden;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 60px clamp(24px, 7vw, 96px);
+  border-radius: 0 0 28px 28px;
+  background: linear-gradient(135deg, #e8f4ff 0%, #f5fbff 50%, #e8f8f0 100%);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  left: -140px;
+  bottom: -220px;
+  border-radius: 50%;
+  background: rgba(24, 165, 109, .08);
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  right: -80px;
+  top: -100px;
+  border-radius: 50%;
+  background: rgba(20, 104, 216, .06);
+}
+
+.heroContent {
+  position: relative;
+  z-index: 1;
+  max-width: 620px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--green);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: rgba(24, 165, 109, .08);
+  margin-bottom: 16px;
+}
+
+.hero h1 {
+  margin: 0 0 14px;
+  color: var(--navy);
+  font-size: clamp(32px, 5vw, 50px);
+  line-height: 1.25;
+  font-weight: 800;
+  letter-spacing: -.5px;
+}
+
+.hero p {
+  max-width: 560px;
+  margin: 0 auto;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 2.1;
+}
+
+/* Form card */
+.card {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.formCard {
+  margin-top: -40px;
+  position: relative;
+  z-index: 2;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  box-shadow: 0 16px 48px rgba(20, 74, 116, .1);
+  padding: 40px 36px;
+}
+
+.formTitle {
+  margin: 0 0 8px;
+  color: var(--navy);
+  font-size: 24px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.formDesc {
+  margin: 0 0 28px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.8;
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fieldLabel {
+  color: var(--navy);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.fieldInput {
+  width: 100%;
+  height: 50px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  outline: 0;
+  padding: 0 16px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+  background: var(--bg);
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.fieldInput:focus {
+  border-color: #69b5ee;
+  box-shadow: 0 0 0 3px rgba(8, 120, 232, .1);
+  background: #fff;
+}
+
+.submitBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 50px;
+  border-radius: 14px;
+  padding: 0 28px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  border: 0;
+  cursor: pointer;
+  background: var(--blue);
+  color: #fff;
+  transition: background .2s, transform .2s, box-shadow .2s;
+  margin-top: 8px;
+  box-shadow: 0 10px 24px rgba(20, 104, 216, .22);
+}
+
+.submitBtn:hover {
+  background: #0d5ebc;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(20, 104, 216, .3);
+}
+
+.submitBtn:active {
+  transform: translateY(0);
+}
+
+/* Result */
+.result {
+  margin-top: 28px;
+  padding: 28px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #f0fbf6, #f5fdf9);
+  border: 1px solid #d6efe3;
+}
+
+.resultHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.resultStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: var(--green);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.resultDate {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.resultAmount {
+  margin: 0 0 16px;
+  color: var(--navy);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.resultProducts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.resultProduct {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid var(--line);
+  text-decoration: none;
+  color: var(--navy);
+  font-size: 14px;
+  transition: border-color .2s, transform .2s;
+}
+
+.resultProduct:hover {
+  border-color: #b4d8f3;
+  transform: translateY(-1px);
+}
+
+.resultProductName {
+  font-weight: 700;
+}
+
+.resultProductQty {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.error {
+  margin-top: 28px;
+  padding: 18px 22px;
+  border-radius: 14px;
+  background: #fef3f2;
+  border: 1px solid #fdd5d1;
+  color: #c53a2e;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Responsive: tablet */
+@media (max-width: 900px) {
+  .hero {
+    padding: 48px 20px;
+    border-radius: 0 0 24px 24px;
+  }
+  .hero h1 {
+    font-size: 32px;
+  }
+  .formCard {
+    padding: 30px 26px;
+  }
+  .formTitle {
+    font-size: 22px;
+  }
+}
+
+/* Responsive: mobile */
+@media (max-width: 600px) {
+  .hero h1 {
+    font-size: 26px;
+  }
+  .hero p {
+    font-size: 14px;
+  }
+  .card {
+    padding: 0 16px;
+  }
+  .formCard {
+    padding: 26px 20px;
+    margin-top: -32px;
+    border-radius: 16px;
+  }
+  .formTitle {
+    font-size: 20px;
+  }
+  .formDesc {
+    font-size: 13px;
+  }
+  .fieldInput {
+    height: 46px;
+    font-size: 14px;
+  }
+  .submitBtn {
+    min-height: 46px;
+    font-size: 14px;
+  }
+  .result {
+    padding: 20px;
+    border-radius: 14px;
+  }
+  .resultAmount {
+    font-size: 18px;
+  }
+  .resultProduct {
+    padding: 12px 14px;
+    font-size: 13px;
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 380px) {
+  .hero h1 {
+    font-size: 22px;
+  }
+  .formCard {
+    padding: 22px 16px;
+  }
+  .eyebrow {
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .submitBtn,
+  .resultProduct {
+    transition: none;
+  }
+  .submitBtn:hover,
+  .resultProduct:hover {
+    transform: none;
+  }
+}
