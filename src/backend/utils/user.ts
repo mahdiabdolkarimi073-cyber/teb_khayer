@@ -26,6 +26,8 @@ export async function getUser(token: string | NextRequest) {
   }
   const user = (await prisma.user.findUnique({ where: { token: token+"" } }));
 
+  if (!user) return null;
+
   return ssrOptimize({
     ...user,
     token: "****",
