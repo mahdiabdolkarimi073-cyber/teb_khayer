@@ -3,6 +3,7 @@ import {redirect} from "next/navigation";
 import prisma from "@backend/modules/prisma/Prisma";
 import AppConfig from "@/config/AppConfig";
 import AdminSidebar from "@/app/(web)/admin/AdminSidebar";
+import styles from "./dashboard/dashboard.module.css";
 
 export default async function Layout(props: any) {
   const user = await getUserFromCookie();
@@ -14,9 +15,9 @@ export default async function Layout(props: any) {
   }
 
   return (
-    <div dir="rtl" style={{background: "#f6f9fc", minHeight: "100vh"}}>
+    <div dir="rtl" className={styles.dashboard}>
       <AdminSidebar/>
-      <div style={{marginRight: 0, padding: "20px 30px 30px 30px", maxWidth: "calc(100% - 200px)", marginLeft: "auto"}}>
+      <div className={styles.adminContent}>
         {props.children}
       </div>
     </div>

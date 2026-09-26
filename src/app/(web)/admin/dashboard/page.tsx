@@ -128,17 +128,17 @@ export default function DashboardPage() {
 
   if (loading || !stats) {
     return (
-      <div dir="rtl" style={{maxWidth: 981, margin: "0 auto"}}>
-        <div style={{height: 165, borderRadius: 22, background: "#dbeeff", marginTop: 18, display: "flex", alignItems: "center", justifyContent: "center", color: "#7890a8"}}>در حال بارگذاری...</div>
-        <div style={{display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginTop: 18}}>
-          {[0, 1, 2, 3].map((i) => <div key={i} style={{height: 155, borderRadius: 16, background: "#fff", border: "1px solid #e7eef6"}}/>)}
+      <div className={styles.dashboardMain}>
+        <div style={{height: 180, borderRadius: 22, background: "#dbeeff", display: "flex", alignItems: "center", justifyContent: "center", color: "#7890a8"}}>در حال بارگذاری...</div>
+        <div className={styles.statsGrid}>
+          {[0, 1, 2, 3].map((i) => <div key={i} style={{height: 170, borderRadius: 16, background: "#fff", border: "1px solid #e7eef6"}}/>)}
         </div>
       </div>
     );
   }
 
   return (
-    <div dir="rtl" style={{maxWidth: 981, margin: "0 auto"}}>
+    <div className={styles.dashboardMain}>
         {/* Admin Hero */}
         <section className={styles.adminHero}>
           <div className={styles.heroImage} style={{backgroundImage: `url(${heroImage})`}}/>
