@@ -2,7 +2,12 @@
 
 import { getVar, setVar } from "@backend/utils/setting";
 import { getUserFromCookie } from "@/utils/serverComponents/user";
-import TorobService, { TorobConfig, TorobStatus, TorobSyncResult } from "@backend/modules/torob/TorobService";
+import TorobService, {
+  TorobConfig,
+  TorobStatus,
+  TorobSyncResult,
+  TorobFeedPreview,
+} from "@backend/modules/torob/TorobService";
 
 export async function getTorobConfig(): Promise<TorobConfig> {
   const user = await getUserFromCookie();
@@ -22,13 +27,18 @@ export async function getTorobConfig(): Promise<TorobConfig> {
   };
 }
 
-export async function saveTorobConfig(config: Partial<TorobConfig>): Promise<void> {
+export async function saveTorobConfig(
+  config: Partial<TorobConfig>
+): Promise<void> {
   const user = await getUserFromCookie();
   if (!user || user.role !== "ADMIN") throw new Error("دسترسی غیرمجاز");
 
-  if (config.enabled !== undefined) await setVar("TOROB_ENABLED", config.enabled ? "true" : "false");
-  if (config.shopName !== undefined) await setVar("TOROB_SHOP_NAME", config.shopName);
-  if (config.torobLink !== undefined) await setVar("TOROB_LINK", config.torobLink);
+  if (config.enabled !== undefined)
+    await setVar("TOROB_ENABLED", config.enabled ? "true" : "false");
+  if (config.shopName !== undefined)
+    await setVar("TOROB_SHOP_NAME", config.shopName);
+  if (config.torobLink !== undefined)
+    await setVar("TOROB_LINK", config.torobLink);
 }
 
 export async function getTorobStatus(): Promise<TorobStatus> {
@@ -43,4 +53,11 @@ export async function testTorobFeed(): Promise<TorobSyncResult> {
   if (!user || user.role !== "ADMIN") throw new Error("دسترسی غیرمجاز");
 
   return TorobService.testFeed();
+}
+
+export async function getTorobFeedPreview(): Promise<TorobFeedPreview> {
+  const user = await getUserFromCookie();
+  if (!user || user.role !== "ADMIN") throw new Error("دسترسی غیرمجاز");
+
+  return TorobService.getFeedPreview(5);
 }
