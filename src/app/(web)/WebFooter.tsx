@@ -77,6 +77,12 @@ export async function WebFooter() {
 
 	return (
 		<footer className={classes.footer}>
+			<div className={classes.waveTop} aria-hidden="true">
+				<svg viewBox="0 0 1440 80" preserveAspectRatio="none" className={classes.waveSvg}>
+					<path d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z" fill="#082b54" className={classes.wavePath1}/>
+					<path d="M0,50 C240,20 480,70 720,40 C960,10 1200,60 1440,40 L1440,80 L0,80 Z" fill="#0a3a6e" className={classes.wavePath2} opacity="0.5"/>
+				</svg>
+			</div>
 			<Container className={classes.inner+" flex-wrap"}>
 				<div className={classes.logo+" mb-3 md:mb-0"}>
 					<Link href={'/'} className='block h-full'>

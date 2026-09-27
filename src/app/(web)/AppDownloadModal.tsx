@@ -37,7 +37,7 @@ export default function AppDownloadModal({opened, onClose}: AppDownloadModalProp
           <IconX size={22} />
         </button>
         <div className={styles.phonePanel}>
-          <img className={styles.phoneArtwork} src={phoneImage} alt="نمایش اپلیکیشن طبِ خیّر روی موبایل" />
+          <img className={styles.phoneArtwork} src={phoneImage} alt="نمایش اپلیکیشن طِب خیّر روی موبایل" />
         </div>
         <div className={styles.content} dir="rtl">
           <span className={styles.kicker}>یک قدم تا سلامتی بیشتر</span>

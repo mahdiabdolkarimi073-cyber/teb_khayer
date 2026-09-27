@@ -35,9 +35,9 @@ const reasons = [
 ];
 
 const questions = [
-  ["طبِ خیّر چه خدماتی ارائه می‌دهد؟", "آموزش‌های تخصصی طب سنتی، محصولات طبیعی و راهنمایی برای انتخاب بهتر را در اختیار شما قرار می‌دهیم."],
+  ["طِب خیّر چه خدماتی ارائه می‌دهد؟", "آموزش‌های تخصصی طب سنتی، محصولات طبیعی و راهنمایی برای انتخاب بهتر را در اختیار شما قرار می‌دهیم."],
   ["آیا دوره‌ها برای همه مناسب هستند؟", "دوره‌ها از سطح مقدماتی تا تخصصی آماده شده‌اند تا هر فرد با توجه به نیاز خود مسیر یادگیری را شروع کند."],
-  ["چطور می‌توانم از اپلیکیشن استفاده کنم؟", "اپلیکیشن طبِ خیّر را دریافت کنید و به آموزش‌ها و خدمات مجموعه در هر زمان دسترسی داشته باشید."],
+  ["چطور می‌توانم از اپلیکیشن استفاده کنم؟", "اپلیکیشن طِب خیّر را دریافت کنید و به آموزش‌ها و خدمات مجموعه در هر زمان دسترسی داشته باشید."],
 ];
 
 export default function AboutPage() {
@@ -48,9 +48,9 @@ export default function AboutPage() {
         <div className={styles.heroContent}>
           <span className={styles.eyebrow}>سلامت، آگاهی، زندگی بهتر</span>
           <h1>دانش طب سنتی،<br /><strong>همراه زندگی شما</strong></h1>
-          <p>در طبِ خیّر، آموزش طب سنتی و محصولات طبیعی را با زبانی ساده و نگاهی علمی در کنار شما قرار داده‌ایم.</p>
+          <p>در طِب خیّر، آموزش طب سنتی و محصولات طبیعی را با زبانی ساده و نگاهی علمی در کنار شما قرار داده‌ایم.</p>
           <div className={styles.heroActions}>
-            <Link href="/category/all" className={styles.primaryButton}>مشاهده دوره‌ها <IconArrowLeft size={18} /></Link>
+            <Link href="/app/courses" className={styles.primaryButton}>مشاهده دوره‌ها <IconArrowLeft size={18} /></Link>
             <Link href="#story" className={styles.lightButton}>بیشتر بدانید</Link>
           </div>
         </div>
@@ -75,9 +75,9 @@ export default function AboutPage() {
       <section className={styles.story} id="story">
         <div className={styles.storyImage} style={{ backgroundImage: `url(${herbsImage})` }}><span>از طبیعت، برای زندگی</span></div>
         <div className={styles.storyCopy}>
-          <span className={styles.sectionEyebrow}>درباره مجموعه طبِ خیّر</span>
+          <span className={styles.sectionEyebrow}>درباره مجموعه طِب خیّر</span>
           <h2>آگاهی، اولین قدم<br /><strong>برای سلامتی است</strong></h2>
-          <p>مجموعه طبِ خیّر با همراهی پزشکان، طبیبان و استادان مجرب طب سنتی و طب ایرانی اسلامی شکل گرفته است تا مسیر دسترسی به دانش معتبر و کاربردی را برای همه آسان‌تر کند.</p>
+          <p>مجموعه طِب خیّر با همراهی پزشکان، طبیبان و استادان مجرب طب سنتی و طب ایرانی اسلامی شکل گرفته است تا مسیر دسترسی به دانش معتبر و کاربردی را برای همه آسان‌تر کند.</p>
           <p>ما باور داریم شناخت بدن و طبیعت، شروع یک زندگی سالم‌تر است. به همین دلیل دوره‌های آموزشی، محصولات طبیعی و محتوای قابل اعتماد را در یک مجموعه گرد هم آورده‌ایم.</p>
           <Link href="/contact" className={styles.textLink}>با ما در ارتباط باشید <IconArrowLeft size={17} /></Link>
         </div>
@@ -94,15 +94,15 @@ export default function AboutPage() {
       </section>
 
       <section className={styles.reasons}>
-        <div className={styles.sectionHeading}><span className={styles.sectionEyebrow}>چرا طبِ خیّر؟</span><h2>همراهی مطمئن در مسیر یادگیری</h2><p>هر آنچه برای شناخت بهتر سلامت و طب سنتی نیاز دارید، یک‌جا در اختیار شماست.</p></div>
+        <div className={styles.sectionHeading}><span className={styles.sectionEyebrow}>چرا طِب خیّر؟</span><h2>همراهی مطمئن در مسیر یادگیری</h2><p>هر آنچه برای شناخت بهتر سلامت و طب سنتی نیاز دارید، یک‌جا در اختیار شماست.</p></div>
         <div className={styles.reasonGrid}>
           {reasons.map(([Icon, title, text]) => <div className={styles.reason} key={String(title)}><span><Icon size={23} /></span><strong>{title}</strong><p>{text}</p></div>)}
         </div>
       </section>
 
       <section className={styles.appSection}>
-        <div className={styles.appArt}><img src="/logo.webp" alt="لوگوی طبِ خیّر" /><span><IconSparkles size={18} /> یک تجربه بهتر</span></div>
-        <div className={styles.appCopy}><span className={styles.sectionEyebrow}>همیشه همراه شما</span><h2>اپلیکیشن طبِ خیّر</h2><p>با نصب اپلیکیشن، دوره‌ها و خدمات مجموعه را سریع‌تر و راحت‌تر در گوشی خود داشته باشید.</p><div className={styles.appActions}><a href="https://cafebazaar.ir" target="_blank" rel="noreferrer" className={styles.primaryButton}><IconBrandAndroid size={19} /> دریافت از بازار</a><Link href="/app" className={styles.outlineButton}>آشنایی بیشتر</Link></div></div>
+        <div className={styles.appArt}><img src="/logo.webp" alt="لوگوی طِب خیّر" /><span><IconSparkles size={18} /> یک تجربه بهتر</span></div>
+        <div className={styles.appCopy}><span className={styles.sectionEyebrow}>همیشه همراه شما</span><h2>اپلیکیشن طِب خیّر</h2><p>با نصب اپلیکیشن، دوره‌ها و خدمات مجموعه را سریع‌تر و راحت‌تر در گوشی خود داشته باشید.</p><div className={styles.appActions}><a href="https://cafebazaar.ir" target="_blank" rel="noreferrer" className={styles.primaryButton}><IconBrandAndroid size={19} /> دریافت از بازار</a><Link href="/app" className={styles.outlineButton}>آشنایی بیشتر</Link></div></div>
       </section>
 
       <section className={styles.faq}>

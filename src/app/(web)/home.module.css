@@ -26,7 +26,7 @@
 .heroContent { position: relative; z-index: 1; max-width: 510px; color: #092b54; }
 .eyebrow { color: #1777c9; font-size: 15px; font-weight: 700; display: block; margin-bottom: 10px; }
 .hero h1 { font-size: clamp(30px, 4vw, 50px); line-height: 1.35; font-weight: 800; margin: 0; letter-spacing: -.8px; }
-.hero p { max-width: 440px; line-height: 2; font-size: 15px; color: #35516f; margin: 14px 0 22px; }
+.hero p { max-width: 440px; line-height: 2; font-size: 16px; font-weight: 700; color: #0b2c54; margin: 14px 0 22px; text-shadow: 0 1px 2px rgba(255,255,255,.6); }
 .primaryButton, .greenButton { border-radius: 28px; padding: 0 24px; height: 48px; background: #126ed8; font-family: inherit; font-size: 15px; box-shadow: 0 10px 22px rgba(20,104,216,.2); transition: transform .2s, box-shadow .2s, background .2s; -webkit-transition: transform .2s, box-shadow .2s, background .2s; -moz-transition: transform .2s, box-shadow .2s, background .2s; -o-transition: transform .2s, box-shadow .2s, background .2s; }
 .primaryButton:hover, .greenButton:hover { background: #0d5ebc; transform: translateY(-2px); box-shadow: 0 14px 26px rgba(20,104,216,.26); }
 .primaryButton:active, .greenButton:active { transform: translateY(0); }
@@ -87,7 +87,7 @@
   .hero { min-height: 580px; align-items: flex-start; padding: 40px 20px; background-position: 62% center; }
   .heroOverlay { background: linear-gradient(180deg, rgba(255,255,255,.97) 0%, rgba(255,255,255,.87) 45%, rgba(5,37,75,.15) 100%); }
   .hero h1 { font-size: 28px; }
-  .hero p { font-size: 14px; }
+  .hero p { font-size: 14px; font-weight: 700; color: #0b2c54; }
   .heroBenefits { left: 16px; right: 16px; bottom: 16px; width: auto; grid-template-columns: repeat(2, 1fr); gap: 12px 0; }
   .benefit:nth-child(2) { border-left: 0; }
   .benefit:nth-child(3) { border-left: 1px solid rgba(255,255,255,.17); }
@@ -166,3 +166,125 @@
   .medicalCard { transition: none !important; -webkit-transition: none !important; }
   .medicalCard:hover { transform: none !important; }
 }
+
+/* Support & Consult dropdowns */
+.supportWrap { position: relative; }
+.supportMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  left: 0;
+  z-index: 50;
+  background: #fff;
+  border-radius: 12px;
+  -webkit-border-radius: 12px;
+  -moz-border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(26,66,112,.16);
+  border: 1px solid #e8eef5;
+  overflow: hidden;
+  animation: supportMenuIn .2s ease;
+  -webkit-animation: supportMenuIn .2s ease;
+}
+@keyframes supportMenuIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.supportMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: #334d68;
+  border-bottom: 1px solid #f0f4f8;
+  transition: background .15s;
+  -webkit-transition: background .15s;
+}
+.supportMenuItem:last-child { border-bottom: 0; }
+.supportMenuItem:hover { background: #f5f8fc; color: #126ed8; }
+.supportMenuItem small { margin-right: auto; font-weight: 600; color: #126ed8; }
+
+.consultWrap { position: relative; }
+.consultMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  left: 0;
+  z-index: 50;
+  background: #fff;
+  border-radius: 12px;
+  -webkit-border-radius: 12px;
+  -moz-border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(26,66,112,.16);
+  border: 1px solid #e8eef5;
+  overflow: hidden;
+  animation: supportMenuIn .2s ease;
+  -webkit-animation: supportMenuIn .2s ease;
+}
+.consultMenuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 16px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: #334d68;
+  border-bottom: 1px solid #f0f4f8;
+  transition: background .15s;
+  -webkit-transition: background .15s;
+}
+.consultMenuItem:last-child { border-bottom: 0; }
+.consultMenuItem:hover { background: #f5f8fc; color: #7048e8; }
+
+/* VPN/Proxy warning banner */
+.vpnBanner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: linear-gradient(90deg, #f24e1e, #ff6a3d);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  box-shadow: 0 4px 14px rgba(242,78,30,.3);
+  animation: vpnSlideIn .35s ease;
+  -webkit-animation: vpnSlideIn .35s ease;
+}
+.vpnBanner svg { flex-shrink: 0; }
+.vpnBanner button {
+  background: rgba(255,255,255,.25);
+  border: 0;
+  color: #fff;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  margin-right: 8px;
+  flex-shrink: 0;
+  transition: background .15s;
+  -webkit-transition: background .15s;
+}
+.vpnBanner button:hover { background: rgba(255,255,255,.4); }
+@keyframes vpnSlideIn {
+  from { opacity: 0; transform: translateY(-100%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 600px) {
+  .vpnBanner { font-size: 11px; padding: 8px 12px; gap: 6px; }
+}
+

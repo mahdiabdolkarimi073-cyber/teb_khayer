@@ -5,8 +5,8 @@ const ApplicationAd = (props: any) => {
 
 	return (
 		<div className={'center flex-col container mx-auto p-2 gap-2'}>
-              <h3 className={'text-center'}>اپلیکیشین طبِ خیّر</h3>
-			<p className={'text-center  max-w-[600px]'}>  با دریافت و نصب رایگان طبِ خیّر،<br/>
+              <h3 className={'text-center'}>اپلیکیشین طِب خیّر</h3>
+			<p className={'text-center  max-w-[600px]'}>  با دریافت و نصب رایگان طِب خیّر،<br/>
 				می توانید با استفاده از گوشی همراه به راحتی و در هر مکان و هر لحظه، از
 				تمامی امکانات مجموعه آموزشی و فروشگاه گیاهان دارویی بهره مند شوید
 			</p>

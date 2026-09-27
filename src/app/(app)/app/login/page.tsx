@@ -14,7 +14,7 @@ const Page = async (props: any) => {
   return (
     <main className={styles.loginPage}>
       <section className={styles.loginShell}>
-        <img src="/logo.webp" alt="طبِ خیّر" className={styles.loginBrand} width={74} height={74} />
+        <img src="/logo.webp" alt="طِب خیّر" className={styles.loginBrand} width={74} height={74} />
         <h1 className={styles.heading}>ورود به حساب کاربری</h1>
         <p className={styles.subtitle}>سلامتی، آرامش و زندگی بهتر — وارد شوید و ادامه دهید.</p>
 
@@ -32,7 +32,7 @@ const Page = async (props: any) => {
           <a href="/privacy/service" target="_blank" rel="noreferrer">استفاده از خدمات</a>{" "}
           و{" "}
           <a href="/privacy" target="_blank" rel="noreferrer">حریم خصوصی</a>{" "}
-          طبِ خیّر را می‌پذیرم.
+          طِب خیّر را می‌پذیرم.
         </p>
       </section>
     </main>

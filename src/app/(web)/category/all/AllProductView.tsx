@@ -51,8 +51,8 @@ const AllProductView = (props: { products: Product[]; count: number; search?: st
         <h2 className={styles.sidebarTitle}><IconCategory size={20} /> دسته‌بندی‌ها</h2>
         {categories.map((category, index) => <button className={`${styles.categoryButton} ${index === 0 ? styles.categoryActive : ""}`} key={category} type="button">{index === 0 ? <IconSparkles size={17} /> : <IconCategory size={17} />}{category}</button>)}
         <div className={styles.promo}>
-          <img className={styles.promoImage} src="/ChatGPT_Image_Sep_14,_2026,_11_49_32_AM.png" alt="محصولات سلامت طبِ خیّر" />
-          <div className={styles.promoContent}><div className={styles.promoTitle}>پیشنهاد ویژه طبِ خیّر</div><p className={styles.promoText}>انتخابی مطمئن برای سلامت شما</p><Link className={styles.promoButton} href="#products">مشاهده محصولات</Link></div>
+          <img className={styles.promoImage} src="/ChatGPT_Image_Sep_14,_2026,_11_49_32_AM.png" alt="محصولات سلامت طِب خیّر" />
+          <div className={styles.promoContent}><div className={styles.promoTitle}>پیشنهاد ویژه طِب خیّر</div><p className={styles.promoText}>انتخابی مطمئن برای سلامت شما</p><Link className={styles.promoButton} href="#products">مشاهده محصولات</Link></div>
         </div>
       </aside>
 
@@ -89,7 +89,7 @@ const AllProductView = (props: { products: Product[]; count: number; search?: st
               <Link href={`/product/${product.id}`}><img className={styles.productImage} src={product.images?.[0] || "/empty.png"} alt={product.name} loading="lazy" /></Link>
               <div className={styles.productBody}>
                 <div className={styles.productName}>{product.name}</div>
-                <p className={styles.productDescription}>{product.description_text || "محصول باکیفیت از مجموعه طبِ خیّر"}</p>
+                <p className={styles.productDescription}>{product.description_text || "محصول باکیفیت از مجموعه طِب خیّر"}</p>
                 <div className={styles.priceRow}>
                   {hasDiscount && product.originalPrice ? (
                     <>

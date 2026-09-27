@@ -9,7 +9,7 @@ export default function WebLoginPage() {
   return (
     <main className={styles.loginPage}>
       <section className={styles.loginShell}>
-        <Image src="/logo.webp" alt="طبِ خیّر" width={74} height={74} className={styles.loginBrand} />
+        <Image src="/logo.webp" alt="طِب خیّر" width={74} height={74} className={styles.loginBrand} />
         <h1 className={styles.heading}>ورود به حساب کاربری</h1>
         <p className={styles.subtitle}>سلامتی، آرامش و زندگی بهتر — وارد شوید و ادامه دهید.</p>
 
@@ -27,7 +27,7 @@ export default function WebLoginPage() {
           <a href="/privacy/service" target="_blank" rel="noreferrer">استفاده از خدمات</a>{" "}
           و{" "}
           <a href="/privacy" target="_blank" rel="noreferrer">حریم خصوصی</a>{" "}
-          طبِ خیّر را می‌پذیرم.
+          طِب خیّر را می‌پذیرم.
         </p>
       </section>
     </main>

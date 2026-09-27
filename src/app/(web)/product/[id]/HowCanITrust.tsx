@@ -23,7 +23,7 @@ const HowCanITrust = (props: {
 	if (enamadAction.isPending || bankAction.isPending || addressAction.isPending || websiteAction.isPending || phoneAction.isPending)
 		return <Loading/>;
 
-	const enamadText = enamadAction.result as string || "طبِ خیّر دارای نماد الکترونیکی (اینماد) از وزارت صنعت، معدن و تجارت می‌باشد. این نماد نشان‌دهنده اصالت و اعتبار فروشگاه آنلاین ماست.";
+	const enamadText = enamadAction.result as string || "طِب خیّر دارای نماد الکترونیکی (اینماد) از وزارت صنعت، معدن و تجارت می‌باشد. این نماد نشان‌دهنده اصالت و اعتبار فروشگاه آنلاین ماست.";
 	const bankText = bankAction.result as string || "بانک ملت - به نام بهزاد خیّر - شماره کارت: 6104-xxxx-xxxx-xxxx";
 	const addressText = addressAction.result as string || "آدرس: تهران، خیابان ولیعصر، پلاک ۱۲۳";
 	const websiteText = websiteAction.result as string || "https://teb-khayyer.ir";

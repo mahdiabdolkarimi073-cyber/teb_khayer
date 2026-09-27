@@ -44,12 +44,12 @@ export function HomeHero(props: any) {
 							<b>کمترین هزینه</b> – قیمت منصفانه نسبت به محتوای دوره
 						</List.Item>
 						<List.Item>
-							<b>دسترسی سریع</b> – دسترسی سریع به دوره های خریداری شده از اپلیکیشن "طبِ خیّر"
+							<b>دسترسی سریع</b> – دسترسی سریع به دوره های خریداری شده از اپلیکیشن "طِب خیّر"
 						</List.Item>
 					</List>
 
 					<Group mt={30}>
-						<p className={'text-primary'}>جهت دسترسی به دوره ها لازم است اپلیکیشن "طبِ خیّر" را نصب کنید</p>
+						<p className={'text-primary'}>جهت دسترسی به دوره ها لازم است اپلیکیشن "طِب خیّر" را نصب کنید</p>
 						<AppDownloadBtn className={'rounded-full overflow-hidden'} radius={'xl'} size={'md'}  />
 						<Link href={'/contact'}>
 							<Button variant="default" radius="xl" size="md" className={classes.control}>

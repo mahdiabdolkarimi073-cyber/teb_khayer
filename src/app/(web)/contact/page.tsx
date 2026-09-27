@@ -25,7 +25,7 @@ export function ContactUs() {
           <h1>ارتباط با ما</h1>
           <p>
             هرگونه سوال، پیشنهاد یا انتقادی دارید، خوشحال می‌شویم با ما در میان بگذارید.
-            کارشناسان طبِ خیّر آماده پاسخگویی به شما هستند.
+            کارشناسان طِب خیّر آماده پاسخگویی به شما هستند.
           </p>
         </div>
       </section>
@@ -39,7 +39,7 @@ export function ContactUs() {
             style={{ border: 0 }}
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
-            title="نقشه موقعیت طبِ خیّر"
+            title="نقشه موقعیت طِب خیّر"
           />
         </div>
 
