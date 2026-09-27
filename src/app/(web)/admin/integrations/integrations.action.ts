@@ -23,5 +23,6 @@ export async function getProviderStatuses(): Promise<ProviderStatus[]> {
     {type: "باشگاه مشتریان", enabled: config.LOYALTY.enabled},
     {type: "اعلان‌رسانی", enabled: config.NOTIFICATION.enabled, endpoint: config.NOTIFICATION.endpoint},
     {type: "باسلام (Marketplace)", enabled: true, hasApiKey: undefined, endpoint: "/admin/basalam"},
+    {type: "ترب (Price Comparison)", enabled: true, hasApiKey: undefined, endpoint: "/admin/torob"},
   ];
 }

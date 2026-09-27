@@ -1,5 +1,3 @@
-'use server';
-
 import {$Enums} from ".prisma/client";
 import prisma from "@backend/modules/prisma/Prisma";
 import SettingKey = $Enums.SettingKey;

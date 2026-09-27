@@ -11,6 +11,8 @@
   TRUST_WEBSITE: "آدرس وب‌سایت",
   BASALAM_LINK: "لینک باسلام",
   TOROB_ENABLED: "ترب فعال است",
+  TOROB_SHOP_NAME: "نام فروشگاه در ترب",
+  TOROB_LINK: "لینک فروشگاه در ترب",
   BASALAM_ENABLED: "باسلام فعال است",
   BASALAM_CLIENT_ID: "Client ID باسلام",
   BASALAM_CLIENT_SECRET: "Client Secret باسلام",
@@ -64,6 +66,14 @@
   TOROB_ENABLED: {
     name: "ترب فعال است",
     default: "false"
+  },
+  TOROB_SHOP_NAME: {
+    name: "نام فروشگاه در ترب",
+    default: ""
+  },
+  TOROB_LINK: {
+    name: "لینک فروشگاه در ترب",
+    default: ""
   },
   BASALAM_ENABLED: {
     name: "باسلام فعال است",

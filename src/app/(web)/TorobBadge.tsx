@@ -3,12 +3,17 @@ import { getVar } from "@backend/utils/setting";
 export const dynamic = 'force-dynamic';
 
 export async function TorobBadge() {
-	const torobEnabled = await getVar<string>('TOROB_ENABLED');
+	const [torobEnabled, torobLink] = await Promise.all([
+		getVar<string>('TOROB_ENABLED'),
+		getVar<string>('TOROB_LINK'),
+	]);
 	if (torobEnabled !== "true") return null;
+
+	const href = torobLink || "https://torob.com";
 
 	return (
 		<a
-			href="https://torob.com"
+			href={href}
 			target="_blank"
 			rel="noopener noreferrer"
 			className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-l from-cyan-500 to-blue-500 text-white text-xs font-bold shadow-md hover:shadow-lg transition-shadow"

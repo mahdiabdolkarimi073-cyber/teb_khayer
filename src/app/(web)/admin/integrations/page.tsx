@@ -164,11 +164,14 @@ function ProviderCard({status}: {status: ProviderStatus}) {
     <IconBolt/>;
 
   const isBasalam = status.type.includes("باسلام");
+  const isTorob = status.type.includes("ترب");
+  const isLinkable = isBasalam || isTorob;
+  const linkHref = isBasalam ? "/admin/basalam" : isTorob ? "/admin/torob" : undefined;
 
   return (
-    <Card withBorder shadow="sm" radius="md" p="md" component={isBasalam ? Link : undefined}
-      href={isBasalam ? "/admin/basalam" : undefined}
-      style={isBasalam ? { cursor: "pointer", textDecoration: "none" } : undefined}>
+    <Card withBorder shadow="sm" radius="md" p="md" component={isLinkable ? Link : undefined}
+      href={linkHref || undefined}
+      style={isLinkable ? { cursor: "pointer", textDecoration: "none" } : undefined}>
       <Group justify="space-between" mb="sm">
         <Group gap="sm">
           <ThemeIcon variant="light" color={status.enabled ? "green" : "gray"} size="lg" radius="md">{icon}</ThemeIcon>
@@ -187,7 +190,7 @@ function ProviderCard({status}: {status: ProviderStatus}) {
         )}
         {status.endpoint && <Text size="xs" c="dimmed">آدرس: {status.endpoint}</Text>}
         {status.model && <Text size="xs" c="dimmed">مدل: {status.model}</Text>}
-        {isBasalam && <Text size="xs" c="blue">برای تنظیمات کلیک کنید ←</Text>}
+        {isLinkable && <Text size="xs" c="blue">برای تنظیمات کلیک کنید ←</Text>}
       </Stack>
     </Card>
   );

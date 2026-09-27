@@ -5,7 +5,7 @@ import {
   Alert, Badge, Button, Card, Group, Stack, Switch, Text, TextInput, Title, Divider, ThemeIcon, Code, Progress, SimpleGrid,
 } from "@mantine/core";
 import {
-  IconCheck, IconX, IconRefresh, IconSync, IconShoppingBag, IconPackage, IconTruck, IconLink, IconAlertCircle,
+  IconCheck, IconX, IconRefresh, IconShoppingBag, IconPackage, IconTruck, IconLink, IconAlertCircle,
 } from "@tabler/icons-react";
 import { toast } from "react-toastify";
 import {
@@ -228,7 +228,7 @@ export default function BasalamAdminPage() {
             <Text fw={600}>هماهنگ‌سازی محصولات</Text>
           </Group>
           <Text size="sm" c="dimmed">ارسال تمام محصولات به غرفه باسلام (ایجاد و به‌روزرسانی)</Text>
-          <Button leftSection={<IconSync size="1rem" />} loading={syncing === "products"} onClick={() => handleSync("products")} disabled={!status?.enabled}>
+          <Button leftSection={<IconRefresh size="1rem" />} loading={syncing === "products"} onClick={() => handleSync("products")} disabled={!status?.enabled}>
             شروع هماهنگ‌سازی
           </Button>
         </Card>
@@ -239,7 +239,7 @@ export default function BasalamAdminPage() {
             <Text fw={600}>هماهنگ‌سازی موجودی</Text>
           </Group>
           <Text size="sm" c="dimmed">به‌روزرسانی موجودی محصولات در باسلام</Text>
-          <Button leftSection={<IconSync size="1rem" />} loading={syncing === "inventory"} onClick={() => handleSync("inventory")} disabled={!status?.enabled}>
+          <Button leftSection={<IconRefresh size="1rem" />} loading={syncing === "inventory"} onClick={() => handleSync("inventory")} disabled={!status?.enabled}>
             شروع هماهنگ‌سازی
           </Button>
         </Card>
@@ -250,7 +250,7 @@ export default function BasalamAdminPage() {
             <Text fw={600}>دریافت سفارش‌ها</Text>
           </Group>
           <Text size="sm" c="dimmed">دریافت و بررسی سفارش‌های باسلام</Text>
-          <Button leftSection={<IconSync size="1rem" />} loading={syncing === "orders"} onClick={() => handleSync("orders")} disabled={!status?.enabled}>
+          <Button leftSection={<IconRefresh size="1rem" />} loading={syncing === "orders"} onClick={() => handleSync("orders")} disabled={!status?.enabled}>
             دریافت سفارش‌ها
           </Button>
         </Card>

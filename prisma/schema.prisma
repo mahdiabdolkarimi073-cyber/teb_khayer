@@ -284,6 +284,12 @@ enum SettingKey {
   /// @name ترب فعال است
   /// @default false
   TOROB_ENABLED
+  /// @name نام فروشگاه در ترب
+  /// @default ""
+  TOROB_SHOP_NAME
+  /// @name لینک فروشگاه در ترب
+  /// @default ""
+  TOROB_LINK
   /// @name باسلام فعال است
   /// @default false
   BASALAM_ENABLED
