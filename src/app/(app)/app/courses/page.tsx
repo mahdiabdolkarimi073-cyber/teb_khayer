@@ -36,9 +36,9 @@ const Page = async (props: any) => {
 
 	return (
 		<>
-			<div className={'flex flex-wrap bg-gray-100'}>
+			<div className={'grid grid-cols-1 sm:grid-cols-2 gap-3 bg-gray-100'}>
 				{hasCourse.map(c => (
-					<div className={'w-1/2 p-2'}>
+					<div key={c.id} className={'p-2'}>
 						<Link href={`./courses/${c.id}`}>
 							<CategoryView {...c} />
 						</Link>
@@ -50,9 +50,9 @@ const Page = async (props: any) => {
 				<p>به زودی</p>
 				<div className={'h-[1px] flex-grow bg-gray-300'}/>
 			</div>
-			<div className={'flex flex-wrap bg-gray-100'}>
+			<div className={'grid grid-cols-1 sm:grid-cols-2 gap-3 bg-gray-100'}>
 				{nHasCourse.map(c => (
-					<div className={'w-1/2 p-2'}>
+					<div key={c.id} className={'p-2'}>
 						<Link href={`./courses/${c.id}`}>
 							<CategoryView {...c} soon={true} />
 						</Link>

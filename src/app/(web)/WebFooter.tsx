@@ -1,4 +1,4 @@
-import {Text, Container, ActionIcon, Group, rem, ThemeIcon, Anchor} from '@mantine/core';
+import {Text, Container, ActionIcon, rem, ThemeIcon, Anchor} from '@mantine/core';
 import {IconBrandTwitter, IconBrandYoutube, IconBrandInstagram, IconPhoneCall} from '@tabler/icons-react';
 
 import classes from './FooterLinks.module.css';
@@ -83,8 +83,8 @@ export async function WebFooter() {
 					<path d="M0,50 C240,20 480,70 720,40 C960,10 1200,60 1440,40 L1440,80 L0,80 Z" fill="#0a3a6e" className={classes.wavePath2} opacity="0.5"/>
 				</svg>
 			</div>
-			<Container className={classes.inner+" flex-wrap"}>
-				<div className={classes.logo+" mb-3 md:mb-0"}>
+			<Container className={classes.inner}>
+				<div className={classes.logo}>
 					<Link href={'/'} className='block h-full'>
 						<div className={'center h-full gap-2'}>
 							<img loading='lazy' src={'/logo.webp'} alt={AppConfig.name} className={'h-[80px]'}/>
@@ -96,9 +96,9 @@ export async function WebFooter() {
 					</Link>
 
 				</div>
-				<div className={classes.groups+" gap-2 md:gap-0"}>{groups}</div>
+				<div className={classes.groups}>{groups}</div>
 			</Container>
-			<Container className={classes.afterFooter + " flex-wrap"}>
+			<Container className={classes.afterFooter}>
 				<div className={classes.footerLegal}>
 					<Text c="dimmed" size="xs" className={'text-xs'}>
 						© {new Date().toLocaleDateString('fa').split('/').shift()} {AppConfig.name}، تمامی حقوق
@@ -112,13 +112,13 @@ export async function WebFooter() {
 						</Text>
 					</a>
 				</div>
-				<div className={classes.footerContact + ' center gap-2 flex-col'}>
-					<Group gap={6} align="center">
+				<div className={classes.footerContact}>
+					<div className="center gap-2 flex-nowrap">
 						<ThemeIcon variant="light" color="blue" size="sm" radius="xl">
 							<IconPhoneCall size="0.9rem" />
 						</ThemeIcon>
 						<Text size="xs" fw={500} c="dimmed">شماره تماس فروشگاه</Text>
-					</Group>
+					</div>
 					<Anchor href={`tel:${phone}`} c="blue" fw={700} size="lg" className="dir-ltr">
 						{phone}
 					</Anchor>
@@ -127,7 +127,7 @@ export async function WebFooter() {
 					<WebFooterEnamad/>
 				</div>
 				<div className={classes.footerSocials + " center gap-2"}>
-					<p>ارتباط باما</p>
+					<p className="mb-1">ارتباط باما</p>
 					<SocialsComponent/>
 				</div>
 			</Container>

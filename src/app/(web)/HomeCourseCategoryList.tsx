@@ -36,13 +36,13 @@ const HomeCourseCategoryList = async (props: any) => {
 				</div>
 			</div>
 			<br/>
-			<div className={'grid lg:grid-cols-8 md:grid-cols-6 sm:grid-cols-4 grid-cols-2  gap-10 container mx-auto flex-wrap wrap'}>
+			<div className={'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6'}>
 				{categories?.map?.(category => (
-					<a href={'#app'}>
-						<div style={{width: "100px"}} className={'center flex-col gap-2'}>
-							<div className={'rounded-full relative overflow-hidden'}>
+					<a href={'#app'} key={category?.id}>
+						<div className={'center flex-col gap-2 w-full'}>
+							<div className={'rounded-full relative overflow-hidden w-[88px] h-[88px] sm:w-[100px] sm:h-[100px]'}>
 								<img loading='lazy' src={category?.thumbnail} alt={category?.name}
-									className={'w-[100px] h-[100px] rounded-full shadow object-cover'}/>
+									className={'w-full h-full rounded-full shadow object-cover'}/>
 								{category?._count?.courses === 0 && category?._count?.children === 0 && (
 									<div className={'absolute left-0 top-0 w-full h-full  center'}>
 										<div className={'bg-black/50 text-white  py-2 w-full font-bold center'}>
@@ -51,7 +51,7 @@ const HomeCourseCategoryList = async (props: any) => {
 									</div>
 								)}
 							</div>
-							<Text lineClamp={1} className={'text-center'}>{category?.name}</Text>
+							<Text lineClamp={1} className={'text-center w-full'}>{category?.name}</Text>
 						</div>
 					</a>
 				))}
