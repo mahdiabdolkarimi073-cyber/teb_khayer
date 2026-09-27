@@ -89,7 +89,7 @@ export async function WebFooter() {
 						<div className={'center h-full gap-2'}>
 							<img loading='lazy' src={'/logo.webp'} alt={AppConfig.name} className={'h-[80px]'}/>
 							<div>
-								<h2 className={'text-2xl'}>{AppConfig.name}</h2>
+								<h2 className={classes.brandTitle}>{AppConfig.name}</h2>
 
 							</div>
 						</div>
@@ -99,7 +99,7 @@ export async function WebFooter() {
 				<div className={classes.groups+" gap-2 md:gap-0"}>{groups}</div>
 			</Container>
 			<Container className={classes.afterFooter + " flex-wrap"}>
-				<div>
+				<div className={classes.footerLegal}>
 					<Text c="dimmed" size="xs" className={'text-xs'}>
 						© {new Date().toLocaleDateString('fa').split('/').shift()} {AppConfig.name}، تمامی حقوق
 						محفوظ است.
@@ -112,7 +112,7 @@ export async function WebFooter() {
 						</Text>
 					</a>
 				</div>
-				<div className={'center gap-2 flex-col'}>
+				<div className={classes.footerContact + ' center gap-2 flex-col'}>
 					<Group gap={6} align="center">
 						<ThemeIcon variant="light" color="blue" size="sm" radius="xl">
 							<IconPhoneCall size="0.9rem" />
@@ -123,10 +123,10 @@ export async function WebFooter() {
 						{phone}
 					</Anchor>
 				</div>
-				<div className={'h-[70px] w-fit'}>
+				<div className={classes.trustBadge + ' h-[70px] w-fit'}>
 					<WebFooterEnamad/>
 				</div>
-				<div className="center gap-2">
+				<div className={classes.footerSocials + " center gap-2"}>
 					<p>ارتباط باما</p>
 					<SocialsComponent/>
 				</div>

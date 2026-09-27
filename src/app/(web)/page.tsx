@@ -79,7 +79,7 @@ function Benefit({ icon: Icon, title, text }: { icon: typeof IconTruckDelivery; 
   );
 }
 
-function SupportMenu({ cardClass, icon, title, text }: { cardClass: string; icon: typeof IconUserCircle; title: string; text: string }) {
+function SupportMenu({ cardClass, icon: Icon, title, text }: { cardClass: string; icon: typeof IconUserCircle; title: string; text: string }) {
   const [opened, setOpened] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
