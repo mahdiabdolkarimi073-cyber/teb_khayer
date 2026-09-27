@@ -84,7 +84,7 @@ const Page = async (props: any) => {
 				</div>
 			</div>
 			<p className={'text-center mt-2 text-gray-600 text-sm'}>
-				تمام محتوای این برنامه متعلق به برنامه طب خیر می‌باشد. کپی‌برداری از آن پیگرد قانونی دارد.
+				تمام محتوای این برنامه متعلق به برنامه طبِ خیّر می‌باشد. کپی‌برداری از آن پیگرد قانونی دارد.
 			</p>
 			<div className={'center justify-between bg-primary text-white fixed w-full bottom-[68px] z-10 left-0 p-2'}>
 				<div>

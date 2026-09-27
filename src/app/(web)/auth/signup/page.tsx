@@ -9,8 +9,8 @@ export default function WebSignupPage() {
   return (
     <main className={styles.loginPage}>
       <section className={styles.loginShell}>
-        <Image src="/logo.webp" alt="طب خیر" width={74} height={74} className={styles.loginBrand} />
-        <h1 className={styles.heading}>ثبت نام در طب خیر</h1>
+        <Image src="/logo.webp" alt="طبِ خیّر" width={74} height={74} className={styles.loginBrand} />
+        <h1 className={styles.heading}>ثبت نام در طبِ خیّر</h1>
         <p className={styles.subtitle}>سلامتی، آرامش و زندگی بهتر — همین حالا حساب خود را بسازید.</p>
 
         <div className={styles.signupRow}>
@@ -27,7 +27,7 @@ export default function WebSignupPage() {
           <a href="/privacy/service" target="_blank" rel="noreferrer">استفاده از خدمات</a>{" "}
           و{" "}
           <a href="/privacy" target="_blank" rel="noreferrer">حریم خصوصی</a>{" "}
-          طب خیر را می‌پذیرم.
+          طبِ خیّر را می‌پذیرم.
         </p>
       </section>
     </main>

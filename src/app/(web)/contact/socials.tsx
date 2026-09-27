@@ -84,7 +84,7 @@ export function SocialIcon(props: {social: string, [key: string | symbol]: any})
 
 export const SocialsComponent = () => {
 	return (
-		<Group gap={0} className={classes.social} justify="flex-end" wrap="nowrap">
+		<Group gap={0} className={classes.social} justify="flex-end" wrap="wrap">
 			{Object.entries(AppConfig.contact).map(([key, link]) => {
 				return (
 					<a target={'_blank'} rel={'noopener noreferrer'} href={link} aria-label={socialsNames[key.toUpperCase() as keyof typeof socialsNames] || key}>

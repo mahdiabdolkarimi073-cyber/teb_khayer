@@ -66,17 +66,21 @@
 .courseTab { background: #fef3e7; color: #e87a1e; }
 .herbalTab { background: #e8f8f0; color: #1d9862; }
 
-@media (max-width: 1024px) {
+@media (min-width: 901px) and (max-width: 1024px) {
   .hero { min-height: 440px; padding: 40px clamp(20px, 5vw, 80px); }
   .servicesGrid { grid-template-columns: repeat(2, 1fr); }
   .categoryTabs { grid-template-columns: repeat(2, 1fr); }
   .appSection { gap: 40px; }
+  .heroBenefits { width: min(540px, calc(100% - 48px)); }
 }
 
-@media (max-width: 900px) {
+@media (min-width: 601px) and (max-width: 900px) {
   .hero { min-height: 520px; }
   .heroContent { max-width: 470px; }
-  .appSection { gap: 30px; }
+  .appSection { gap: 30px; flex-wrap: wrap; }
+  .appImageWrap { max-width: 400px; height: 260px; }
+  .appCopy { flex: 1 1 100%; }
+  .heroBenefits { width: min(540px, calc(100% - 48px)); }
 }
 
 @media (max-width: 600px) {
@@ -119,12 +123,46 @@
   .categoryTabs { grid-template-columns: 1fr; }
 }
 
+.medicalSection { max-width: 1270px; margin: 0 auto 36px; padding: 0 20px; }
+.medicalGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+.medicalCard { display: flex; align-items: center; gap: 18px; min-height: 120px; padding: 24px 26px; border-radius: 16px; -webkit-border-radius: 16px; -moz-border-radius: 16px; text-decoration: none; position: relative; overflow: hidden; transition: transform .25s, box-shadow .25s; -webkit-transition: transform .25s, box-shadow .25s; -moz-transition: transform .25s, box-shadow .25s; -o-transition: transform .25s, box-shadow .25s; }
+.medicalCard:hover { transform: translateY(-5px); box-shadow: 0 16px 36px rgba(26,66,112,.15); }
+.medicalCard:active { transform: translateY(-1px); }
+.medicalCard::before { content: ""; position: absolute; inset: 0; opacity: .12; z-index: 0; }
+.medicalIcon { width: 64px; height: 64px; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; display: grid; place-items: center; flex: 0 0 auto; color: #fff; z-index: 1; box-shadow: 0 6px 18px rgba(0,0,0,.15); }
+.medicalBody { z-index: 1; flex: 1; }
+.medicalBody h2 { font-size: 18px; margin: 0 0 6px; font-weight: 800; line-height: 1.4; }
+.medicalBody p { font-size: 13px; margin: 0; line-height: 1.6; }
+.medicalArrow { width: 36px; height: 36px; border-radius: 50%; -webkit-border-radius: 50%; -moz-border-radius: 50%; display: grid; place-items: center; color: #fff; flex: 0 0 auto; z-index: 1; }
+.medicalIdentify { background: linear-gradient(135deg, #0ea5e9, #14b8a6); color: #fff; }
+.medicalIdentify::before { background: linear-gradient(135deg, rgba(255,255,255,.2), transparent); }
+.medicalIdentify .medicalIcon { background: rgba(255,255,255,.25); }
+.medicalIdentify .medicalArrow { background: rgba(255,255,255,.25); }
+.medicalExplain { background: linear-gradient(135deg, #10b981, #14b8a6); color: #fff; }
+.medicalExplain::before { background: linear-gradient(135deg, rgba(255,255,255,.2), transparent); }
+.medicalExplain .medicalIcon { background: rgba(255,255,255,.25); }
+.medicalExplain .medicalArrow { background: rgba(255,255,255,.25); }
+
+@media (min-width: 601px) and (max-width: 1024px) {
+  .medicalGrid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .medicalSection { padding: 0 16px; margin-bottom: 28px; }
+  .medicalGrid { grid-template-columns: 1fr; gap: 14px; }
+  .medicalCard { min-height: 100px; padding: 20px 22px; gap: 14px; }
+  .medicalIcon { width: 54px; height: 54px; border-radius: 14px; -webkit-border-radius: 14px; -moz-border-radius: 14px; }
+  .medicalBody h2 { font-size: 16px; }
+  .medicalBody p { font-size: 12px; }
+  .medicalArrow { width: 32px; height: 32px; }
+}
+
+@media (max-width: 380px) {
+  .medicalCard { flex-direction: column; align-items: flex-start; gap: 10px; padding: 18px 18px; }
+  .medicalArrow { align-self: flex-end; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .primaryButton, .greenButton, .serviceCard, .categoryTab {
-    transition: none !important;
-    -webkit-transition: none !important;
-  }
-  .primaryButton:hover, .greenButton:hover, .serviceCard:hover, .categoryTab:hover {
-    transform: none !important;
-  }
+  .medicalCard { transition: none !important; -webkit-transition: none !important; }
+  .medicalCard:hover { transform: none !important; }
 }

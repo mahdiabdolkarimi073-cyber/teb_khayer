@@ -145,11 +145,11 @@ export default function DashboardPage() {
           <div className={styles.heroOverlay}/>
           <div className={styles.heroContent}>
             <div className={styles.welcomeCard}>
-              <img src="/logo.webp" alt="طب خیر"/>
+              <img src="/logo.webp" alt="طبِ خیّر"/>
               <div>
                 <span className={styles.crown}>👑</span>
                 <h1>سلام، مدیر عزیز</h1>
-                <p>به پنل مدیریت طب خیر خوش آمدید</p>
+                <p>به پنل مدیریت طبِ خیّر خوش آمدید</p>
                 <small>همیشه در کمترین زمان در جریان هستید.</small>
               </div>
             </div>

@@ -12,6 +12,7 @@ import {
   IconLeaf,
   IconLock,
   IconMedicineSyrup,
+  IconMicroscope,
   IconShieldCheck,
   IconStethoscope,
   IconTruckDelivery,
@@ -26,7 +27,7 @@ const appImage = "/ChatGPT_Image_Sep_22,_2026,_11_17_00_AM.png";
 
 const quickServices = [
   { title: "محصولات گیاهی و سوغات محلی", text: "بهترین محصولات و سوغات سنتی", icon: IconLeaf, tone: "green" },
-  { title: "دوره ها و آموزش ها", text: "دوره های علمی آموزش طب خیر", icon: IconBook2, tone: "blue" },
+  { title: "دوره ها و آموزش ها", text: "دوره های علمی آموزش طبِ خیّر", icon: IconBook2, tone: "blue" },
   { title: "پشتیبانی و مشاوره آنلاین", text: "با کارشناسان ما در ارتباط باشید", icon: IconUserCircle, tone: "purple" },
   { title: "تضمین کیفیت محصولات", text: "بهترین محصولات اصیل و با کیفیت", icon: IconBox, tone: "orange" },
 ];
@@ -36,9 +37,9 @@ function HeroBanner() {
     <section className={styles.hero} style={{ backgroundImage: `url(${heroImage})` }} role="banner">
       <div className={styles.heroOverlay} />
       <div className={styles.heroContent}>
-        <span className={styles.eyebrow}>به فروشگاه اینترنتی طب خیر خوش آمدید</span>
+        <span className={styles.eyebrow}>به فروشگاه اینترنتی طبِ خیّر خوش آمدید</span>
         <h1>سلامت، آرامش و زندگی بهتر<br />با محصولاتی با کیفیت ما</h1>
-        <p>ما در طب خیر با ارائه محصولات متنوع و باکیفیت، به بهبود سبک زندگی شما کمک می‌کنیم.</p>
+        <p>ما در طبِ خیّر با ارائه محصولات متنوع و باکیفیت، به بهبود سبک زندگی شما کمک می‌کنیم.</p>
         <Button component={Link} href="/category/all" className={styles.primaryButton} rightSection={<IconArrowLeft size={18} />} aria-label="مشاهده محصولات">
           مشاهده محصولات
         </Button>
@@ -65,7 +66,7 @@ function Benefit({ icon: Icon, title, text }: { icon: typeof IconTruckDelivery; 
 
 function QuickServices() {
   return (
-    <section className={styles.servicesGrid} aria-label="خدمات طب خیر">
+    <section className={styles.servicesGrid} aria-label="خدمات طبِ خیّر">
       {quickServices.map(({ title, text, icon: Icon, tone }) => (
         <Link href="/about" key={title} className={`${styles.serviceCard} ${styles[tone]}`} aria-label={title}>
           <div className={styles.serviceIcon}><Icon size={24} stroke={1.8} aria-hidden="true" /></div>
@@ -100,22 +101,52 @@ function NaturalProductsBanner() {
 
 function AppSection({onDownload}: {onDownload: () => void}) {
   return (
-    <section className={styles.appSection} aria-label="اپلیکیشن طب خیر">
+    <section className={styles.appSection} aria-label="اپلیکیشن طبِ خیّر">
       <div className={styles.appImageWrap}>
-        <img src={appImage} alt="اپلیکیشن طب خیر" loading="lazy" width="100%" height="100%" />
+        <img src={appImage} alt="اپلیکیشن طبِ خیّر" loading="lazy" width="100%" height="100%" />
       </div>
       <div className={styles.appCopy}>
         <span className={styles.eyebrow}>همراه همیشگی سلامتی شما</span>
-        <h2>اپلیکیشن طب خیر</h2>
-        <p>با دریافت اپلیکیشن طب خیر، می‌توانید با استفاده از گوشی همراه به راحتی در هر مکان و هر زمان از امکانات مجموعه آموزشی و فروشگاه گیاهان دارویی بهره‌مند شوید.</p>
-        <Button className={styles.primaryButton} rightSection={<IconArrowLeft size={18} />} aria-label="دانلود اپلیکیشن طب خیر" onClick={onDownload}>
-          دانلود اپلیکیشن طب خیر
+        <h2>اپلیکیشن طبِ خیّر</h2>
+        <p>با دریافت اپلیکیشن طبِ خیّر، می‌توانید با استفاده از گوشی همراه به راحتی در هر مکان و هر زمان از امکانات مجموعه آموزشی و فروشگاه گیاهان دارویی بهره‌مند شوید.</p>
+        <Button className={styles.primaryButton} rightSection={<IconArrowLeft size={18} />} aria-label="دانلود اپلیکیشن طبِ خیّر" onClick={onDownload}>
+          دانلود اپلیکیشن طبِ خیّر
         </Button>
         <div className={styles.appStats}>
           <span><IconBook2 size={22} aria-hidden="true" /> صدها هزار دانشجو</span>
           <span><IconStethoscope size={22} aria-hidden="true" /> هزاران ساعت آموزش</span>
           <span><IconCircleCheck size={22} aria-hidden="true" /> دسترسی آسان و همیشگی</span>
         </div>
+      </div>
+    </section>
+  );
+}
+
+function MedicalServices() {
+  return (
+    <section className={styles.medicalSection} aria-label="خدمات تشخیصی طبِ خیّر">
+      <div className={styles.sectionHeading}>
+        <span>خدمات تخصصی طب سنتی</span>
+        <h2>تشخیص و تفسیر آنلاین</h2>
+        <p>با ارسال تصویر زبان یا برگه آزمایش، توسط کارشناسان بررسی و تفسیر می‌شود</p>
+      </div>
+      <div className={styles.medicalGrid}>
+        <Link href="/service/IDENTIFY" className={`${styles.medicalCard} ${styles.medicalIdentify}`} aria-label="تشخیص بیماری از روی زبان">
+          <div className={styles.medicalIcon}><IconStethoscope size={32} stroke={1.7} aria-hidden="true" /></div>
+          <div className={styles.medicalBody}>
+            <h2>تشخیص بیماری‌ها از روی زبان</h2>
+            <p>جهت ارسال عکس زبان کلیک کنید</p>
+          </div>
+          <span className={styles.medicalArrow}><IconArrowLeft size={18} aria-hidden="true" /></span>
+        </Link>
+        <Link href="/service/EXPLAIN" className={`${styles.medicalCard} ${styles.medicalExplain}`} aria-label="تفسیر برگه آزمایش و سونوگرافی">
+          <div className={styles.medicalIcon}><IconMicroscope size={32} stroke={1.7} aria-hidden="true" /></div>
+          <div className={styles.medicalBody}>
+            <h2>تفسیر برگه آزمایش و سونوگرافی</h2>
+            <p>جهت تفسیر کلیک کنید</p>
+          </div>
+          <span className={styles.medicalArrow}><IconArrowLeft size={18} aria-hidden="true" /></span>
+        </Link>
       </div>
     </section>
   );
@@ -155,6 +186,7 @@ export function HomePage() {
       <HeroBanner />
       <QuickServices />
       <NaturalProductsBanner />
+      <MedicalServices />
       <AppSection onDownload={() => setDownloadOpened(true)} />
       <ProductCategories />
       <AppDownloadModal opened={downloadOpened} onClose={() => setDownloadOpened(false)} />

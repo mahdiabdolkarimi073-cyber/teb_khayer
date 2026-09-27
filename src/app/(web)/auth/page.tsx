@@ -6,8 +6,8 @@ function AuthGate(props: { login?: string; signup?: string }) {
   return (
     <main className={styles.loginPage}>
       <section className={styles.loginShell}>
-        <img src="/logo.webp" alt="طب خیر" className={styles.loginBrand} width={74} height={74} />
-        <h1 className={styles.heading}>به طب خیر خوش آمدید</h1>
+        <img src="/logo.webp" alt="طبِ خیّر" className={styles.loginBrand} width={74} height={74} />
+        <h1 className={styles.heading}>به طبِ خیّر خوش آمدید</h1>
         <p className={styles.subtitle}>سلامتی، آرامش و زندگی بهتر — برای ادامه یکی از گزینه‌ها را انتخاب کنید.</p>
         <div className={styles.divider} />
         <div className="flex flex-col gap-4 w-full">

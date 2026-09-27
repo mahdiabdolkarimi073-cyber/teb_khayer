@@ -28,14 +28,14 @@ const Page = async (props: any) => {
         <section className={classes.hero}>
           <img
             src={HERO_IMAGE}
-            alt="دسته‌بندی محصولات طب خیر"
+            alt="دسته‌بندی محصولات طبِ خیّر"
             className={classes.heroImage}
           />
           <div className={classes.heroShade} />
           <div className={classes.heroContent}>
             <span className={classes.kicker}>
               <IconSparkles size="14" />
-              فروشگاه طب خیر
+              فروشگاه طبِ خیّر
             </span>
             <h1 className={classes.heroTitle}>دسته‌بندی محصولات</h1>
             <p className={classes.heroDescription}>

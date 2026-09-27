@@ -14,7 +14,7 @@ const HomeSlider = async (props: any) => {
 			<div className={'center justify-stretch lg:flex-nowrap content-stretch flex-wrap gap-4 p-3 md:p-0 px-4 md:px-0'}>
 				<div className={'center flex-col justify-between items-stretch h-full'}>
 					<div>
-						<p className={'font-bold text-xl'}> به مجموعه آموزشی طب خیر خوش آمدید</p>
+						<p className={'font-bold text-xl'}> به مجموعه آموزشی طبِ خیّر خوش آمدید</p>
 						<p className={'text-justify max-w-[700px]'}>
 
 							همانطوریکه مستحضرید، طب سنتی و روایی که موردتایید حکیم
@@ -51,7 +51,7 @@ const HomeSlider = async (props: any) => {
 								link={(
 									<p>
 										برای دریافت مشاوره در خصوص تشخیص برخی از بیماری های بدن خوداز روی زبان ابتدا اپلیکیشن
-										طب خیر را به صورت رایگان دانلود کنید
+										طبِ خیّر را به صورت رایگان دانلود کنید
 									</p>
 								)}
 								icon={<img loading='lazy' src={'/design/zaban.webp'} alt={'زبان'}
@@ -83,7 +83,7 @@ const Tafsir = ()=>{
 		<div>
 			<p>
 				برای دریافت اطلاعات تفسیر آزمایش و سونوگرافی خود و عزیزانتان ابتدا اپلیکیشن
-				طب خیر را دانلود کنید
+				طبِ خیّر را دانلود کنید
 			</p>
 		</div>
 	)

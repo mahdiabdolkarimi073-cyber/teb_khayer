@@ -68,8 +68,8 @@ export default function AdminSidebar() {
       >
         <div className={styles.sidebarHeader}>
           <div className={styles.sidebarLogo}>
-            <img src="/logo.webp" alt="طب خیر"/>
-            <span className={styles.sidebarLogoText}>طب خیر</span>
+            <img src="/logo.webp" alt="طبِ خیّر"/>
+            <span className={styles.sidebarLogoText}>طبِ خیّر</span>
           </div>
           <button
             className={styles.sidebarCloseBtn}
@@ -109,7 +109,7 @@ export default function AdminSidebar() {
         </nav>
 
         <div className={styles.sidebarFooter}>
-          <p className={styles.sidebarFooterText}>نسخه ۱.۰ — طب خیر</p>
+          <p className={styles.sidebarFooterText}>نسخه ۱.۰ — طبِ خیّر</p>
         </div>
       </aside>
     </>

@@ -18,15 +18,14 @@ const AppDateComponent = (props: any) => {
 	}, []);
 
 	return (
-		<div className={'p-4 bg-secondary rounded-3xl shadow center justify-between text-white'}>
-			<IconCalendarTime  size={'3.5rem'} />
-			<h2 className={'text-5xl'}>{data.day}</h2>
-			<div>
-				<p>{data.wm}</p>
-				<p>{data.date.toLocaleDateString()}</p>
+		<div className={'p-3 sm:p-4 bg-secondary rounded-3xl shadow center justify-between text-white gap-2'}>
+			<IconCalendarTime  className="shrink-0" size={'2.5rem'} />
+			<h2 className={'text-3xl sm:text-5xl shrink-0'}>{data.day}</h2>
+			<div className="text-center min-w-0">
+				<p className="truncate">{data.wm}</p>
+				<p className="truncate">{data.date.toLocaleDateString()}</p>
 			</div>
-			<br/>
-			<h2>{data.year}</h2>
+			<h2 className="shrink-0">{data.year}</h2>
 		</div>
 	)
 }

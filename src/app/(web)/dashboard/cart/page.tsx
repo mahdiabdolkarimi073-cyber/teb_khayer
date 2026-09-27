@@ -80,7 +80,7 @@ const Page = () => {
               <div className={styles.payable}><span>مبلغ قابل پرداخت</span><strong>{formatPrice(total)}</strong></div>
             </div>
             <Link href="/dashboard/checkout" className={styles.primary}>ادامه و ثبت سفارش<IconArrowLeft size={16} /></Link>
-            <p className={styles.policy}>با ادامه سفارش، شرایط استفاده از خدمات و حریم خصوصی طب خیر را می‌پذیرید.</p>
+            <p className={styles.policy}>با ادامه سفارش، شرایط استفاده از خدمات و حریم خصوصی طبِ خیّر را می‌پذیرید.</p>
           </aside>
 
           <section className={`${styles.card} ${styles.cartCard}`}>

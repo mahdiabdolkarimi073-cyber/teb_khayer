@@ -21,11 +21,11 @@ const Page = async (props: any) => {
   return (
     <main className={styles.page}>
       <section className={styles.hero}>
-        <img className={styles.heroImage} src="/ChatGPT_Image_Sep_16,_2026,_09_13_08_AM.png" alt="طب خیر" />
+        <img className={styles.heroImage} src="/ChatGPT_Image_Sep_16,_2026,_09_13_08_AM.png" alt="طبِ خیّر" />
         <div className={styles.heroContent}>
           <div className={styles.heroCopy}>
             <span className={styles.eyebrow}>تنوع بی‌نظیر، کیفیت تضمینی</span>
-            <h1 className={styles.heroTitle}>دنیای محصولات طب خیر</h1>
+            <h1 className={styles.heroTitle}>دنیای محصولات طبِ خیّر</h1>
             <p className={styles.heroSubtitle}>محصولات منتخب و متنوع با کیفیت و اعتماد برای سلامت و زندگی بهتر شما</p>
             <div className={styles.heroActions}>
               <a className={styles.primaryButton} href="#products">مشاهده همه محصولات</a>
