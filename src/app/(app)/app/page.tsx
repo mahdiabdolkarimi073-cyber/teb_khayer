@@ -3,6 +3,7 @@ import AppDateComponent from "@/app/(app)/app/AppDateComponent";
 import AppMainBanner from "@/app/(app)/app/AppMainBanner";
 import CoursesBanner from "@/app/(app)/app/CoursesBanner";
 import EitaaBanner from "@/app/(app)/app/EitaaBanner";
+import BasalamBanner from "@/app/(app)/app/BasalamBanner";
 import AppShopBanner from "@/app/(app)/app/AppShopBanner";
 import {SocialsComponent} from "@/app/(web)/contact/socials";
 import Taghvims from "@/app/(web)/Taghvims";
@@ -22,6 +23,7 @@ const Page = (props: any) => {
 				<Banner title={'ویزیت آنلاین'} className={'from-cyan-400 to-cyan-600'} description={'جهت مشاوره کلیک کنید'} link={'/app/service/VISIT'} />
 			</div>
 			<EitaaBanner/>
+			<BasalamBanner/>
 			<div className={'grid grid-cols-2 gap-2 sm:gap-3'}>
 				<CoursesBanner/>
 				<AppShopBanner/>

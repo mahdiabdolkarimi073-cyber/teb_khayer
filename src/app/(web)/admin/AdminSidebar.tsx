@@ -20,6 +20,7 @@ const sections = [
 const lowerSections = [
   {name: "سئو", path: "/seo", icon: "◎"},
   {name: "ارتباطات و هوش مصنوعی", path: "/integrations", icon: "ϟ"},
+  {name: "باسلام", path: "/basalam", icon: "◈"},
   {name: "تنظیمات", path: "/services", icon: "⚙"},
 ];
 

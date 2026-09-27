@@ -5,9 +5,10 @@ import {
   Alert, Badge, Card, Group, SimpleGrid, Stack, Text, Title, ThemeIcon, Divider, Textarea, Button, TextInput,
 } from "@mantine/core";
 import {
-  IconRobot, IconMessage2, IconBrain, IconBolt, IconCheck, IconX, IconSettings, IconSparkles,
+  IconRobot, IconMessage2, IconBrain, IconBolt, IconCheck, IconX, IconSettings, IconSparkles, IconShoppingBag,
 } from "@tabler/icons-react";
 import {toast} from "react-toastify";
+import Link from "next/link";
 import {getProviderStatuses, ProviderStatus} from "@/app/(web)/admin/integrations/integrations.action";
 
 export default function IntegrationsPage() {
@@ -159,10 +160,15 @@ function ProviderCard({status}: {status: ProviderStatus}) {
     status.type === "پیامک" ? <IconMessage2/> :
     status.type === "درگاه پرداخت" ? <IconSettings/> :
     status.type === "باشگاه مشتریان" ? <IconRobot/> :
+    status.type.includes("باسلام") ? <IconShoppingBag/> :
     <IconBolt/>;
 
+  const isBasalam = status.type.includes("باسلام");
+
   return (
-    <Card withBorder shadow="sm" radius="md" p="md">
+    <Card withBorder shadow="sm" radius="md" p="md" component={isBasalam ? Link : undefined}
+      href={isBasalam ? "/admin/basalam" : undefined}
+      style={isBasalam ? { cursor: "pointer", textDecoration: "none" } : undefined}>
       <Group justify="space-between" mb="sm">
         <Group gap="sm">
           <ThemeIcon variant="light" color={status.enabled ? "green" : "gray"} size="lg" radius="md">{icon}</ThemeIcon>
@@ -181,6 +187,7 @@ function ProviderCard({status}: {status: ProviderStatus}) {
         )}
         {status.endpoint && <Text size="xs" c="dimmed">آدرس: {status.endpoint}</Text>}
         {status.model && <Text size="xs" c="dimmed">مدل: {status.model}</Text>}
+        {isBasalam && <Text size="xs" c="blue">برای تنظیمات کلیک کنید ←</Text>}
       </Stack>
     </Card>
   );

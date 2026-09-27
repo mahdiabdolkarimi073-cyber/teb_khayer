@@ -278,6 +278,33 @@ enum SettingKey {
   /// @name آدرس وب‌سایت
   /// @default "https://teb-khayyer.ir"
   TRUST_WEBSITE
+  /// @name لینک باسلام
+  /// @default ""
+  BASALAM_LINK
+  /// @name ترب فعال است
+  /// @default false
+  TOROB_ENABLED
+  /// @name باسلام فعال است
+  /// @default false
+  BASALAM_ENABLED
+  /// @name Client ID باسلام
+  /// @default ""
+  BASALAM_CLIENT_ID
+  /// @name Client Secret باسلام
+  /// @default ""
+  BASALAM_CLIENT_SECRET
+  /// @name Access Token باسلام
+  /// @default ""
+  BASALAM_ACCESS_TOKEN
+  /// @name Refresh Token باسلام
+  /// @default ""
+  BASALAM_REFRESH_TOKEN
+  /// @name شناسه غرفه باسلام
+  /// @default ""
+  BASALAM_BOOTH_ID
+  /// @name توکن شخصی باسلام (PAT)
+  /// @default ""
+  BASALAM_PAT_TOKEN
 }
 
 enum AttachmentType {

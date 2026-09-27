@@ -8,6 +8,7 @@ import React from "react";
 import prisma from "@backend/modules/prisma/Prisma";
 import {SocialsComponent} from "@/app/(web)/contact/socials";
 import WebFooterEnamad from "@/app/(web)/WebFooter.enamad";
+import TorobBadge from "@/app/(web)/TorobBadge";
 import {getVar} from "@backend/utils/setting";
 import {SettingKeyInfo} from "@/generated/SettingKey.enum";
 
@@ -26,6 +27,12 @@ export async function WebFooter() {
 		}
 	});
 	const phone = await getVar('MAIN_PHONE') || SettingKeyInfo["MAIN_PHONE"]?.default;
+	const basalamLink = await getVar<string>('BASALAM_LINK');
+
+	const contactOverride: Record<string, string> = { ...AppConfig.contact };
+	if (basalamLink) {
+		contactOverride["basalam"] = basalamLink;
+	}
 
 	const data = [
 		{
@@ -125,10 +132,11 @@ export async function WebFooter() {
 				</div>
 				<div className={classes.trustBadge + ' h-[70px] w-fit'}>
 					<WebFooterEnamad/>
+					<TorobBadge/>
 				</div>
 				<div className={classes.footerSocials + " center gap-2"}>
 					<p className="mb-1">ارتباط باما</p>
-					<SocialsComponent/>
+					<SocialsComponent contactOverride={contactOverride}/>
 				</div>
 			</Container>
 		</footer>

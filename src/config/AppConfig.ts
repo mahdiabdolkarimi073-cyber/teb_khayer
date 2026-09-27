@@ -9,7 +9,8 @@ const AppConfig = {
 		"telegram": "https://t.me/Teb_khayyer_Ardabil",
 		"eitaa": "https://eitaa.com/joinchat/2771714572C9cc8f60c1b",
 		"whatsapp": "https://chat.whatsapp.com/IZYUWEyod5BEg30iLcfCpR",
-		"rubika": "https://rubika.ir/joing/GABEBDBA0ECLIFMMENGUUGSQSURLUCON"
+		"rubika": "https://rubika.ir/joing/GABEBDBA0ECLIFMMENGUUGSQSURLUCON",
+		"basalam": ""
 	},
 	ADMINS: `
 09147434120
