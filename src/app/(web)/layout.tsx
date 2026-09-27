@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import React from "react";
 import WebHeader from "@/app/(web)/WebHeader";
 import WebFooter from "@/app/(web)/WebFooter";
