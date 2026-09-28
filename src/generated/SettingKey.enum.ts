@@ -19,7 +19,12 @@
   BASALAM_ACCESS_TOKEN: "Access Token باسلام",
   BASALAM_REFRESH_TOKEN: "Refresh Token باسلام",
   BASALAM_BOOTH_ID: "شناسه غرفه باسلام",
-  BASALAM_PAT_TOKEN: "توکن شخصی باسلام (PAT)"
+  BASALAM_PAT_TOKEN: "توکن شخصی باسلام (PAT)",
+  DIGIKALA_ENABLED: "دیجی‌کالا فعال است",
+  DIGIKALA_API_TOKEN: "توکن API دیجی‌کالا",
+  DIGIKALA_SELLER_ID: "شناسه فروشنده دیجی‌کالا",
+  DIGIKALA_LINK: "لینک دیجی‌کالا",
+  DIGIKALA_WEBHOOK_SECRET: "توکن امنیتی وب‌هوک دیجی‌کالا",
  }
   export type SettingKeyEnumType = typeof SettingKeyEnum;
   export const SettingKeyInfo = {
@@ -101,6 +106,26 @@
   },
   BASALAM_PAT_TOKEN: {
     name: "توکن شخصی باسلام (PAT)",
+    default: ""
+  },
+  DIGIKALA_ENABLED: {
+    name: "دیجی‌کالا فعال است",
+    default: "false"
+  },
+  DIGIKALA_API_TOKEN: {
+    name: "توکن API دیجی‌کالا",
+    default: ""
+  },
+  DIGIKALA_SELLER_ID: {
+    name: "شناسه فروشنده دیجی‌کالا",
+    default: ""
+  },
+  DIGIKALA_LINK: {
+    name: "لینک دیجی‌کالا",
+    default: ""
+  },
+  DIGIKALA_WEBHOOK_SECRET: {
+    name: "توکن امنیتی وب‌هوک دیجی‌کالا",
     default: ""
   }
 }

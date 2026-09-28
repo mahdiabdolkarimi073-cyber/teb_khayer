@@ -1,7 +1,6 @@
 "use client";
 
 import React, {useEffect, useRef, useState} from "react";
-import {AspectRatio} from "@mantine/core";
 import {IconPlayerPlay} from "@tabler/icons-react";
 
 const Preview = (props: {
@@ -21,12 +20,12 @@ const Preview = (props: {
 
 	return (
 		<div className={'mt-3'}>
-			<div className={'relative center h-[300px]'}>
+			<div className={'relative center course-preview-wrapper'}>
 				{!play && (
 					<div onClick={() => {
 						setPlay(true)
 					}} className={'absolute left-0 top-0 text-white center h-full w-full z-10'}>
-						<IconPlayerPlay size={'4rem'} />
+						<IconPlayerPlay size={'3rem'} />
 					</div>
 				)}
 				<video key={'video'} ref={ref as any} preload={'none'} controls
@@ -38,7 +37,7 @@ const Preview = (props: {
 				</video>
 			</div>
 		</div>
-)
+	)
 }
 
 export default Preview;

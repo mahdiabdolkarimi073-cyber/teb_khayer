@@ -11,6 +11,8 @@ import WebFooterEnamad from "@/app/(web)/WebFooter.enamad";
 import TorobBadge from "@/app/(web)/TorobBadge";
 import {getVar} from "@backend/utils/setting";
 import {SettingKeyInfo} from "@/generated/SettingKey.enum";
+import {getPublicVisitCount} from "@/app/(web)/admin/dashboard/visits.action";
+import {formatPersianNumber} from "@/utils/format";
 
 
 
@@ -28,6 +30,7 @@ export async function WebFooter() {
 	});
 	const phone = await getVar('MAIN_PHONE') || SettingKeyInfo["MAIN_PHONE"]?.default;
 	const basalamLink = await getVar<string>('BASALAM_LINK');
+	const totalVisits = await getPublicVisitCount();
 
 	const contactOverride: Record<string, string> = { ...AppConfig.contact };
 	if (basalamLink) {
@@ -129,6 +132,9 @@ export async function WebFooter() {
 					<Anchor href={`tel:${phone}`} c="blue" fw={700} size="lg" className="dir-ltr">
 						{phone}
 					</Anchor>
+					<Text size="xs" c="dimmed" fw={600}>
+						بازدید کل سایت: {formatPersianNumber(totalVisits)}
+					</Text>
 				</div>
 				<div className={classes.trustBadge + ' h-[70px] w-fit'}>
 					<WebFooterEnamad/>

@@ -8,6 +8,7 @@ import {User} from "@prisma/client";
 import prisma from "@backend/modules/prisma/Prisma";
 import ShopLatestUpdate from "@/app/(web)/ShopLatestUpdate";
 import WebMobileNav from "@/app/(web)/WebMobileNav";
+import VisitTracker from "@/app/(web)/VisitTracker";
 import {getVar} from "@backend/utils/setting";
 
 const Layout = async (props: any) => {
@@ -28,6 +29,7 @@ const Layout = async (props: any) => {
 			`
 			}}></script>
 			<ShopLatestUpdate/>
+			<VisitTracker/>
 			<WebHeader
 				phone={await getVar('MAIN_PHONE')}
 				user={await getUserFromCookie() as User}

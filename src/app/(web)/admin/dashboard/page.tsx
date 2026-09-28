@@ -3,13 +3,14 @@
 import React, {useEffect, useRef, useState} from "react";
 import Link from "next/link";
 import {getDashboardStats, DashboardStats} from "@/app/(web)/admin/dashboard/dashboard.action";
+import {getVisitStats, VisitStats} from "@/app/(web)/admin/dashboard/visits.action";
 import {formatPersianCurrency, formatPersianNumber, toPersianDateTime} from "@/utils/format";
 import styles from "./dashboard.module.css";
 
 const heroImage = "/ChatGPT_Image_Sep_22,_2026,_10_51_08_AM.png";
 
-function KPICard({icon, label, value, tone, growth}: {
-  icon: string; label: string; value: string; tone: "purple" | "green" | "blue" | "orange"; growth?: number;
+function KPICard({icon, label, value, tone, growth, link}: {
+  icon: string; label: string; value: string; tone: "purple" | "green" | "blue" | "orange"; growth?: number; link?: string;
 }) {
   const growthStr = growth !== undefined ? `${growth >= 0 ? "+" : ""}${formatPersianNumber(growth)}٪` : null;
   return (
@@ -20,16 +21,16 @@ function KPICard({icon, label, value, tone, growth}: {
       )}
       <strong className={styles.statValue}>{value}</strong>
       <label className={styles.statLabel}>{label}</label>
-      <Link href="#" className={styles.statLink}>مشاهده جزئیات ←</Link>
+      <Link href={link || "#"} className={styles.statLink}>مشاهده جزئیات ←</Link>
     </article>
   );
 }
 
 function MiniBarChart({data, color = "#0879df"}: {data: {date: string; total: number}[]; color?: string}) {
-  if (!data?.length) return <div className={styles.chartCanvas} style={{display: "flex", alignItems: "center", justifyContent: "center", color: "#7890a8", fontSize: 11}}>داده‌ای موجود نیست</div>;
+  if (!data?.length) return <div className={styles.chartCanvas} style={{display: "flex", alignItems: "center", justifyContent: "center", color: "#7890a8", fontSize: 16}}>داده‌ای موجود نیست</div>;
   const max = Math.max(...data.map((d) => d.total), 1);
   return (
-    <div className={styles.chartCanvas} style={{display: "flex", gap: 2, alignItems: "flex-end", height: 210, paddingBottom: 20}}>
+    <div className={styles.chartCanvas} style={{display: "flex", gap: 3, alignItems: "flex-end", height: 210, paddingBottom: 24}}>
       {data.map((d) => {
         const h = Math.max((d.total / max) * 170, 2);
         return (
@@ -38,7 +39,7 @@ function MiniBarChart({data, color = "#0879df"}: {data: {date: string; total: nu
               width: "100%", height: h, background: color, borderRadius: "4px 4px 0 0",
               opacity: d.total > 0 ? 1 : 0.2, transition: "height .3s ease",
             }}/>
-            <span style={{fontSize: 8, color: "#7890a8", marginTop: 4}}>{d.date.slice(5)}</span>
+            <span style={{fontSize: 16, color: "#7890a8", marginTop: 6, fontWeight: 600}}>{d.date.slice(5)}</span>
           </div>
         );
       })}
@@ -47,7 +48,7 @@ function MiniBarChart({data, color = "#0879df"}: {data: {date: string; total: nu
 }
 
 function DonutChart({data}: {data: {name: string; total: number}[]}) {
-  if (!data?.length) return <div className={styles.donutWrapper} style={{color: "#7890a8", fontSize: 11}}>داده‌ای موجود نیست</div>;
+  if (!data?.length) return <div className={styles.donutWrapper} style={{color: "#7890a8", fontSize: 16}}>داده‌ای موجود نیست</div>;
   const total = data.reduce((s, d) => s + d.total, 0) || 1;
   const colors = ["#138eb4", "#49b57a", "#f19a55", "#e86c55", "#7d54dc"];
   let cumulative = 0;
@@ -99,6 +100,7 @@ function OrderStatusBadge({status}: {status: string}) {
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [visitStats, setVisitStats] = useState<VisitStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [isLive, setIsLive] = useState(true);
   const prevOrderCount = useRef(0);
@@ -107,6 +109,8 @@ export default function DashboardPage() {
     try {
       const data = await getDashboardStats();
       setStats(data);
+      const visits = await getVisitStats();
+      setVisitStats(visits);
       setIsLive(true);
       if (data.recentOrders.length > prevOrderCount.current && prevOrderCount.current > 0) {
         const {toast} = await import("react-toastify");
@@ -158,7 +162,7 @@ export default function DashboardPage() {
 
         {/* KPI Cards */}
         <section className={styles.statsGrid}>
-          <KPICard icon="↥" label="کل سفارشات" value={formatPersianNumber(stats.totalOrders)} tone="purple" growth={13}/>
+          <KPICard icon="↥" label="کل سفارشات" value={formatPersianNumber(stats.totalOrders)} tone="purple" growth={13} link="/admin/orders"/>
           <KPICard icon="🛒" label="کل فروش" value={formatPersianCurrency(stats.totalSales)} tone="green" growth={25}/>
           <KPICard icon="♙" label="کاربران" value={formatPersianNumber(stats.totalUsers)} tone="blue" growth={stats.usersGrowth}/>
           <KPICard icon="▣" label="درآمد امروز" value={formatPersianCurrency(stats.todayRevenue)} tone="orange" growth={18}/>
@@ -208,6 +212,29 @@ export default function DashboardPage() {
               <span>{formatPersianNumber(stats.canceledOrders)}</span>
               <b>لغو شده</b>
             </div>
+          </div>
+        </section>
+
+        {/* Site Visits */}
+        <section className={styles.orderStatusCard}>
+          <div className={styles.sectionHeader}>
+            <h2>بازدیدهای سایت</h2>
+          </div>
+          <div className={styles.statusGrid}>
+            <div className={`${styles.statusReady} ${styles.status}`}>
+              <span>{formatPersianNumber(visitStats?.totalVisits ?? 0)}</span>
+              <b>کل بازدید</b>
+            </div>
+            <div className={`${styles.statusSent} ${styles.status}`}>
+              <span>{formatPersianNumber(visitStats?.todayVisits ?? 0)}</span>
+              <b>بازدید امروز</b>
+            </div>
+          </div>
+          <div style={{marginTop: 16}}>
+            <div className={styles.sectionHeader} style={{marginBottom: 8}}>
+              <h2 style={{fontSize: 16, fontWeight: 800}}>روند بازدید (۳۰ روز)</h2>
+            </div>
+            <MiniBarChart data={visitStats?.visitsTrend ?? []} color="#138eb4"/>
           </div>
         </section>
 

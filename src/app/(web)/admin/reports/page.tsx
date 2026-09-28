@@ -10,7 +10,11 @@ import {
   IconUsers, IconShoppingCart, IconCurrencyDollar, IconChartBar,
 } from "@tabler/icons-react";
 import {getReportData, ReportData} from "@/app/(web)/admin/reports/reports.action";
-import {formatPersianCurrency, formatPersianNumber, toPersianDateTime, daysAgo} from "@/utils/format";
+import {
+  formatPersianCurrency, formatPersianNumber, toPersianDateTime, daysAgo,
+  toJalaliString, jalaliStringToDate, jalaliToday, jalaliDaysAgo,
+  formatJalaliDateShort,
+} from "@/utils/format";
 
 function exportCSV(data: ReportData) {
   const rows: string[] = [];
@@ -36,28 +40,70 @@ function exportCSV(data: ReportData) {
 }
 
 const presets: Record<string, () => {start: string; end: string}> = {
-  today: () => {const d = new Date(); return {start: d.toISOString().split("T")[0], end: d.toISOString().split("T")[0]}},
-  yesterday: () => {const d = daysAgo(1); const e = daysAgo(0); return {start: d.toISOString().split("T")[0], end: e.toISOString().split("T")[0]}},
-  last7: () => ({start: daysAgo(7).toISOString().split("T")[0], end: new Date().toISOString().split("T")[0]}),
-  last30: () => ({start: daysAgo(30).toISOString().split("T")[0], end: new Date().toISOString().split("T")[0]}),
-  last3months: () => ({start: daysAgo(90).toISOString().split("T")[0], end: new Date().toISOString().split("T")[0]}),
-  lastYear: () => ({start: daysAgo(365).toISOString().split("T")[0], end: new Date().toISOString().split("T")[0]}),
+  today: () => ({start: jalaliToday(), end: jalaliToday()}),
+  yesterday: () => ({start: jalaliDaysAgo(1), end: jalaliToday()}),
+  last7: () => ({start: jalaliDaysAgo(7), end: jalaliToday()}),
+  last30: () => ({start: jalaliDaysAgo(30), end: jalaliToday()}),
+  last3months: () => ({start: jalaliDaysAgo(90), end: jalaliToday()}),
+  lastYear: () => ({start: jalaliDaysAgo(365), end: jalaliToday()}),
 };
+
+function PersianDateInput({label, value, onChange, w}: {
+  label: string;
+  value: string;
+  onChange: (val: string) => void;
+  w?: number | string;
+}) {
+  const [inputValue, setInputValue] = useState(value);
+
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    let digits = raw.replace(/[^\d/]/g, "");
+    const parts = digits.split("/");
+    if (parts.length > 3) {
+      digits = parts.slice(0, 3).join("/");
+    }
+    setInputValue(digits);
+    const parsed = digits.split("/").map(Number);
+    if (parsed.length === 3 && parsed.every((n) => !isNaN(n) && n > 0)) {
+      onChange(digits);
+    }
+  };
+
+  return (
+    <TextInput
+      label={label}
+      value={inputValue}
+      onChange={handleChange}
+      placeholder="۱۴۰۳/۰۱/۰۱"
+      w={w}
+      styles={{
+        input: {fontVariantNumeric: "tabular-nums"},
+      }}
+    />
+  );
+}
 
 export default function ReportsPage() {
   const [data, setData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<string>("");
   const [preset, setPreset] = useState<string>("last30");
-  const [startDate, setStartDate] = useState(daysAgo(30).toISOString().split("T")[0]);
-  const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
+  const [startDate, setStartDate] = useState(jalaliDaysAgo(30));
+  const [endDate, setEndDate] = useState(jalaliToday());
   const [groupBy, setGroupBy] = useState<"day" | "week" | "month">("day");
   const [status, setStatus] = useState<string | undefined>(undefined);
   const [search, setSearch] = useState("");
 
   const fetchReport = useCallback(async () => {
     try {
-      const result = await getReportData(startDate, endDate, groupBy, undefined, status);
+      const startGreg = jalaliStringToDate(startDate).toISOString().split("T")[0];
+      const endGreg = jalaliStringToDate(endDate).toISOString().split("T")[0];
+      const result = await getReportData(startGreg, endGreg, groupBy, undefined, status);
       setData(result);
       setLastUpdated(toPersianDateTime(new Date()));
     } catch (e) {
@@ -105,8 +151,8 @@ export default function ReportsPage() {
               ]}
               w={200}
             />
-            <TextInput label="تاریخ شروع" value={startDate} onChange={(e) => setStartDate(e.target.value)} w={150}/>
-            <TextInput label="تاریخ پایان" value={endDate} onChange={(e) => setEndDate(e.target.value)} w={150}/>
+            <PersianDateInput label="تاریخ شروع (شمسی)" value={startDate} onChange={setStartDate} w={150}/>
+            <PersianDateInput label="تاریخ پایان (شمسی)" value={endDate} onChange={setEndDate} w={150}/>
             <Select
               label="گروه‌بندی"
               value={groupBy}
@@ -134,7 +180,7 @@ export default function ReportsPage() {
           </Group>
           <Group gap="sm">
             <Button leftSection={<IconFilter size="1rem"/>} onClick={() => {setLoading(true); fetchReport()}}>اعمال فیلتر</Button>
-            <Button variant="light" onClick={() => {setPreset("last30"); setStartDate(daysAgo(30).toISOString().split("T")[0]); setEndDate(new Date().toISOString().split("T")[0]); setStatus(undefined); setGroupBy("day")}}>بازنشانی</Button>
+            <Button variant="light" onClick={() => {setPreset("last30"); setStartDate(jalaliDaysAgo(30)); setEndDate(jalaliToday()); setStatus(undefined); setGroupBy("day")}}>بازنشانی</Button>
             <Button variant="light" leftSection={<IconDownload size="1rem"/>} onClick={() => data && exportCSV(data)} disabled={!data}>خروجی CSV</Button>
             <Button variant="light" leftSection={<IconPrinter size="1rem"/>} onClick={() => window.print()}>چاپ</Button>
           </Group>
@@ -202,7 +248,7 @@ export default function ReportsPage() {
                   return (
                     <div key={d.date} style={{flex: 1, minWidth: 20, display: "flex", flexDirection: "column", alignItems: "center"}}>
                       <div style={{width: "80%", height: Math.max((d.count / max) * 120, 2), background: "#52b788", borderRadius: "4px 4px 0 0"}}/>
-                      <Text size={8} c="dimmed" mt={4}>{d.date.slice(5)}</Text>
+                      <Text size={8} c="dimmed" mt={4}>{formatJalaliDateShort(d.date)}</Text>
                     </div>
                   );
                 })}
@@ -219,7 +265,7 @@ export default function ReportsPage() {
                   return (
                     <div key={d.date} style={{flex: 1, minWidth: 20, display: "flex", flexDirection: "column", alignItems: "center"}}>
                       <div style={{width: "80%", height: Math.max((d.total / max) * 120, 2), background: "#168aad", borderRadius: "4px 4px 0 0"}}/>
-                      <Text size={8} c="dimmed" mt={4}>{d.date.slice(5)}</Text>
+                      <Text size={8} c="dimmed" mt={4}>{formatJalaliDateShort(d.date)}</Text>
                     </div>
                   );
                 })}
@@ -243,4 +289,3 @@ function StatCard({icon: Icon, label, value, color}: {icon: any; label: string; 
     </Card>
   );
 }
-

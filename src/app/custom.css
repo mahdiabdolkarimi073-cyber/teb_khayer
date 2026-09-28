@@ -132,6 +132,54 @@ p:empty {
     animation: blink-and-hide 5s linear forwards;
 }
 
+/* ===== Course Detail Responsive ===== */
+.course-preview-wrapper {
+    height: 200px;
+}
+
+.course-description {
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.course-description img {
+    max-width: 100%;
+    height: auto;
+}
+
+.course-description iframe {
+    max-width: 100%;
+}
+
+.course-bottom-bar {
+    flex-wrap: nowrap;
+}
+
+@media (min-width: 640px) {
+    .course-preview-wrapper {
+        height: 300px;
+    }
+}
+
+@media (min-width: 768px) {
+    .course-preview-wrapper {
+        height: 400px;
+    }
+}
+
+@media (max-width: 380px) {
+    .course-bottom-bar {
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+        padding: 8px 12px;
+    }
+
+    .course-bottom-bar > div:last-child {
+        justify-content: space-between;
+    }
+}
+
 @keyframes blink-and-hide {
     0% { opacity: 1; }
     20%, 40%, 60%, 80% { opacity: 0; }

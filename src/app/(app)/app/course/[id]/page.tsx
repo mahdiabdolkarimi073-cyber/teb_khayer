@@ -33,7 +33,7 @@ const Page = async (props: any) => {
 
 	return (
 		<div className={'relative'}>
-			<div className={'py-3 p-3 relative'}>
+			<div className={'py-3 p-3 relative max-w-2xl mx-auto'}>
 				{!user && (
 					<Alert variant="light" color="orange" title="نکته" icon={<IconInfoCircle/>}>
 						<p>اگر از پیش این دوره را خریداری کرده اید لطفا وارد حساب کاربری خود شوید</p>
@@ -63,11 +63,11 @@ const Page = async (props: any) => {
 						<IconEye size={"1rem"}/>
 					</div>
 				</div>
-				<div dangerouslySetInnerHTML={{__html: course.description}} className={'my-2'}></div>
+				<div dangerouslySetInnerHTML={{__html: course.description}} className={'my-2 course-description'}/>
 				<Preview preview={course.preview}/>
 				<br/>
 				<a target={"_blank"} className={'w-full center'} href={AppConfig.contact.eitaa}>
-					<Button className={'rounded-full'}>
+					<Button className={'rounded-full'} fullWidth>
 						اطلاعات بیشتر (ارتباط با مدیر)
 					</Button>
 				</a>
@@ -76,24 +76,24 @@ const Page = async (props: any) => {
 				<br/>
 				<div className={'flex flex-col gap-2'}>
 					{course.attachments?.map?.(att => (
-						<div className={'center justify-between'}>
-							<p>{att.name}</p>
+						<div key={att.name} className={'center justify-between flex-wrap gap-2'}>
+							<p className={'text-sm sm:text-base'}>{att.name}</p>
 							<Badge>{att.type}</Badge>
 						</div>
 					))}
 				</div>
 			</div>
-			<p className={'text-center mt-2 text-gray-600 text-sm'}>
+			<p className={'text-center mt-2 text-gray-600 text-sm px-3'}>
 				تمام محتوای این برنامه متعلق به برنامه طِب خیّر می‌باشد. کپی‌برداری از آن پیگرد قانونی دارد.
 			</p>
-			<div className={'center justify-between bg-primary text-white fixed w-full bottom-[68px] z-10 left-0 p-2'}>
-				<div>
-					<h5>{!!course?.price ? course?.price?.toLocaleString('fa') + " تومان" : "رایگان"}</h5>
-					<Text size={'sm'} lineClamp={1}>{course?.name}</Text>
+			<div className={'course-bottom-bar center justify-between bg-primary text-white fixed w-full bottom-[68px] z-10 left-0 p-2 px-3 sm:px-4'}>
+				<div className={'min-w-0 flex-1'}>
+					<h5 className={'text-sm sm:text-base whitespace-nowrap overflow-hidden text-ellipsis'}>{!!course?.price ? course?.price?.toLocaleString('fa') + " تومان" : "رایگان"}</h5>
+					<Text size={'xs'} sm={'sm'} lineClamp={1}>{course?.name}</Text>
 				</div>
-				<div className={'center gap-2'}>
+				<div className={'center gap-2 flex-shrink-0'}>
 					<div className={'center'}>
-						<small>{course?._count?.likes}</small>
+						<small className={'text-xs sm:text-sm'}>{course?._count?.likes}</small>
 						<LikeButton course={course} liked={liked as any}/>
 					</div>
 

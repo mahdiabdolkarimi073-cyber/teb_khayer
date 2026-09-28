@@ -311,6 +311,21 @@ enum SettingKey {
   /// @name توکن شخصی باسلام (PAT)
   /// @default ""
   BASALAM_PAT_TOKEN
+  /// @name دیجی‌کالا فعال است
+  /// @default false
+  DIGIKALA_ENABLED
+  /// @name توکن API دیجی‌کالا
+  /// @default ""
+  DIGIKALA_API_TOKEN
+  /// @name شناسه فروشنده دیجی‌کالا
+  /// @default ""
+  DIGIKALA_SELLER_ID
+  /// @name لینک دیجی‌کالا
+  /// @default ""
+  DIGIKALA_LINK
+  /// @name توکن امنیتی وب‌هوک دیجی‌کالا
+  /// @default ""
+  DIGIKALA_WEBHOOK_SECRET
 }
 
 enum AttachmentType {
@@ -344,6 +359,12 @@ enum TaghvimType {
   AGHRAB
   /// @name تقویم حجامت
   HEJAMAT
+}
+
+model SiteVisit {
+  id         Int      @id @default(autoincrement())
+  path       String
+  created_at DateTime @default(now())
 }
 
 model BackupLog {
