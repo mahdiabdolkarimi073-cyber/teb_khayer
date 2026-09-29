@@ -163,12 +163,12 @@ const CategoryItem = (props: Category & { open: boolean, refetch: any, search?: 
 				<div className={'flex flex-col gap-2'}>
 					{!!courses?.length && <p>دوره ها</p>}
 					{courses.map(item => (
-						<div key={item?.id} className={'w-full border rounded center justify-between px-3'}>
+						<div key={item?.id} className={'w-full border rounded center justify-between px-3 flex-wrap gap-2'}>
 							<div className={' p-2 center gap-2'}>
 								<img loading='lazy' className={'w-10 rounded-lg h-10'} src={item.thumbnail} alt={item.name}/>
 								<div>
 									<p>{item?.name}</p>
-									<div className={'center justify-start gap-2'}>
+									<div className={'center justify-start gap-2 flex-wrap'}>
 										<p className={'text-gray-500 text-xs'}>{new Date(item?.updated_at)?.toLocaleDateString('fa')} - {item.price.toLocaleString("fa")} تومان</p>
 										<ModelPosition key={'coursePosition'} id={item?.id} modelName={'course'} refetch={refetch} />
 									</div>

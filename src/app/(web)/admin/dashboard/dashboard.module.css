@@ -841,6 +841,32 @@
   .statusGrid {
     grid-template-columns: repeat(2, 1fr);
   }
+  .tablesGrid {
+    grid-template-columns: 1fr;
+  }
+  .adminContent {
+    margin-right: 0;
+    padding: 20px 16px 30px;
+  }
+  .sidebar {
+    transform: translateX(100%);
+    width: 260px;
+    border-radius: 0;
+  }
+  .sidebarOpen {
+    transform: translateX(0);
+  }
+  .sidebarCloseBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hamburgerBtn {
+    display: flex;
+  }
+  .sidebarOverlay.show {
+    display: block;
+  }
 }
 
 @media (max-width: 768px) {

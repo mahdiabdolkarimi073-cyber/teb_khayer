@@ -253,13 +253,13 @@ const CategoryItem = (props: Category & { open: boolean, refetch: any, search?: 
 						</div>
 					)}
 					{products.map(item => (
-						<div className={'w-full border rounded center justify-between px-3'} key={item.id}>
+						<div className={'w-full border rounded center justify-between px-3 flex-wrap gap-2'} key={item.id}>
 							<div className={' p-2 center gap-2'}>
 								<img loading='lazy' className={'w-10 rounded-lg h-10'} src={item.images?.[0]+""}
 									alt={item.name} />
 								<div>
 									<p>{item?.name}</p>
-									<div className="center gap-2">
+									<div className="center gap-2 flex-wrap">
 										<p className={'text-gray-500 text-xs'}>{new Date(item?.updated_at)?.toLocaleDateString('fa')} - {item.price.toLocaleString("fa")} تومان</p>
 										{!props.search && (
 											<ModelPosition

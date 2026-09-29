@@ -119,15 +119,15 @@ export default function TransactionsPage() {
 
       <Card withBorder shadow="sm" radius="md" p="md" style={{position: "sticky", top: 8, zIndex: 2}}>
         <Stack gap="sm">
-          <Group align="flex-end" gap="sm" wrap="wrap">
-            <TextInput label="جستجو" placeholder="نام، تلفن یا شناسه..." leftSection={<IconSearch size="1rem"/>} value={search} onChange={(e) => setSearch(e.target.value)} w={230}/>
-            <Select label="وضعیت پرداخت" data={statusOptions} value={status} onChange={(v) => setStatus((v as any) || "all")} w={150}/>
-            <TextInput label="از تاریخ" placeholder="۱۴۰۳/۰۱/۰۱" value={startDate} onChange={(e) => setStartDate(e.target.value)} w={130}/>
-            <TextInput label="تا تاریخ" placeholder="۱۴۰۳/۱۲/۲۹" value={endDate} onChange={(e) => setEndDate(e.target.value)} w={130}/>
-            <NumberInput label="حداقل مبلغ" placeholder="تومان" value={minAmount} onChange={setMinAmount} w={130}/>
-            <NumberInput label="حداکثر مبلغ" placeholder="تومان" value={maxAmount} onChange={setMaxAmount} w={130}/>
+          <Group align="flex-end" gap="sm" wrap="wrap" grow>
+            <TextInput label="جستجو" placeholder="نام، تلفن یا شناسه..." leftSection={<IconSearch size="1rem"/>} value={search} onChange={(e) => setSearch(e.target.value)} style={{minWidth: 200, flex: "1 1 200px"}}/>
+            <Select label="وضعیت پرداخت" data={statusOptions} value={status} onChange={(v) => setStatus((v as any) || "all")} style={{minWidth: 130, flex: "1 1 130px"}}/>
+            <TextInput label="از تاریخ" placeholder="۱۴۰۳/۰۱/۰۱" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={{minWidth: 120, flex: "1 1 120px"}}/>
+            <TextInput label="تا تاریخ" placeholder="۱۴۰۳/۱۲/۲۹" value={endDate} onChange={(e) => setEndDate(e.target.value)} style={{minWidth: 120, flex: "1 1 120px"}}/>
+            <NumberInput label="حداقل مبلغ" placeholder="تومان" value={minAmount} onChange={setMinAmount} style={{minWidth: 120, flex: "1 1 120px"}}/>
+            <NumberInput label="حداکثر مبلغ" placeholder="تومان" value={maxAmount} onChange={setMaxAmount} style={{minWidth: 120, flex: "1 1 120px"}}/>
           </Group>
-          <Group gap="sm">
+          <Group gap="sm" wrap="wrap">
             <Button leftSection={<IconFilter size="1rem"/>} onClick={() => {setPage(1); fetchTransactions()}}>اعمال فیلتر</Button>
             <Button variant="light" leftSection={<IconRefresh size="1rem"/>} onClick={reset}>بازنشانی</Button>
             <Button variant="light" leftSection={<IconDownload size="1rem"/>} disabled={!rows.length} onClick={() => exportCSV(rows)}>خروجی CSV</Button>
@@ -182,7 +182,7 @@ export default function TransactionsPage() {
             </Table.Tbody>
           </Table>
         </ScrollArea>
-        <Group justify="space-between" p="md">
+        <Group justify="space-between" p="md" wrap="wrap" gap="sm">
           <Text size="sm" c="dimmed">نمایش {formatPersianNumber(from)} تا {formatPersianNumber(to)} از {formatPersianNumber(result?.total || 0)} تراکنش</Text>
           <Group gap="sm">
             <Select size="xs" value={String(limit)} onChange={(v) => {setLimit(Number(v)); setPage(1)}} data={["10", "25", "50", "100"]} w={80}/>

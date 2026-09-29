@@ -135,7 +135,7 @@ export default function ReportsPage() {
 
       <Card withBorder shadow="sm" radius="md" p="md">
         <Stack gap="sm">
-          <Group gap="sm" wrap="wrap">
+          <Group gap="sm" wrap="wrap" grow>
             <Select
               label="بازه پیش‌فرض"
               value={preset}
@@ -149,10 +149,10 @@ export default function ReportsPage() {
                 {value: "lastYear", label: "سال گذشته"},
                 {value: "custom", label: "دلخواه"},
               ]}
-              w={200}
+              style={{minWidth: 140, flex: "1 1 140px"}}
             />
-            <PersianDateInput label="تاریخ شروع (شمسی)" value={startDate} onChange={setStartDate} w={150}/>
-            <PersianDateInput label="تاریخ پایان (شمسی)" value={endDate} onChange={setEndDate} w={150}/>
+            <PersianDateInput label="تاریخ شروع (شمسی)" value={startDate} onChange={setStartDate} w={{base: "100%", xs: 150}}/>
+            <PersianDateInput label="تاریخ پایان (شمسی)" value={endDate} onChange={setEndDate} w={{base: "100%", xs: 150}}/>
             <Select
               label="گروه‌بندی"
               value={groupBy}
@@ -162,7 +162,7 @@ export default function ReportsPage() {
                 {value: "week", label: "هفتگی"},
                 {value: "month", label: "ماهانه"},
               ]}
-              w={150}
+              style={{minWidth: 120, flex: "1 1 120px"}}
             />
             <Select
               label="وضعیت سفارش"
@@ -175,10 +175,10 @@ export default function ReportsPage() {
                 {value: "DELAY", label: "تحویل شده"},
                 {value: "CANCELED", label: "لغو شده"},
               ]}
-              w={150}
+              style={{minWidth: 140, flex: "1 1 140px"}}
             />
           </Group>
-          <Group gap="sm">
+          <Group gap="sm" wrap="wrap">
             <Button leftSection={<IconFilter size="1rem"/>} onClick={() => {setLoading(true); fetchReport()}}>اعمال فیلتر</Button>
             <Button variant="light" onClick={() => {setPreset("last30"); setStartDate(jalaliDaysAgo(30)); setEndDate(jalaliToday()); setStatus(undefined); setGroupBy("day")}}>بازنشانی</Button>
             <Button variant="light" leftSection={<IconDownload size="1rem"/>} onClick={() => data && exportCSV(data)} disabled={!data}>خروجی CSV</Button>
@@ -222,7 +222,8 @@ export default function ReportsPage() {
 
           <Card withBorder shadow="sm" radius="md" p="md">
             <Text fw={600} mb="md">فروش به تفکیک دسته</Text>
-            <Table>
+            <ScrollArea>
+            <Table miw={400}>
               <Table.Thead>
                 <Table.Tr><Table.Th>دسته</Table.Th><Table.Th>مبلغ فروش</Table.Th></Table.Tr>
               </Table.Thead>
@@ -237,6 +238,7 @@ export default function ReportsPage() {
                 ))}
               </Table.Tbody>
             </Table>
+            </ScrollArea>
           </Card>
 
           <Card withBorder shadow="sm" radius="md" p="md">

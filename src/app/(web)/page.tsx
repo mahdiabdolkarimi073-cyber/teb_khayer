@@ -21,7 +21,6 @@ import {
   IconUserCircle,
 } from "@tabler/icons-react";
 import AppDownloadModal from "@/app/(web)/AppDownloadModal";
-import VpnWarning from "@/app/(web)/VpnWarning";
 import styles from "./home.module.css";
 
 const heroImage = "/ChatGPT_Image_Sep_22,_2026,_10_51_08_AM.png";
@@ -302,7 +301,6 @@ export function HomePage() {
 
   return (
     <main className={styles.page}>
-      <VpnWarning />
       <HeroBanner />
       <QuickServices />
       <NaturalProductsBanner />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { IconAlertTriangle, IconX } from "@tabler/icons-react";
+import { IconX } from "@tabler/icons-react";
 import styles from "./home.module.css";
 
 export default function VpnWarning() {
@@ -43,8 +43,11 @@ export default function VpnWarning() {
 
   return (
     <div className={styles.vpnBanner} role="alert">
-      <IconAlertTriangle size={20} aria-hidden="true" />
-      <span>برای دریافت خدمات بهتر، لطفاً فیلترشکن خود را خاموش کنید.</span>
+      <img
+        className={styles.vpnImage}
+        src="/IMG_20260926_221538.jpg"
+        alt="برای دریافت خدمات بهتر، لطفاً فیلترشکن خود را خاموش کنید"
+      />
       <button
         type="button"
         onClick={() => setShow(false)}

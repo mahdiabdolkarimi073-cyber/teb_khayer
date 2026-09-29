@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import React from "react";
 import WebHeader from "@/app/(web)/WebHeader";
 import WebFooter from "@/app/(web)/WebFooter";
+import VpnWarning from "@/app/(web)/VpnWarning";
 import {getUserFromCookie} from "@/utils/serverComponents/user";
 import {User} from "@prisma/client";
 import prisma from "@backend/modules/prisma/Prisma";
@@ -28,7 +29,8 @@ const Layout = async (props: any) => {
 			window.isApplication = false;
 			`
 			}}></script>
-			<ShopLatestUpdate/>
+			<VpnWarning/>
+		<ShopLatestUpdate/>
 			<VisitTracker/>
 			<WebHeader
 				phone={await getVar('MAIN_PHONE')}
