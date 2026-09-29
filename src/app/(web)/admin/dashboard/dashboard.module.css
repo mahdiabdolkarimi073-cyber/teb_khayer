@@ -517,6 +517,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .sectionHeader h2 {
@@ -547,10 +549,24 @@
   cursor: pointer;
 }
 
+.chartScrollWrap {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 10px;
+}
+
 .chartCanvas {
   width: 100%;
   height: 210px;
   margin-top: 10px;
+}
+
+.legendText {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
 }
 
 .donutWrapper {
@@ -575,6 +591,8 @@
   gap: 6px 12px;
   margin-top: 10px;
   justify-content: center;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .legendItem {
@@ -583,6 +601,8 @@
   gap: 6px;
   font-size: 11px;
   color: #617a91;
+  max-width: 100%;
+  flex: 0 1 auto;
 }
 
 .legendDot {
@@ -990,6 +1010,7 @@
     height: auto;
     min-height: 280px;
     padding: 18px;
+    overflow: hidden;
   }
 
   .sectionHeader h2 {
@@ -1070,6 +1091,7 @@
   .donutWrapper svg {
     width: 160px;
     height: 160px;
+    flex-shrink: 0;
   }
 
   .donutCenter {
@@ -1081,7 +1103,7 @@
   .legend {
     gap: 8px 14px;
     margin-top: 14px;
-  width: 100%;
+    width: 100%;
     justify-content: center;
   }
 
@@ -1090,9 +1112,21 @@
     font-weight: 600;
   }
 
+  .legendText {
+    font-size: 14px;
+  }
+
   .legendDot {
     width: 14px;
     height: 14px;
+  }
+
+  .chartScrollWrap {
+    max-width: 100%;
+  }
+
+  .chartCanvas {
+    height: 180px;
   }
 
   .badge {
@@ -1203,7 +1237,8 @@
   .chartCard,
   .categoryCard {
     min-height: 260px;
-    padding: 16px;
+    padding: 14px;
+    overflow: hidden;
   }
 
   .sectionHeader h2 {
@@ -1216,13 +1251,18 @@
     padding: 6px 10px;
   }
 
+  .chartCanvas {
+    height: 160px;
+  }
+
   .donutWrapper svg {
-    width: 140px;
-    height: 140px;
+    width: 130px;
+    height: 130px;
+    flex-shrink: 0;
   }
 
   .donutCenter {
-    top: 130px;
+    top: 120px;
     font-size: 16px;
     font-weight: 700;
   }
@@ -1230,6 +1270,11 @@
   .legendItem {
     font-size: 16px;
     font-weight: 600;
+  }
+
+  .legendText {
+    font-size: 13px;
+    line-height: 1.4;
   }
 
   .legendDot {

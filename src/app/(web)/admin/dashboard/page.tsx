@@ -29,20 +29,31 @@ function KPICard({icon, label, value, tone, growth, link}: {
 function MiniBarChart({data, color = "#0879df"}: {data: {date: string; total: number}[]; color?: string}) {
   if (!data?.length) return <div className={styles.chartCanvas} style={{display: "flex", alignItems: "center", justifyContent: "center", color: "#7890a8", fontSize: 16}}>داده‌ای موجود نیست</div>;
   const max = Math.max(...data.map((d) => d.total), 1);
+  const barCount = data.length;
   return (
-    <div className={styles.chartCanvas} style={{display: "flex", gap: 3, alignItems: "flex-end", height: 210, paddingBottom: 24}}>
-      {data.map((d) => {
-        const h = Math.max((d.total / max) * 170, 2);
-        return (
-          <div key={d.date} style={{display: "flex", flexDirection: "column", alignItems: "center", flex: 1, minWidth: 8}}>
-            <div style={{
-              width: "100%", height: h, background: color, borderRadius: "4px 4px 0 0",
-              opacity: d.total > 0 ? 1 : 0.2, transition: "height .3s ease",
-            }}/>
-            <span style={{fontSize: 16, color: "#7890a8", marginTop: 6, fontWeight: 600}}>{d.date.slice(5)}</span>
-          </div>
-        );
-      })}
+    <div className={styles.chartScrollWrap}>
+      <div className={styles.chartCanvas} style={{
+        display: "flex", gap: 3, alignItems: "flex-end", height: 210, paddingBottom: 24,
+        minWidth: barCount > 15 ? `${barCount * 20}px` : "auto",
+      }}>
+        {data.map((d) => {
+          const h = Math.max((d.total / max) * 170, 2);
+          return (
+            <div key={d.date} style={{display: "flex", flexDirection: "column", alignItems: "center", flex: 1, minWidth: 10}}>
+              <div style={{
+                width: "100%", height: h, background: color, borderRadius: "4px 4px 0 0",
+                opacity: d.total > 0 ? 1 : 0.2, transition: "height .3s ease",
+              }}/>
+              <span style={{
+                fontSize: 16, color: "#7890a8", marginTop: 6, fontWeight: 600,
+                whiteSpace: "nowrap",
+                transform: "rotate(-45deg)",
+                transformOrigin: "center top",
+              }}>{d.date.slice(5)}</span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -78,7 +89,7 @@ function DonutChart({data}: {data: {name: string; total: number}[]}) {
         {data.map((d, i) => (
           <div key={d.name} className={styles.legendItem}>
             <span className={styles.legendDot} style={{background: colors[i % colors.length]}}/>
-            {d.name}: {formatPersianCurrency(d.total)}
+            <span className={styles.legendText}>{d.name}: {formatPersianCurrency(d.total)}</span>
           </div>
         ))}
       </div>
