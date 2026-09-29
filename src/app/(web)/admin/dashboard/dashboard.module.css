@@ -490,7 +490,7 @@
 /* ===== Analytics ===== */
 .analyticsGrid {
   display: grid;
-  grid-template-columns: 1.65fr .9fr;
+  grid-template-columns: 1fr;
   gap: 16px;
   margin-top: 16px;
 }
@@ -509,7 +509,8 @@
 }
 
 .categoryCard {
-  height: 300px;
+  height: auto;
+  min-height: 300px;
   position: relative;
 }
 
@@ -576,33 +577,42 @@
   margin-top: 10px;
 }
 
+.donutSvgWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 .donutCenter {
   position: absolute;
-  top: 140px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   color: #60778e;
   font-size: 12px;
 }
 
 .legend {
   display: flex;
+  flex-direction: column;
   flex-wrap: wrap;
-  gap: 6px 12px;
-  margin-top: 10px;
-  justify-content: center;
-  max-width: 100%;
-  overflow: hidden;
+  gap: 8px;
+  margin-top: 14px;
+  justify-content: flex-start;
+  width: 100%;
+  overflow: visible;
 }
 
 .legendItem {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
   color: #617a91;
-  max-width: 100%;
-  flex: 0 1 auto;
+  width: 100%;
+  flex: 0 0 auto;
 }
 
 .legendDot {
@@ -844,10 +854,62 @@
   transition: margin .3s ease;
 }
 
-/* ===== Responsive ===== */
+/* ===== Desktop donut fix ===== */
+@media (min-width: 1100px) {
+  .donutWrapper {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 16px;
+    margin-top: 14px;
+  }
+
+  .donutWrapper svg {
+    flex-shrink: 0;
+  }
+
+  .donutCenter {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .legend {
+    flex: 1;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 0;
+    max-height: 230px;
+    overflow-y: auto;
+  }
+
+  .legendItem {
+    font-size: 12px;
+    line-height: 1.5;
+  padding: 4px 0;
+    border-bottom: 1px solid #f0f4f8;
+  }
+
+  .legendItem:last-child {
+    border-bottom: none;
+  }
+
+  .legendDot {
+    margin-top: 3px;
+  }
+
+  .legendText {
+    flex: 1;
+  }
+}
+
 @media (min-width: 1400px) {
   .adminContent {
     margin-right: 240px;
+  }
+
+  .donutWrapper {
+    gap: 24px;
   }
 }
 
@@ -1095,7 +1157,9 @@
   }
 
   .donutCenter {
-    top: 150px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     font-size: 16px;
     font-weight: 700;
   }
@@ -1262,7 +1326,9 @@
   }
 
   .donutCenter {
-    top: 120px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     font-size: 16px;
     font-weight: 700;
   }

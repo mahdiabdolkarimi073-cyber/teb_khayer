@@ -65,26 +65,28 @@ function DonutChart({data}: {data: {name: string; total: number}[]}) {
   let cumulative = 0;
   return (
     <div className={styles.donutWrapper}>
-      <svg width={160} height={160} viewBox="0 0 160 160">
-        {data.map((d, i) => {
-          const pct = d.total / total;
-          const dash = pct * 2 * Math.PI * 60;
-          const offset = -cumulative * 2 * Math.PI * 60;
-          cumulative += pct;
-          return (
-            <circle
-              key={d.name}
-              cx={80} cy={80} r={60} fill="none"
-              stroke={colors[i % colors.length]}
-              strokeWidth={24}
-              strokeDasharray={`${dash} ${2 * Math.PI * 60 - dash}`}
-              strokeDashoffset={offset}
-              transform="rotate(-90 80 80)"
-            />
-          );
-        })}
-      </svg>
-      <span className={styles.donutCenter}>دسته‌ها</span>
+      <div className={styles.donutSvgWrap}>
+        <svg width={160} height={160} viewBox="0 0 160 160">
+          {data.map((d, i) => {
+            const pct = d.total / total;
+            const dash = pct * 2 * Math.PI * 60;
+            const offset = -cumulative * 2 * Math.PI * 60;
+            cumulative += pct;
+            return (
+              <circle
+                key={d.name}
+                cx={80} cy={80} r={60} fill="none"
+                stroke={colors[i % colors.length]}
+                strokeWidth={24}
+                strokeDasharray={`${dash} ${2 * Math.PI * 60 - dash}`}
+                strokeDashoffset={offset}
+                transform="rotate(-90 80 80)"
+              />
+            );
+          })}
+        </svg>
+        <span className={styles.donutCenter}>دسته‌ها</span>
+      </div>
       <div className={styles.legend}>
         {data.map((d, i) => (
           <div key={d.name} className={styles.legendItem}>
