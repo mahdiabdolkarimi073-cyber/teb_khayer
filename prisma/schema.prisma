@@ -314,7 +314,7 @@ enum SettingKey {
   /// @name دیجی‌کالا فعال است
   /// @default false
   DIGIKALA_ENABLED
-  /// @name توکن API دیجی‌کالا
+  /// @name توکن اختصاصی دیجی‌کالا (Dedicated Token)
   /// @default ""
   DIGIKALA_API_TOKEN
   /// @name شناسه فروشنده دیجی‌کالا
@@ -326,6 +326,21 @@ enum SettingKey {
   /// @name توکن امنیتی وب‌هوک دیجی‌کالا
   /// @default ""
   DIGIKALA_WEBHOOK_SECRET
+  /// @name Client ID دیجی‌کالا (Open API)
+  /// @default ""
+  DIGIKALA_CLIENT_ID
+  /// @name Client Secret دیجی‌کالا (Open API)
+  /// @default ""
+  DIGIKALA_CLIENT_SECRET
+  /// @name Access Token دیجی‌کالا (خودکار)
+  /// @default ""
+  DIGIKALA_ACCESS_TOKEN
+  /// @name Refresh Token دیجی‌کالا (خودکار)
+  /// @default ""
+  DIGIKALA_REFRESH_TOKEN
+  /// @name زمان انقضای توکن دیجی‌کالا
+  /// @default ""
+  DIGIKALA_TOKEN_EXPIRES
 }
 
 enum AttachmentType {

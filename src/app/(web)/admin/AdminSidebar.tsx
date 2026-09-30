@@ -22,6 +22,7 @@ const lowerSections = [
   {name: "ارتباطات و هوش مصنوعی", path: "/integrations", icon: "ϟ"},
   {name: "باسلام", path: "/basalam", icon: "◈"},
   {name: "ترب", path: "/torob", icon: "◇"},
+  {name: "دیجی‌کالا", path: "/digikala", icon: "◆"},
   {name: "تنظیمات", path: "/services", icon: "⚙"},
 ];
 

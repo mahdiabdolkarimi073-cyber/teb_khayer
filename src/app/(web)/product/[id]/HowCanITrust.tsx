@@ -1,11 +1,11 @@
 'use client';
 
-import {Product, SettingKey} from "@prisma/client";
+import {Product} from "@prisma/client";
 import {Button} from "@mantine/core";
 import {_openCart} from "@/app/(web)/WebHeader";
 import {closeLastModal} from "@/utils/modal";
 import {useAction} from "@/utils/server";
-import {getVar} from "@backend/utils/setting";
+import {getTrustInfo} from "@/app/(web)/product/[id]/trust.action";
 import Loading from "@/app/(app)/loading";
 import {IconShieldCheck, IconBuildingBank, IconMapPin, IconWorld, IconPhone} from "@tabler/icons-react";
 
@@ -14,20 +14,15 @@ const HowCanITrust = (props: {
 }) => {
 	let {product} = props;
 
-	const enamadAction = useAction(getVar, "TRUST_ENAMAD" as SettingKey);
-	const bankAction = useAction(getVar, "TRUST_BANK_ACCOUNT" as SettingKey);
-	const addressAction = useAction(getVar, "TRUST_ADDRESS" as SettingKey);
-	const websiteAction = useAction(getVar, "TRUST_WEBSITE" as SettingKey);
-	const phoneAction = useAction(getVar, "MAIN_PHONE" as SettingKey);
+	const { result: trust, isPending } = useAction(getTrustInfo);
 
-	if (enamadAction.isPending || bankAction.isPending || addressAction.isPending || websiteAction.isPending || phoneAction.isPending)
-		return <Loading/>;
+	if (isPending) return <Loading/>;
 
-	const enamadText = enamadAction.result as string || "طِب خیّر دارای نماد الکترونیکی (اینماد) از وزارت صنعت، معدن و تجارت می‌باشد. این نماد نشان‌دهنده اصالت و اعتبار فروشگاه آنلاین ماست.";
-	const bankText = bankAction.result as string || "بانک ملت - به نام بهزاد خیّر - شماره کارت: 6104-xxxx-xxxx-xxxx";
-	const addressText = addressAction.result as string || "آدرس: تهران، خیابان ولیعصر، پلاک ۱۲۳";
-	const websiteText = websiteAction.result as string || "https://teb-khayyer.ir";
-	const phoneText = phoneAction.result as string || "045-33790667";
+	const enamadText = trust?.enamad as string || "طِب خیّر دارای نماد الکترونیکی (اینماد) از وزارت صنعت، معدن و تجارت می‌باشد. این نماد نشان‌دهنده اصالت و اعتبار فروشگاه آنلاین ماست.";
+	const bankText = trust?.bank as string || "بانک ملت - به نام بهزاد خیّر - شماره کارت: 6104-xxxx-xxxx-xxxx";
+	const addressText = trust?.address as string || "آدرس: تهران، خیابان ولیعصر، پلاک ۱۲۳";
+	const websiteText = trust?.website as string || "https://teb-khayyer.ir";
+	const phoneText = trust?.phone as string || "045-33790667";
 
 	return (
 		<div>

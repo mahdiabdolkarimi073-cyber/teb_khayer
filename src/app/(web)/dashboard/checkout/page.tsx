@@ -6,12 +6,11 @@ import { Loader } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import { CheckoutFields } from "@/app/(web)/dashboard/checkout/checkout.fields";
 import { formDataToJson } from "@/utils/other";
-import { SettingKey } from "@prisma/client";
 import { useAction } from "@/utils/server";
 import { getUserFromCookie } from "@/utils/serverComponents/user";
 import Loading from "@/app/(app)/loading";
 import { createOrderPortal } from "@/app/(web)/dashboard/checkout/checkout.action";
-import { getVar } from "@backend/utils/setting";
+import { getCheckoutFees } from "@/app/(web)/dashboard/checkout/fees.action";
 import Link from "next/link";
 import {
   IconArrowLeft,
@@ -38,8 +37,9 @@ const formatPrice = (value: number) => `${value.toLocaleString("fa-IR")} توم�
 const Page = () => {
   const router = useRouter();
   const { result: user, isPending } = useAction(getUserFromCookie);
-  const { result: boxFee, isPending: boxFeePending } = useAction(getVar, "PRODUCT_BOX_FEE" as SettingKey);
-  const { result: postFee, isPending: postFeePending } = useAction(getVar, "PRODUCT_POST_FEE" as SettingKey);
+  const { result: fees, isPending: feesPending } = useAction(getCheckoutFees);
+  const boxFee = fees?.boxFee;
+  const postFee = fees?.postFee;
   const cart = useCart();
   const [submitting, setSubmitting] = useState(false);
   const requestIdRef = useRef<string>("");
@@ -49,7 +49,7 @@ const Page = () => {
   const total = productsTotal + Number(boxFee || 0) + Number(postFee || 0);
   const requiredFields = ["name", "phone", "state", "city", "address"];
 
-  if (isPending || boxFeePending || postFeePending) return <Loading />;
+  if (isPending || feesPending) return <Loading />;
 
   if (!items.length) {
     return (

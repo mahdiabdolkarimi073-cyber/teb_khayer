@@ -21,10 +21,15 @@
   BASALAM_BOOTH_ID: "شناسه غرفه باسلام",
   BASALAM_PAT_TOKEN: "توکن شخصی باسلام (PAT)",
   DIGIKALA_ENABLED: "دیجی‌کالا فعال است",
-  DIGIKALA_API_TOKEN: "توکن API دیجی‌کالا",
+  DIGIKALA_API_TOKEN: "توکن اختصاصی دیجی‌کالا (Dedicated Token)",
   DIGIKALA_SELLER_ID: "شناسه فروشنده دیجی‌کالا",
   DIGIKALA_LINK: "لینک دیجی‌کالا",
   DIGIKALA_WEBHOOK_SECRET: "توکن امنیتی وب‌هوک دیجی‌کالا",
+  DIGIKALA_CLIENT_ID: "Client ID دیجی‌کالا (Open API)",
+  DIGIKALA_CLIENT_SECRET: "Client Secret دیجی‌کالا (Open API)",
+  DIGIKALA_ACCESS_TOKEN: "Access Token دیجی‌کالا (خودکار)",
+  DIGIKALA_REFRESH_TOKEN: "Refresh Token دیجی‌کالا (خودکار)",
+  DIGIKALA_TOKEN_EXPIRES: "زمان انقضای توکن دیجی‌کالا",
  }
   export type SettingKeyEnumType = typeof SettingKeyEnum;
   export const SettingKeyInfo = {
@@ -113,7 +118,7 @@
     default: "false"
   },
   DIGIKALA_API_TOKEN: {
-    name: "توکن API دیجی‌کالا",
+    name: "توکن اختصاصی دیجی‌کالا (Dedicated Token)",
     default: ""
   },
   DIGIKALA_SELLER_ID: {
@@ -126,6 +131,26 @@
   },
   DIGIKALA_WEBHOOK_SECRET: {
     name: "توکن امنیتی وب‌هوک دیجی‌کالا",
+    default: ""
+  },
+  DIGIKALA_CLIENT_ID: {
+    name: "Client ID دیجی‌کالا (Open API)",
+    default: ""
+  },
+  DIGIKALA_CLIENT_SECRET: {
+    name: "Client Secret دیجی‌کالا (Open API)",
+    default: ""
+  },
+  DIGIKALA_ACCESS_TOKEN: {
+    name: "Access Token دیجی‌کالا (خودکار)",
+    default: ""
+  },
+  DIGIKALA_REFRESH_TOKEN: {
+    name: "Refresh Token دیجی‌کالا (خودکار)",
+    default: ""
+  },
+  DIGIKALA_TOKEN_EXPIRES: {
+    name: "زمان انقضای توکن دیجی‌کالا",
     default: ""
   }
 }

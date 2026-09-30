@@ -2,9 +2,8 @@
 
 import { useCart, removeFromCart, setLocalCart } from "@/utils/localCart";
 import { useRouter } from "next/navigation";
-import { SettingKey } from "@prisma/client";
 import { useAction } from "@/utils/server";
-import { getVar } from "@backend/utils/setting";
+import { getCartFees } from "./action";
 import Loading from "@/app/(app)/loading";
 import Link from "next/link";
 import {
@@ -30,14 +29,15 @@ const formatPrice = (value: number) => `${value.toLocaleString("fa-IR")} توم�
 
 const Page = () => {
   const router = useRouter();
-  const { result: boxFee, isPending: boxFeePending } = useAction(getVar, "PRODUCT_BOX_FEE" as SettingKey);
-  const { result: postFee, isPending: postFeePending } = useAction(getVar, "PRODUCT_POST_FEE" as SettingKey);
+  const { result: fees, isPending: feesPending } = useAction(getCartFees);
+  const boxFee = fees?.boxFee;
+  const postFee = fees?.postFee;
   const cart = useCart();
   const items = Object.values(cart);
   const productsTotal = items.reduce((sum, item) => sum + Number(item.product.price || 0) * item.quantity, 0);
   const total = productsTotal + Number(boxFee || 0) + Number(postFee || 0);
 
-  if (boxFeePending || postFeePending) return <Loading />;
+  if (feesPending) return <Loading />;
 
   if (!items.length) {
     return (
