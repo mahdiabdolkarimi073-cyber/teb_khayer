@@ -21,7 +21,7 @@ const Page = async (props: any) => {
 
 	return (
 		<div className={'max-w-[1000px] mx-auto px-4 py-6'}>
-			<ServiceHero title={name} />
+			<ServiceHero title={name} serviceKey={service.id} />
 			<div className={'max-w-[700px] mx-auto center flex-col py-10'}>
 				<div dangerouslySetInnerHTML={{__html: service.afterContent}}></div>
 				<h4>راه های ارتباطی</h4>
