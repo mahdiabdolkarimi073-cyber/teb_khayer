@@ -6,7 +6,6 @@ import {closeLastModal, modal} from "@/utils/modal";
 import {TaghvimType} from "@prisma/client";
 import TaghvimTypeEnum from "@/generated/TaghvimType.enum";
 import AddAttachment from "@/app/(web)/admin/courses/new/AddAttachment";
-import prisma from "@backend/modules/prisma/Prisma";
 import {handlePrismaQuery} from "@/app/(web)/admin/action";
 import {useRouter} from "next/navigation";
 

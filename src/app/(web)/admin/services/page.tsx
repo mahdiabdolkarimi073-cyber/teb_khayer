@@ -5,16 +5,15 @@ import {Button, Switch, TextInput} from "@mantine/core";
 import React from "react";
 import Link from "next/link";
 import TaghvimTypeEnum from "@/generated/TaghvimType.enum";
-import {Service, ServiceType, Setting, SettingKey, Taghvim, TaghvimType} from "@prisma/client";
+import {Service, ServiceType, Setting, Taghvim, TaghvimType} from "@prisma/client";
 import UploadTaghvimFile from "@/app/(web)/admin/services/UploadTaghvimFile";
 import {handlePrismaQuery} from "@/app/(web)/admin/action";
 import {useAction} from "@/utils/server";
 import Loading from "@/app/(app)/loading";
-import {setServiceDisabled} from "@/app/(web)/admin/services/action";
+import {setServiceDisabled, updateSetting} from "@/app/(web)/admin/services/action";
 import {useRouter} from "next/navigation";
 import SettingKeyEnum, {SettingKeyInfo} from "@/generated/SettingKey.enum";
 import {formDataToJson} from "@/utils/other";
-import {setVar} from "@backend/utils/setting";
 
 const Page = (props: any) => {
 
@@ -92,7 +91,7 @@ const Page = (props: any) => {
 					return (
 						<form action={async (form) => {
 							const json = formDataToJson(form);
-							await setVar(json.key as SettingKey, (json.value || defaultValue)+"").finally(()=>{
+							await updateSetting(json.key, (json.value || defaultValue)+"").finally(()=>{
 								action3.refetch();
 								router.refresh()
 							})
@@ -106,7 +105,7 @@ const Page = (props: any) => {
 										defaultChecked={checked}
 										onChange={(e) => {
 											const v = e.currentTarget.checked ? "true" : "false";
-											setVar(key as SettingKey, v).finally(() => {
+											updateSetting(key, v).finally(() => {
 												action3.refetch();
 												router.refresh();
 											});

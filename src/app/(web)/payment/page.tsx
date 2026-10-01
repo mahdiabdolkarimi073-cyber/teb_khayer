@@ -3,16 +3,12 @@ import {IconCheck, IconX, IconPhoneCall, IconAlertCircle, IconRefresh, IconHome}
 import {Button, Container, Paper, Text, Stack, Group, rem} from "@mantine/core";
 import React from "react";
 import Link from "next/link";
-import { useAction } from "@/utils/server";
-import { getVar } from "@backend/utils/setting";
-import { SettingKey } from "@prisma/client";
 import { SettingKeyInfo } from "@/generated/SettingKey.enum";
 
 const Page = (props: any) => {
 	const {status: statusText, msg = "خطا در پرداخت", redirect = '/dashboard/orders'} = props?.searchParams;
 	const status = statusText === 'true';
-	const { result: phone } = useAction(getVar, "MAIN_PHONE" as SettingKey);
-	const supportPhone = phone || SettingKeyInfo["MAIN_PHONE"]?.default;
+	const supportPhone = SettingKeyInfo["MAIN_PHONE"]?.default;
 
 	const errorMessages: Record<string, string> = {
 		"رسید تکراری است": "این پرداخت قبلاً ثبت شده است. سفارش شما در حال پردازش است و نیازی به پرداخت مجدد نیست.",

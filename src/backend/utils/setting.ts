@@ -1,12 +1,8 @@
-import {$Enums} from ".prisma/client";
 import prisma from "@backend/modules/prisma/Prisma";
-import SettingKey = $Enums.SettingKey;
-import { Prisma } from "@prisma/client";
-import {handlePrismaModuleDocumentation} from "../../../prisma/PrismaInfo";
+import { SettingKeyInfo } from "@/generated/SettingKey.enum";
 import {arabicToEnglishNumber} from "@/utils/other";
 
-export async function getVar<T>(key: keyof typeof SettingKey, defaultValue: string | undefined = undefined): Promise<T> {
-    // @ts-ignore
+export async function getVar<T>(key: string, defaultValue: string | undefined = undefined): Promise<T> {
     const value = (await prisma.setting.findFirst({
         where: {
             key
@@ -14,22 +10,16 @@ export async function getVar<T>(key: keyof typeof SettingKey, defaultValue: stri
     }))?.value;
 
     if (!defaultValue) {
-        const enums = Prisma.dmmf.datamodel.enums;
-        const settingKeys = enums.find((e) => e.name === "SettingKey");
-        if (settingKeys) {
-            const target = settingKeys.values.find(v => v.name === key);
-            // @ts-ignore
-            const info = handlePrismaModuleDocumentation(target?.documentation as string);
-            if (info.default) {
-                defaultValue = info.default as any;
-            }
+        const info = (SettingKeyInfo as any)?.[key];
+        if (info?.default !== undefined) {
+            defaultValue = info.default as any;
         }
     }
 
     return arabicToEnglishNumber(value ?? defaultValue) as T;
 }
 
-export async function setVar(key: keyof typeof SettingKey, value: string) {
+export async function setVar(key: string, value: string) {
     value = arabicToEnglishNumber(value);
     const pre = await prisma.setting.findUnique({
         where: {

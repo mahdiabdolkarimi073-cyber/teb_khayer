@@ -1,4 +1,5 @@
 import React from "react";
+export const dynamic = 'force-dynamic';
 import AppDateComponent from "@/app/(app)/app/AppDateComponent";
 import AppMainBanner from "@/app/(app)/app/AppMainBanner";
 import CoursesBanner from "@/app/(app)/app/CoursesBanner";

@@ -20,7 +20,6 @@ import Link from "next/link";
 import CategoryFindManyArgs = Prisma.CategoryFindManyArgs;
 import CategoryFindUniqueArgs = Prisma.CategoryFindUniqueArgs;
 import CategoryUpdateArgs = Prisma.CategoryUpdateArgs;
-import prisma from "@backend/modules/prisma/Prisma";
 import CourseUpdateManyArgs = Prisma.CourseUpdateManyArgs;
 import {useDebouncedState} from "@mantine/hooks";
 
@@ -317,7 +316,7 @@ function AccordionControl(props: Partial<Category & { [key: string | symbol]: an
 
 export function ModelPosition(props: {
 	id: string,
-	modelName: keyof typeof prisma,
+	modelName: string,
 	refetch: any,
 	where?: any,
 	disabled?: boolean

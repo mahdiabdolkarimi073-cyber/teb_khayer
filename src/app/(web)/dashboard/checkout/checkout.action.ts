@@ -9,16 +9,18 @@ import ProductCreateArgs = Prisma.ProductCreateArgs;
 import {generateRandomNumber} from "@backend/utils/string";
 import OrderProductCreateArgs = Prisma.OrderProductCreateArgs;
 import {getVar} from "@backend/utils/setting";
+import {paymentLog} from "@/utils/paymentLogger";
 
 export async function createOrderPortal(products: {
 	[key: string]: number
 }, fields: typeof CheckoutFields, requestId: string) {
-	console.log('[CHECKOUT] createOrderPortal START - products:', Object.keys(products).length, 'items');
+	paymentLog.info('CHECKOUT', 'START', { productCount: Object.keys(products).length, requestId });
 	try {
 		const user = await getUserFromCookie();
-		console.log('[CHECKOUT] user:', user?.id || 'NOT FOUND');
+		paymentLog.debug('CHECKOUT', 'User from cookie', { userId: user?.id || 'NOT FOUND' });
 
 		if (!user) {
+			paymentLog.warn('CHECKOUT', 'No user found');
 			return {
 				message: "لطفاً ابتدا وارد شوید",
 				status: 401
@@ -27,6 +29,7 @@ export async function createOrderPortal(products: {
 
 		const saleEnabled = (await getVar<string>("PRODUCTS_SALE_ENABLED")) !== "false";
 		if (!saleEnabled) {
+			paymentLog.warn('CHECKOUT', 'Products sale is disabled');
 			return {
 				message: "فعلاً فروش محصولات غیرفعال است",
 				status: 400
@@ -36,13 +39,14 @@ export async function createOrderPortal(products: {
 		let total = 0;
 		let fetchedProduct: {[key: string]: Product} = {};
 
-		// محاسبه مجموع قیمت محصولات
+		paymentLog.debug('CHECKOUT', 'Validating products and calculating total');
 		for (let [id, count] of Object.entries(products)) {
 			const product = await prisma.product.findUnique({
 				where: { id }
 			});
-			
+
 			if (!product) {
+				paymentLog.error('CHECKOUT', 'Product not found', { productId: id });
 				return {
 					message: `محصول با شناسه ${id} یافت نشد`,
 					status: 404
@@ -50,6 +54,7 @@ export async function createOrderPortal(products: {
 			}
 
 			if (product.stock < count) {
+				paymentLog.warn('CHECKOUT', 'Insufficient stock', { productId: id, productName: product.name, requested: count, available: product.stock });
 				return {
 					message: `موجودی محصول ${product.name} کافی نیست (${product.stock} عدد موجود است)`,
 					status: 400
@@ -59,23 +64,26 @@ export async function createOrderPortal(products: {
 			total += (+(product.price+"") * count);
 			fetchedProduct[product.id] = product;
 		}
+		paymentLog.debug('CHECKOUT', 'Products validated', { total, productCount: Object.keys(fetchedProduct).length });
 
-		// اضافه کردن هزینه بسته‌بندی و پست
 		const boxFee = +(await getVar<string>("PRODUCT_BOX_FEE") || "0");
 		const postFee = +(await getVar<string>("PRODUCT_POST_FEE") || "0");
 		total += boxFee + postFee;
-
+		paymentLog.debug('CHECKOUT', 'Fees added', { boxFee, postFee, total });
 
 		const paymentId = `pymt_${requestId}`;
 		const existingPayment = await prisma.payment.findUnique({where: {id: paymentId}});
 		if (existingPayment) {
-			if (existingPayment.receipt) return {message: 'این سفارش قبلاً پرداخت شده است', status: 409};
+			if (existingPayment.receipt) {
+				paymentLog.warn('CHECKOUT', 'Payment already completed', { paymentId });
+				return {message: 'این سفارش قبلاً پرداخت شده است', status: 409};
+			}
+			paymentLog.info('CHECKOUT', 'Existing payment found, regenerating token', { paymentId });
 			const token = await existingPayment.getToken();
 			return {message: 'درحال انتقال...', token, paymentId: existingPayment.id};
 		}
 
-		// ایجاد پرداخت
-		console.log('[CHECKOUT] creating payment record, total:', total);
+		paymentLog.info('CHECKOUT', 'Creating payment record', { paymentId, amount: total });
 		const payment = await prisma.payment.create({
 			data: {
 				id: paymentId,
@@ -85,16 +93,15 @@ export async function createOrderPortal(products: {
 				userId: user.id
 			}
 		});
+		paymentLog.debug('CHECKOUT', 'Payment record created', { paymentId: payment.id });
 
-		// تولید ID برای سفارش
 		let orderId = 1;
 		do {
 			orderId = +generateRandomNumber(8);
 			if (!(await prisma.order.findUnique({where: {id: orderId}}))) break;
 		} while (true);
+		paymentLog.debug('CHECKOUT', 'Order ID generated', { orderId });
 
-
-		// ایجاد PaymentAction برای Order
 		await prisma.paymentAction.create({
 			data: {
 				type: "CREATE_MODEL",
@@ -109,12 +116,11 @@ export async function createOrderPortal(products: {
 				} as OrderCreateArgs['data']
 			}
 		});
+		paymentLog.debug('CHECKOUT', 'Order payment action created', { orderId });
 
-		// ایجاد PaymentAction برای محصولات
 		for (let [id, count] of Object.entries(products)) {
 			const product = fetchedProduct[id];
-			
-			// کاهش موجودی
+
 			await prisma.paymentAction.create({
 				data: {
 					type: "CHANGE_MODEL",
@@ -126,8 +132,7 @@ export async function createOrderPortal(products: {
 					} as ProductCreateArgs['data']
 				}
 			});
-			
-			// ایجاد OrderProduct
+
 			await prisma.paymentAction.create({
 				data: {
 					type: "CREATE_MODEL",
@@ -141,16 +146,18 @@ export async function createOrderPortal(products: {
 				}
 			});
 		}
+		paymentLog.debug('CHECKOUT', 'All product payment actions created', { productCount: Object.keys(products).length });
 
-
-		// تولید توکن
-		console.log('[CHECKOUT] generating payment token...');
+		paymentLog.info('CHECKOUT', 'Generating payment token', { paymentId: payment.id });
 		let token;
 		try {
 			token = await payment.getToken();
-			console.log('[CHECKOUT] token generated successfully');
+			paymentLog.info('CHECKOUT', 'Token generated successfully', { paymentId: payment.id, tokenLength: token?.length });
 		} catch (tokenError) {
-			console.error('[CHECKOUT] token generation FAILED:', tokenError);
+			paymentLog.error('CHECKOUT', 'Token generation FAILED', {
+				paymentId: payment.id,
+				error: tokenError instanceof Error ? tokenError.message : String(tokenError),
+			});
 			await prisma.payment.delete({where: {id: payment.id}}).catch(() => {});
 			return {
 				message: 'خطا در ایجاد توکن پرداخت: ' + (tokenError instanceof Error ? tokenError.message : String(tokenError)),
@@ -165,8 +172,10 @@ export async function createOrderPortal(products: {
 		};
 
 	} catch (error) {
-		console.error('Checkout failed:', error);
-
+		paymentLog.error('CHECKOUT', 'Unexpected error', {
+			error: error instanceof Error ? error.message : String(error),
+			stack: error instanceof Error ? error.stack : undefined,
+		});
 		return {
 			message: 'خطا در ایجاد سفارش: ' + (error instanceof Error ? error.message : 'خطای ناشناخته'),
 			status: 500

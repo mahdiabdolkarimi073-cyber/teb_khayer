@@ -1,7 +1,12 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { BasicSchemaInformation } from "@backend/modules/Schema";
 import Payment from "@backend/modules/payment/Payment";
+import {paymentLog} from "@/utils/paymentLogger";
 import * as fs from "node:fs";
+
+if (typeof window !== "undefined") {
+	throw new Error("Prisma client must not be loaded in the browser. Check for accidental imports of @backend/modules/prisma/Prisma in client components.");
+}
 
 declare const global: {
 	instance: PrismaClient
@@ -26,6 +31,8 @@ const prisma = instance.$extends({
 				},
 				compute: ({ id, amount }) => {
 					return async () => {
+						paymentLog.debug('PRISMA-EXT', 'getToken extension called', { paymentId: id, amount });
+
 						const payment = await instance.payment.findUnique({
 							where: {
 								id
@@ -35,14 +42,20 @@ const prisma = instance.$extends({
 								user: true
 							}
 						})
+
 						if (!amount) {
+							paymentLog.info('PRISMA-EXT', 'Zero-amount payment, executing actions directly', { paymentId: id });
 							if (payment) {
 								await Payment.handlePaymentAction(payment);
 								return `FREE:${payment.redirect}`
-							} else return "NOTFOUND";
+							} else {
+								paymentLog.error('PRISMA-EXT', 'Payment not found for zero-amount', { paymentId: id });
+								return "NOTFOUND";
+							}
 						}
+
 						const userPhone = payment?.user?.phone ? "0" + payment.user.phone : undefined;
-						console.log('[PAYMENT] getToken extension - amount:', amount, 'invoice:', id, 'phone:', userPhone);
+						paymentLog.debug('PRISMA-EXT', 'Calling Payment.getToken', { paymentId: id, amount, userPhone: userPhone || 'N/A' });
 						return Payment.getToken(amount, id, userPhone);
 					}
 				}

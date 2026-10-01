@@ -1,6 +1,5 @@
 'use client';
 
-import prisma from "@backend/modules/prisma/Prisma";
 import {useEffect, useState} from "react";
 import {getServiceDetails} from "@/app/(web)/admin/services/[service]/list/action";
 import {ActionIcon, TextInput} from "@mantine/core";

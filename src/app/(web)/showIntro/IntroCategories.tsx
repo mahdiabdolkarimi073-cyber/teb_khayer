@@ -11,7 +11,6 @@ import {closeLastModal, modal} from "@/utils/modal";
 import {useAction} from "@/utils/server";
 import ServiceFindUniqueArgs = Prisma.ServiceFindUniqueArgs;
 import PaymentButton from "@/app/(app)/app/service/[key]/PaymentButton";
-import prisma from "@backend/modules/prisma/Prisma";
 import ServiceUserFindFirstArgs = Prisma.ServiceUserFindFirstArgs;
 import {checkVisitPay} from "@/app/(web)/showIntro/action";
 import {Button} from "@mantine/core";

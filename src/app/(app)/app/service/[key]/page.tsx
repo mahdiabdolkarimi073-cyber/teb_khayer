@@ -47,7 +47,7 @@ const Page = async (props: any) => {
 						<h4>راه های ارتباطی</h4>
 						<div className={'center'}>
 							<div className={'w-full '}>
-								<SocialsComponent}/>
+								<SocialsComponent />
 							</div>
 						</div>
 					</div>

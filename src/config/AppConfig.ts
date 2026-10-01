@@ -1,5 +1,3 @@
-import prisma from "@backend/modules/prisma/Prisma";
-
 const AppConfig = {
 	name: "طِب خیّر",
 	logo: "/logo.webp",

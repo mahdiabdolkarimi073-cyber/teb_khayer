@@ -49,13 +49,18 @@ export async function GET(req: NextRequest,res: any) {
 			}
 		});
 	} catch (e) {
-		const path = process.cwd()+`/public/backend/images/default_thumbnail.png`;
-		const buffer = fs.readFileSync(path);
-		return new NextResponse(buffer, {
-			headers: {
-				"content-type": mime_type
+		const fallbackPath = process.cwd()+`/public/backend/images/default_thumbnail.png`;
+		try {
+			if (fs.existsSync(fallbackPath)) {
+				const buffer = fs.readFileSync(fallbackPath);
+				return new NextResponse(buffer, {
+					headers: {
+						"content-type": mime_type
+					}
+				});
 			}
-		});
+		} catch (e2) {}
+		return new NextResponse("File not found", {status: 404});
 	}
 }
 
