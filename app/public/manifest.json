@@ -1,0 +1,17 @@
+{
+  "name": "طب خیّر",
+  "short_name": "طب خیّر",
+  "description": "آموزش طب سنتی، دوره‌های تخصصی و فروشگاه گیاهان دارویی",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#168aad",
+  "orientation": "portrait",
+  "lang": "fa",
+  "dir": "rtl",
+  "icons": [
+    {"src": "/logo.webp", "sizes": "192x192", "type": "image/webp"},
+    {"src": "/logo.webp", "sizes": "512x512", "type": "image/webp"},
+    {"src": "/logo.webp", "sizes": "180x180", "type": "image/webp", "purpose": "any"}
+  ]
+}

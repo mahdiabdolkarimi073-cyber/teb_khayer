@@ -1,0 +1,11 @@
+.pdfWrapper{
+    display: flex;
+    align-items: start;
+    justify-content: start;
+    overflow: auto;
+}
+
+.footer{
+    display: flex;
+    justify-content: space-between;
+}

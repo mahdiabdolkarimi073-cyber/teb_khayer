@@ -1,0 +1,52 @@
+.page { direction: rtl; min-height: 100vh; background: #fbfdff; color: #173b68; padding: 28px 16px 72px; }
+.container { width: min(1130px, 100%); margin: 0 auto; }
+.steps { display: grid; grid-template-columns: repeat(4, 1fr); margin: 4px 0 28px; }
+.step { position: relative; display: flex; align-items: center; justify-content: center; gap: 10px; color: #91a6bf; font-size: 12px; text-align: center; }
+.step:not(:last-child)::after { content: ""; position: absolute; top: 17px; left: -50%; width: 100%; height: 1px; background: #dce8f4; }
+.stepIcon { position: relative; z-index: 1; display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid #aec3da; border-radius: 50%; background: #fff; }
+.stepActive { color: #0877e5; font-weight: 800; }
+.stepActive .stepIcon { border-color: #0877e5; background: #0877e5; color: #fff; box-shadow: 0 5px 14px rgba(8,119,229,.2); }
+.stepText { display: flex; flex-direction: column; gap: 3px; }
+.stepText small { color: #a0b1c3; font-size: 10px; font-weight: 400; }
+.content { display: grid; grid-template-columns: minmax(260px, .72fr) minmax(0, 1.45fr); gap: 18px; align-items: start; }
+.card { border: 1px solid #e1eaf4; border-radius: 9px; background: #fff; box-shadow: 0 8px 22px rgba(21,61,103,.035); }
+.summary { padding: 20px 16px; }
+.cartCard { padding: 20px 14px 14px; }
+.titleRow { display: flex; align-items: center; gap: 9px; padding: 0 3px 14px; border-bottom: 1px solid #eaf0f6; }
+.titleIcon { color: #0877e5; }
+.title { margin: 0; color: #173b68; font-size: 16px; font-weight: 800; }
+.subtitle { margin: 6px 0 0; color: #91a5ba; font-size: 11px; }
+.items { padding: 8px 0 0; }
+.item { display: grid; grid-template-columns: 82px minmax(160px, 1.6fr) 130px 128px 110px 38px; align-items: center; gap: 14px; min-height: 103px; border-bottom: 1px solid #eaf0f6; padding: 12px 10px; }
+.item:last-child { border-bottom: 0; }
+.image { width: 82px; height: 82px; border: 1px solid #dfe9f3; border-radius: 8px; object-fit: contain; padding: 5px; background: #f8fbfe; }
+.name { color: #22486f; font-size: 12px; font-weight: 800; }
+.meta { margin-top: 7px; color: #8ca2ba; font-size: 10px; }
+.stock { display: flex; align-items: center; gap: 4px; margin-top: 7px; color: #1eb783; font-size: 9px; }
+.unit, .lineTotal { color: #254a73; font-size: 11px; line-height: 1.9; }
+.unit strong, .lineTotal strong { display: block; color: #173b68; font-size: 12px; }
+.quantity { display: inline-flex; align-items: center; overflow: hidden; border: 1px solid #d4e4f2; border-radius: 7px; }
+.quantity button { display: grid; place-items: center; width: 34px; height: 32px; border: 0; background: #fff; color: #0877e5; cursor: pointer; font: inherit; font-size: 17px; }
+.quantity button:hover { background: #f0f7ff; }
+.quantity span { display: grid; place-items: center; width: 34px; height: 32px; border-right: 1px solid #dfeaf4; border-left: 1px solid #dfeaf4; color: #234a72; font-size: 11px; }
+.remove { display: grid; place-items: center; width: 29px; height: 29px; border: 1px solid #ffd3d3; border-radius: 7px; background: #fff; color: #f15353; cursor: pointer; }
+.discount { display: grid; grid-template-columns: 135px 1fr; gap: 12px; align-items: center; margin-top: 17px; border: 1px solid #c5e2fa; border-radius: 8px; background: #f4faff; padding: 11px 12px; }
+.discountLabel { display: flex; align-items: center; gap: 7px; color: #145a96; font-size: 11px; font-weight: 800; }
+.discountInput { display: flex; gap: 8px; }
+.discountInput input { flex: 1; min-width: 0; height: 36px; border: 1px solid #d9e7f3; border-radius: 6px; padding: 0 11px; color: #285078; font: inherit; font-size: 10px; }
+.discountInput button { width: 92px; border: 0; border-radius: 6px; background: #0877e5; color: #fff; cursor: pointer; font: inherit; font-size: 10px; font-weight: 700; }
+.summaryRows { display: flex; flex-direction: column; gap: 14px; padding: 17px 2px; color: #607c99; font-size: 11px; }
+.summaryRow { display: flex; justify-content: space-between; gap: 12px; }
+.summaryRow strong { color: #294e76; }
+.discountValue { color: #1db786 !important; }
+.payable { display: flex; justify-content: space-between; gap: 10px; margin-top: 2px; border-radius: 8px; background: #f0f7ff; padding: 14px 12px; color: #173b68; font-size: 12px; font-weight: 800; }
+.payable strong { color: #0872dc; font-size: 16px; }
+.policy { margin: 16px 0; color: #7f98b2; font-size: 9px; line-height: 2; text-align: center; }
+.primary { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 45px; border: 0; border-radius: 8px; background: linear-gradient(135deg,#087cf0,#0565c8); box-shadow: 0 8px 16px rgba(8,119,229,.2); color: #fff; cursor: pointer; font: inherit; font-size: 12px; font-weight: 800; text-decoration: none; }
+.primary:hover { box-shadow: 0 11px 22px rgba(8,119,229,.27); transform: translateY(-1px); }
+.empty { padding: 70px 20px; text-align: center; }
+.empty h1 { margin: 15px 0 10px; font-size: 18px; }
+.empty a { color: #0877e5; font-size: 12px; font-weight: 700; text-decoration: none; }
+@media (max-width: 950px) { .item { grid-template-columns: 72px minmax(150px, 1fr) 110px 105px 38px; } .lineTotal { display: none; } }
+@media (max-width: 760px) { .content { grid-template-columns: 1fr; } .summary { grid-row: 2; } .item { grid-template-columns: 66px minmax(0, 1fr) 105px 34px; gap: 10px; padding: 12px 3px; } .image { width: 66px; height: 66px; } .unit { display: none; } .quantity { grid-column: 3; grid-row: 1; } .remove { grid-column: 4; grid-row: 1; } .item .name, .item .meta, .item .stock { grid-column: 2; } .discount { grid-template-columns: 1fr; } }
+@media (max-width: 480px) { .page { padding: 14px 9px 40px; } .step { display: block; font-size: 9px; } .stepIcon { margin: 0 auto 5px; width: 30px; height: 30px; } .step:not(:last-child)::after { top: 15px; } .stepText small { display: none; } .cartCard, .summary { padding: 15px 10px; } .item { grid-template-columns: 58px minmax(0,1fr) 30px; } .image { width: 58px; height: 58px; } .quantity { grid-column: 2; grid-row: 2; margin-top: 7px; } .remove { grid-column: 3; grid-row: 1; } .item .name, .item .meta, .item .stock { grid-column: 2; } .discountInput button { width: 75px; } }
