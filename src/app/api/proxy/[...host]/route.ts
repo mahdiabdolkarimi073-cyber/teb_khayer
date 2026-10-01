@@ -22,6 +22,8 @@ export  async function PATCH(req: NextRequest, res: NextResponse) {
 }
 
 
+const ALLOWED_HOSTS = ["sepehr.shaparak.ir:8081"];
+
 export async function handle(req: NextRequest, res: any) {
 	const headers =  Object.fromEntries(['user-agent','Host','Accept-Encoding', 'accept','content-type'].map( key => ([key, req.headers.get(key) || ""])).filter(o => !!o[1]));
 
@@ -31,6 +33,11 @@ export async function handle(req: NextRequest, res: any) {
 	}
 
 	const targetHost = res?.params?.host?.join?.("/") || "";
+
+	if (!ALLOWED_HOSTS.includes(targetHost)) {
+		return NextResponse.json({ error: 'Host not allowed' }, { status: 403 });
+	}
+
 	const targetUrl = "https://" + targetHost + req.nextUrl.search;
 
 	console.log(`[PROXY] ${req.method} -> ${targetUrl}`);

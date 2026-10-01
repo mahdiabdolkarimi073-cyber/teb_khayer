@@ -3,6 +3,43 @@ import prisma from "@backend/modules/prisma/Prisma";
 import AppConfig from "@/config/AppConfig";
 import {paymentLog, withTimer} from "@/utils/paymentLogger";
 
+/**
+ * استخراج جزئیات کامل خطای fetch از undici
+ * چون err.message همیشه فقط "fetch failed" هست
+ */
+function describeFetchError(err: unknown): Record<string, unknown> {
+	if (!(err instanceof Error)) {
+		return { raw: String(err) };
+	}
+
+	const cause = (err as any).cause as any;
+
+	return {
+		name: err.name,
+		message: err.message,
+		stack: err.stack?.split("\n").slice(0, 6).join("\n"),
+		cause: cause ? {
+			name: cause.name,
+			message: cause.message,
+			code: cause.code,           // ECONNREFUSED / ETIMEDOUT / ENOTFOUND / CERT_* / ...
+			errno: cause.errno,
+			syscall: cause.syscall,
+			address: cause.address,
+			port: cause.port,
+			reason: cause.reason,
+			library: cause.library,
+			errors: Array.isArray(cause.errors)
+				? cause.errors.map((e: any) => ({
+					message: e?.message,
+					code: e?.code,
+					address: e?.address,
+					port: e?.port,
+				}))
+				: undefined,
+		} : undefined,
+	};
+}
+
 export default class Payment {
 	static TID = AppConfig.TID;
 	static MID = "982024031001819"
@@ -51,8 +88,10 @@ export default class Payment {
 			});
 			paymentLog.info('GET_TOKEN', 'Sepehr response received', { status: res.Status, message: res.Message || res.Description || 'N/A' });
 		} catch (fetchError) {
+			// ★★★ لاگ کامل خطا
 			paymentLog.error('GET_TOKEN', 'NETWORK ERROR calling Sepehr', {
 				error: fetchError instanceof Error ? fetchError.message : String(fetchError),
+				details: describeFetchError(fetchError),
 			});
 			throw new Error(`خطا در ارتباط با درگاه پرداخت: ${fetchError instanceof Error ? fetchError.message : String(fetchError)}`);
 		}
@@ -97,8 +136,10 @@ export default class Payment {
 			});
 			paymentLog.info('ACCEPT_RECEIPT', 'Sepehr response received', { status: res.Status, returnId: res.ReturnId, message: res.Message });
 		} catch (fetchError) {
+			// ★★★ لاگ کامل خطا
 			paymentLog.error('ACCEPT_RECEIPT', 'NETWORK ERROR', {
 				error: fetchError instanceof Error ? fetchError.message : String(fetchError),
+				details: describeFetchError(fetchError),
 			});
 			throw new Error(`خطا در تایید پرداخت: ${fetchError instanceof Error ? fetchError.message : String(fetchError)}`);
 		}
@@ -121,21 +162,65 @@ export default class Payment {
 			urlencoded.append(key, body[key]);
 		}
 
-		const requestOptions = {
+		const requestOptions: RequestInit = {
 			method: "POST",
 			headers: myHeaders,
-			body: urlencoded
+			body: urlencoded,
+			redirect: "manual",
 		};
-		const base = process.env.NODE_ENV === "production" ? "https://sepehr.shaparak.ir:8081/V1" : "https://teb-khayyer.ir/api/proxy/sepehr.shaparak.ir:8081/V1";
-		const url = base + path;
-		paymentLog.debug('FETCH', `POST ${url}`, { bodyKeys: Object.keys(body) });
 
-		const response = await fetch(url, requestOptions);
-		if (!response.ok) {
-			paymentLog.error('FETCH', `HTTP ${response.status} ${response.statusText}`, { url });
+		const callbackURL = (process.env.PAYMENT_CALLBACK_URL || "https://teb-khayyer.ir/api/payment").trim();
+		const origin = new URL(callbackURL).origin;
+		const base = `${origin}/api/proxy/sepehr.shaparak.ir:8081/V1`;
+		const url = base + path;
+
+		// ★★★ لاگ کامل قبل از درخواست
+		paymentLog.debug('FETCH', `POST ${url}`, {
+			bodyKeys: Object.keys(body),
+			bodyPreview: urlencoded.toString().substring(0, 200),
+			nodeEnv: process.env.NODE_ENV,
+			callbackURL,
+			origin,
+		});
+
+		const startedAt = Date.now();
+		let response: Response;
+		try {
+			response = await fetch(url, requestOptions);
+		} catch (err) {
+			// ★★★ اینجا مهم‌ترین بخشه: قبل از پرتاب خطا، جزئیات کامل رو لاگ می‌کنیم
+			const elapsed = Date.now() - startedAt;
+			paymentLog.error('FETCH', `FETCH THREW after ${elapsed}ms`, {
+				url,
+				elapsed,
+				errorDetails: describeFetchError(err),
+			});
+			throw err;
 		}
+
+		const elapsed = Date.now() - startedAt;
+
+		// ★★★ لاگ پاسخ (حتی قبل از خوندن body)
+		const responseHeaders: Record<string, string> = {};
+		response.headers.forEach((value, key) => {
+			responseHeaders[key] = value;
+		});
+
+		paymentLog.debug('FETCH', `Response in ${elapsed}ms - HTTP ${response.status} ${response.statusText}`, {
+			url,
+			status: response.status,
+			statusText: response.statusText,
+			elapsed,
+			headers: responseHeaders,
+		});
+
+		if (!response.ok) {
+			paymentLog.error('FETCH', `HTTP ${response.status} ${response.statusText}`, { url, headers: responseHeaders });
+		}
+
 		const text = await response.text();
-		paymentLog.debug('FETCH', 'Raw response', { body: text.substring(0, 500) });
+		paymentLog.debug('FETCH', 'Raw response', { body: text.substring(0, 500), bodyLength: text.length });
+
 		try {
 			return JSON.parse(text);
 		} catch {
