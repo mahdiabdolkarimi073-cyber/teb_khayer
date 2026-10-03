@@ -9,6 +9,7 @@ const sections = [
   {name: "داشبورد", path: "/dashboard", icon: "⌂"},
   {name: "گزارش‌های مالی", path: "/reports", icon: "▥"},
   {name: "تراکنش‌ها", path: "/transactions", icon: "▤"},
+  {name: "جزئیات فروش", path: "/sales-details", icon: "₪"},
   {name: "دوره‌ها", path: "/courses", icon: "▦"},
   {name: "دانشجویان", path: "/students", icon: "♙"},
   {name: "محصولات", path: "/products", icon: "▦"},

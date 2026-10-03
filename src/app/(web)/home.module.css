@@ -240,6 +240,156 @@
 .consultMenuItem:last-child { border-bottom: 0; }
 .consultMenuItem:hover { background: #f5f8fc; color: #7048e8; }
 
+/* Shop category popup */
+.shopPopupBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(9,43,84,.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: shopPopupFade .2s ease;
+}
+@keyframes shopPopupFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.shopPopup {
+  position: relative;
+  width: min(520px, 100%);
+  background: #fff;
+  border-radius: 18px;
+  -webkit-border-radius: 18px;
+  -moz-border-radius: 18px;
+  box-shadow: 0 24px 64px rgba(9,43,84,.25);
+  overflow: hidden;
+  animation: shopPopupIn .25s ease;
+}
+@keyframes shopPopupIn {
+  from { opacity: 0; transform: translateY(16px) scale(.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.shopPopupClose {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  background: #f0f4f8;
+  color: #334d68;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background .15s, color .15s;
+}
+.shopPopupClose:hover { background: #e2e8f0; color: #092b54; }
+.shopPopupHeader {
+  padding: 28px 24px 16px;
+  text-align: center;
+  background: linear-gradient(135deg, #f0fbf6, #fff8ee);
+}
+.shopPopupHeader h3 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 900;
+  color: #092b54;
+}
+.shopPopupHeader p {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: #7990a5;
+}
+.shopPopupBody {
+  padding: 20px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.shopPopupCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 18px;
+  border-radius: 14px;
+  -webkit-border-radius: 14px;
+  -moz-border-radius: 14px;
+  text-decoration: none;
+  border: 2px solid;
+  transition: transform .2s, box-shadow .2s;
+  position: relative;
+}
+.shopPopupCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(26,66,112,.12);
+}
+.shopPopupCardIcon {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  -webkit-border-radius: 16px;
+  -moz-border-radius: 16px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  color: #fff;
+}
+.shopPopupCardBody { flex: 1; }
+.shopPopupCardBody h4 {
+  margin: 0 0 5px;
+  font-size: 17px;
+  font-weight: 800;
+}
+.shopPopupCardBody p {
+  margin: 0;
+  font-size: 13px;
+  color: #667b91;
+  line-height: 1.6;
+}
+.shopPopupArrow {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  flex: 0 0 auto;
+}
+.shopPopupHerbal {
+  background: #f0fbf6;
+  border-color: #d6efe3;
+}
+.shopPopupHerbal .shopPopupCardIcon,
+.shopPopupHerbal .shopPopupArrow { background: #16a56e; }
+.shopPopupHerbal .shopPopupCardBody h4 { color: #10915d; }
+.shopPopupSouvenir {
+  background: #fff8ee;
+  border-color: #f8e2bd;
+}
+.shopPopupSouvenir .shopPopupCardIcon,
+.shopPopupSouvenir .shopPopupArrow { background: #ed812d; }
+.shopPopupSouvenir .shopPopupCardBody h4 { color: #c2691a; }
+
+@media (max-width: 480px) {
+  .shopPopupBody { padding: 16px 18px 22px; gap: 12px; }
+  .shopPopupCard { padding: 16px 14px; gap: 12px; }
+  .shopPopupCardIcon { width: 50px; height: 50px; border-radius: 13px; }
+  .shopPopupCardBody h4 { font-size: 16px; }
+  .shopPopupCardBody p { font-size: 12px; }
+  .shopPopupHeader { padding: 24px 20px 12px; }
+  .shopPopupHeader h3 { font-size: 19px; }
+}
+
 /* VPN/Proxy warning banner */
 .vpnBanner {
   position: fixed;

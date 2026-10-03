@@ -9,6 +9,7 @@ import {
   IconBox,
   IconChevronDown,
   IconCircleCheck,
+  IconGift,
   IconHeadphones,
   IconLeaf,
   IconLock,
@@ -19,6 +20,7 @@ import {
   IconStethoscope,
   IconTruckDelivery,
   IconUserCircle,
+  IconX,
 } from "@tabler/icons-react";
 import AppDownloadModal from "@/app/(web)/AppDownloadModal";
 import styles from "./home.module.css";
@@ -28,7 +30,7 @@ const naturalImage = "/ChatGPT_Image_Sep_14,_2026,_11_47_59_AM.png";
 const appImage = "/ChatGPT_Image_Sep_22,_2026,_11_17_00_AM.png";
 
 const quickServices = [
-  { title: "محصولات گیاهی و سوغات محلی", text: "بهترین محصولات و سوغات سنتی", icon: IconLeaf, tone: "green" },
+  { title: "محصولات گیاهی و سوغات محلی", text: "بهترین محصولات و سوغات سنتی", icon: IconLeaf, tone: "green", isShopPopup: true },
   { title: "دوره ها و آموزش ها", text: "دوره های علمی آموزش طِب خیّر", icon: IconBook2, tone: "blue" },
   { title: "پشتیبانی و مشاوره آنلاین", text: "با کارشناسان ما در ارتباط باشید", icon: IconUserCircle, tone: "purple", isSupport: true },
   { title: "تضمین کیفیت محصولات", text: "بهترین محصولات اصیل و با کیفیت", icon: IconBox, tone: "orange" },
@@ -75,6 +77,70 @@ function Benefit({ icon: Icon, title, text }: { icon: typeof IconTruckDelivery; 
       <span>{title}</span>
       <small>{text}</small>
     </div>
+  );
+}
+
+function ShopPopup({ cardClass, icon: Icon, title, text }: { cardClass: string; icon: typeof IconUserCircle; title: string; text: string }) {
+  const [opened, setOpened] = useState(false);
+
+  useEffect(() => {
+    if (!opened) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpened(false);
+    };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [opened]);
+
+  return (
+    <>
+      <button
+        type="button"
+        className={`${styles.serviceCard} ${cardClass}`}
+        onClick={() => setOpened(true)}
+        aria-label={title}
+      >
+        <div className={styles.serviceIcon}><Icon size={24} stroke={1.8} aria-hidden="true" /></div>
+        <div><h2>{title}</h2><p>{text}</p></div>
+        <span className={styles.circleArrow}><IconArrowLeft size={15} aria-hidden="true" /></span>
+      </button>
+      {opened && (
+        <div className={styles.shopPopupBackdrop} role="presentation" onMouseDown={() => setOpened(false)}>
+          <div className={styles.shopPopup} role="dialog" aria-modal="true" aria-label="انتخاب دسته‌بندی محصولات" onMouseDown={(e) => e.stopPropagation()}>
+            <button type="button" className={styles.shopPopupClose} onClick={() => setOpened(false)} aria-label="بستن">
+              <IconX size={22} />
+            </button>
+            <div className={styles.shopPopupHeader}>
+              <h3>انتخاب دسته‌بندی</h3>
+              <p>لطفاً یکی از گزینه‌های زیر را انتخاب کنید</p>
+            </div>
+            <div className={styles.shopPopupBody}>
+              <Link href="/category/all" className={`${styles.shopPopupCard} ${styles.shopPopupHerbal}`} onClick={() => setOpened(false)}>
+                <div className={styles.shopPopupCardIcon}><IconLeaf size={32} stroke={1.7} /></div>
+                <div className={styles.shopPopupCardBody}>
+                  <h4>محصولات گیاهی</h4>
+                  <p>گیاهان دارویی، عسل، عرقیجات و محصولات طبیعی</p>
+                </div>
+                <span className={styles.shopPopupArrow}><IconArrowLeft size={20} /></span>
+              </Link>
+              <Link href="/souvenirs" className={`${styles.shopPopupCard} ${styles.shopPopupSouvenir}`} onClick={() => setOpened(false)}>
+                <div className={styles.shopPopupCardIcon}><IconGift size={32} stroke={1.7} /></div>
+                <div className={styles.shopPopupCardBody}>
+                  <h4>سوغات محلی</h4>
+                  <p>سوغات سنتی و محلی مناطق مختلف ایران</p>
+                </div>
+                <span className={styles.shopPopupArrow}><IconArrowLeft size={20} /></span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -134,10 +200,21 @@ function SupportMenu({ cardClass, icon: Icon, title, text }: { cardClass: string
 function QuickServices() {
   return (
     <section className={styles.servicesGrid} aria-label="خدمات طِب خیّر">
-      {quickServices.map(({ title, text, icon: Icon, tone, isSupport }) => {
+      {quickServices.map(({ title, text, icon: Icon, tone, isSupport, isShopPopup }) => {
         if (isSupport) {
           return (
             <SupportMenu
+              key={title}
+              cardClass={styles[tone]}
+              icon={Icon as typeof IconUserCircle}
+              title={title}
+              text={text}
+            />
+          );
+        }
+        if (isShopPopup) {
+          return (
+            <ShopPopup
               key={title}
               cardClass={styles[tone]}
               icon={Icon as typeof IconUserCircle}

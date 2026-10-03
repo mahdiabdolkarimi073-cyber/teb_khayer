@@ -172,12 +172,18 @@ const NewProduct = (props: {
 				<Checkbox
 					label="محصول ویژه"
 					checked={!!data?.isSpecial}
-					onChange={(e) => setData(pre => ({ ...pre, isSpecial: e.currentTarget.checked } as Product))}
+					onChange={(e) => {
+						const checked = e.currentTarget.checked;
+						setData(pre => ({ ...pre, isSpecial: checked } as Product));
+					}}
 				/>
 				<Checkbox
 					label="پرفروش"
 					checked={!!data?.isBestSeller}
-					onChange={(e) => setData(pre => ({ ...pre, isBestSeller: e.currentTarget.checked } as Product))}
+					onChange={(e) => {
+						const checked = e.currentTarget.checked;
+						setData(pre => ({ ...pre, isBestSeller: checked } as Product));
+					}}
 				/>
 			</div>
 
