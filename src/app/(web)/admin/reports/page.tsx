@@ -10,6 +10,7 @@ import {
   IconUsers, IconShoppingCart, IconCurrencyDollar, IconChartBar,
 } from "@tabler/icons-react";
 import {getReportData, ReportData} from "@/app/(web)/admin/reports/reports.action";
+import styles from "./reports.module.css";
 import {
   formatPersianCurrency, formatPersianNumber, toPersianDateTime, daysAgo,
   toJalaliString, jalaliStringToDate, jalaliToday, jalaliDaysAgo,
@@ -135,7 +136,7 @@ export default function ReportsPage() {
 
       <Card withBorder shadow="sm" radius="md" p="md">
         <Stack gap="sm">
-          <Group gap="sm" wrap="wrap" grow>
+          <Group className={styles.filters} gap="sm" wrap="wrap" grow>
             <Select
               label="بازه پیش‌فرض"
               value={preset}

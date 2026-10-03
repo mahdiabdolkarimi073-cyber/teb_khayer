@@ -1,24 +1,22 @@
 "use client";
 
-
 import {useAction} from "@/utils/server";
 import {handlePrismaQuery} from "@/app/(web)/admin/action";
 import {Button, Checkbox, FileInput, NumberInput, Textarea, TextInput as Input} from "@mantine/core";
 import React, {useState} from "react";
-import {Prisma, Product} from "@prisma/client";
+import {Product} from "@prisma/client";
 import {uploadFile} from "@/utils/api";
 import {IconImageInPicture} from "@tabler/icons-react";
 import BlogContentEditor from "@/app/(web)/admin/courses/new/BlogContentEditor";
 import {_SET_API_LOADING} from "@/components/api/ApiLoadingState";
 import {useRouter} from "next/navigation";
-import CourseUpdateArgs = Prisma.CourseUpdateArgs;
 
 const NewProduct = (props: {
-	Product: Product,
+	Product?: Product,
 	searchParams: any
 }) => {
-	let { Product} = props;
-	const catId = props.searchParams?.category || Product.categoryId;
+	let { Product } = props;
+	const catId = props.searchParams?.category || Product?.categoryId;
 	const {result: productCategory} = useAction(handlePrismaQuery, "productCategory", "findUnique", {
 		where: {
 			id: catId
@@ -48,7 +46,7 @@ const NewProduct = (props: {
 		<div className={'flex flex-col gap-3'}>
 			<div className={'center gap-2'}>
 				{data?.images?.map?.(img => (
-					<div className={'center flex-col gap-1'}>
+					<div className={'center flex-col gap-1'} key={img}>
 						<img loading='lazy' src={img} alt={data?.name} className={'w-[100px] object-contain rounded'} />
 						<Button fullWidth onClick={()=>{
 							setData(pre => ({
@@ -116,7 +114,6 @@ const NewProduct = (props: {
 				/>
 			</div>
 
-			{/* Discount section */}
 			<div className={'flex flex-col gap-2 border rounded-xl p-3 bg-gray-50'}>
 				<div className={'flex items-center gap-3'}>
 					<Checkbox
@@ -171,7 +168,6 @@ const NewProduct = (props: {
 				)}
 			</div>
 
-			{/* Product flags */}
 			<div className={'flex items-center gap-6 border rounded-xl p-3 bg-gray-50'}>
 				<Checkbox
 					label="محصول ویژه"
@@ -194,22 +190,20 @@ const NewProduct = (props: {
 				<Button onClick={async ()=>{
 					try {
 						_SET_API_LOADING(true);
-						const Product = await (data?.id ? (
-							handlePrismaQuery<CourseUpdateArgs, Product>("product", "update", {
-								where: {
-									id: data?.id
-								},
-								data
-							})
-						):(
-							handlePrismaQuery("product", "create", {
-								data
-							})
-						));
-
-						_SET_API_LOADING(true);
+						const {id, created_at, updated_at, ...productData} = data;
+						if (id) {
+							await handlePrismaQuery("product", "update", {
+								where: {id},
+								data: productData
+							});
+						} else {
+							await handlePrismaQuery("product", "create", {
+								data: productData
+							});
+						}
 						router.push("/admin/products");
 					} catch {
+						_SET_API_LOADING(false);
 						alert("لطفا در وارد کردن اطلاعات دقت کنید");
 					}
 				}}>
@@ -229,6 +223,5 @@ const NewProduct = (props: {
 		</div>
 	)
 }
-
 
 export default NewProduct;

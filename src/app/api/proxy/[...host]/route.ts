@@ -32,13 +32,15 @@ export async function handle(req: NextRequest, res: any) {
 		body = await req.arrayBuffer();
 	}
 
-	const targetHost = res?.params?.host?.join?.("/") || "";
+	const hostParts: string[] = res?.params?.host || [];
+	const targetHost = hostParts[0] || "";
+	const remainingPath = hostParts.slice(1).join("/");
 
 	if (!ALLOWED_HOSTS.includes(targetHost)) {
 		return NextResponse.json({ error: 'Host not allowed' }, { status: 403 });
 	}
 
-	const targetUrl = "https://" + targetHost + req.nextUrl.search;
+	const targetUrl = "https://" + targetHost + (remainingPath ? "/" + remainingPath : "") + req.nextUrl.search;
 
 	console.log(`[PROXY] ${req.method} -> ${targetUrl}`);
 
