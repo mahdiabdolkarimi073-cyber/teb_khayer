@@ -4,8 +4,10 @@ import { useCart, removeFromCart, setLocalCart } from "@/utils/localCart";
 import { useRouter } from "next/navigation";
 import { useAction } from "@/utils/server";
 import { getCartFees } from "./action";
+import { applyDiscountCode } from "@/app/(web)/dashboard/checkout/checkout.action";
 import Loading from "@/app/(app)/loading";
 import Link from "next/link";
+import { useState } from "react";
 import {
   IconArrowLeft,
   IconCircleCheck,
@@ -34,8 +36,45 @@ const Page = () => {
   const postFee = fees?.postFee;
   const cart = useCart();
   const items = Object.values(cart);
+
+  const [discountCode, setDiscountCode] = useState("");
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [discountMessage, setDiscountMessage] = useState("");
+  const [discountApplying, setDiscountApplying] = useState(false);
+
   const productsTotal = items.reduce((sum, item) => sum + Number(item.product.price || 0) * item.quantity, 0);
   const total = productsTotal + Number(boxFee || 0) + Number(postFee || 0);
+  const payableTotal = Math.max(0, total - discountAmount);
+
+  const productPayload = Object.fromEntries(items.map(({ product, quantity }) => [product.id, quantity]));
+
+  const applyDiscount = () => {
+    if (!discountCode.trim()) {
+      setDiscountAmount(0);
+      setDiscountMessage("کد تخفیف را وارد کنید");
+      return;
+    }
+    setDiscountApplying(true);
+    applyDiscountCode(discountCode, productPayload)
+      .then((result) => {
+        setDiscountAmount(result.amount);
+        setDiscountMessage(result.message);
+      })
+      .catch(() => {
+        setDiscountAmount(0);
+        setDiscountMessage("بررسی کد تخفیف انجام نشد");
+      })
+      .finally(() => setDiscountApplying(false));
+  };
+
+  const goToCheckout = () => {
+    if (discountCode.trim() && discountAmount > 0) {
+      window.localStorage.setItem("appliedDiscountCode", discountCode.trim());
+    } else {
+      window.localStorage.removeItem("appliedDiscountCode");
+    }
+    router.push("/dashboard/checkout");
+  };
 
   if (feesPending) return <Loading />;
 
@@ -76,10 +115,10 @@ const Page = () => {
               <div className={styles.summaryRow}><span>جمع کل محصولات</span><strong>{formatPrice(productsTotal)}</strong></div>
               <div className={styles.summaryRow}><span>هزینه ارسال</span><strong>{Number(postFee) ? formatPrice(Number(postFee)) : "پس‌کرایه"}</strong></div>
               <div className={styles.summaryRow}><span>هزینه بسته‌بندی</span><strong>{formatPrice(Number(boxFee || 0))}</strong></div>
-              <div className={styles.summaryRow}><span>تخفیف</span><strong className={styles.discountValue}>۰ تومان</strong></div>
-              <div className={styles.payable}><span>مبلغ قابل پرداخت</span><strong>{formatPrice(total)}</strong></div>
+              {discountAmount > 0 && <div className={styles.summaryRow}><span>تخفیف</span><strong className={styles.discountValue}>- {formatPrice(discountAmount)}</strong></div>}
+              <div className={styles.payable}><span>مبلغ قابل پرداخت</span><strong>{formatPrice(payableTotal)}</strong></div>
             </div>
-            <Link href="/dashboard/checkout" className={styles.primary}>ادامه و ثبت سفارش<IconArrowLeft size={16} /></Link>
+            <button type="button" onClick={goToCheckout} className={styles.primary}>ادامه و ثبت سفارش<IconArrowLeft size={16} /></button>
             <p className={styles.policy}>با ادامه سفارش، شرایط استفاده از خدمات و حریم خصوصی طِب خیّر را می‌پذیرید.</p>
           </aside>
 
@@ -110,7 +149,11 @@ const Page = () => {
             </div>
             <div className={styles.discount}>
               <div className={styles.discountLabel}><IconTag size={16} />کد تخفیف دارید؟</div>
-              <div className={styles.discountInput}><input placeholder="کد تخفیف را وارد کنید" /><button type="button">اعمال کد تخفیف</button></div>
+              <div className={styles.discountInput}>
+                <input value={discountCode} onChange={(e) => setDiscountCode(e.currentTarget.value)} placeholder="کد تخفیف را وارد کنید" />
+                <button type="button" onClick={applyDiscount} disabled={discountApplying}>{discountApplying ? "..." : "اعمال کد تخفیف"}</button>
+              </div>
+              {discountMessage && <small className={styles.discountMessage}>{discountMessage}</small>}
             </div>
           </section>
         </div>

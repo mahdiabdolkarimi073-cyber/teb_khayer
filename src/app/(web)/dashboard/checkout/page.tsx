@@ -1,7 +1,7 @@
 "use client";
 
 import { removeFromCart, useCart } from "@/utils/localCart";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Loader } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import { CheckoutFields } from "@/app/(web)/dashboard/checkout/checkout.fields";
@@ -47,6 +47,7 @@ const Page = () => {
   const [discountMessage, setDiscountMessage] = useState("");
   const [discountApplying, setDiscountApplying] = useState(false);
   const requestIdRef = useRef<string>("");
+  const [prefilledDiscount, setPrefilledDiscount] = useState(false);
   const items = Object.values(cart);
   const productPayload = Object.fromEntries(items.map(({ product, quantity }) => [product.id, quantity]));
   const localInfo = typeof window !== "undefined" ? JSON.parse(window.localStorage.getItem("localInfo") || "{}") : {};
@@ -72,6 +73,28 @@ const Page = () => {
       .finally(() => setDiscountApplying(false));
   };
   const requiredFields = ["name", "phone", "state", "city", "address"];
+
+  useEffect(() => {
+    if (prefilledDiscount || feesPending || !items.length) return;
+    const savedCode = typeof window !== "undefined" ? window.localStorage.getItem("appliedDiscountCode") : null;
+    if (savedCode && savedCode.trim()) {
+      setPrefilledDiscount(true);
+      setDiscountCode(savedCode);
+      setDiscountApplying(true);
+      applyDiscountCode(savedCode, productPayload)
+        .then((result) => {
+          setDiscountAmount(result.amount);
+          setDiscountMessage(result.message);
+        })
+        .catch(() => {
+          setDiscountAmount(0);
+          setDiscountMessage("بررسی کد تخفیف انجام نشد");
+        })
+        .finally(() => setDiscountApplying(false));
+    } else {
+      setPrefilledDiscount(true);
+    }
+  }, [prefilledDiscount, feesPending, items.length]);
 
   if (isPending || feesPending) return <Loading />;
 
@@ -160,7 +183,7 @@ const Page = () => {
             <div className={styles.summaryItems}>
               {items.map(({ product, quantity }) => <div className={styles.item} key={product.id}><img className={styles.itemImage} src={product.images?.[0] || "/empty.png"} alt={product.name || "محصول"} /><div><div className={styles.itemName}>{product.name}</div><div className={styles.itemMeta}>تعداد: {quantity} عدد</div></div><div className={styles.itemPrice}>{formatPrice(Number(product.price || 0) * quantity)}<small>واحد: {formatPrice(Number(product.price || 0))}</small><button type="button" onClick={() => { removeFromCart(product); router.refresh(); }} aria-label="حذف محصول">حذف</button></div></div>)}
             </div>
-            <div className={styles.discount}><div className={styles.discountTitle}><IconTag size={16} />کد تخفیف دارید؟</div><div className={styles.discountRow}><input name="discountCode" value={discountCode} onChange={(event) => setDiscountCode(event.currentTarget.value)} placeholder="کد تخفیف را وارد کنید" /><button type="button" onClick={applyDiscount} disabled={discountApplying}>{discountApplying ? "..." : "اعمال"}</button></div>{discountMessage && <small>{discountMessage}</small>}</div>
+            <div className={styles.discount}><div className={styles.discountTitle}><IconTag size={16} />کد تخفیف دارید؟</div><div className={styles.discountRow}><input value={discountCode} onChange={(event) => setDiscountCode(event.currentTarget.value)} placeholder="کد تخفیف را وارد کنید" /><button type="button" onClick={applyDiscount} disabled={discountApplying}>{discountApplying ? "..." : "اعمال"}</button></div>{discountMessage && <small>{discountMessage}</small>}</div>
             <div className={styles.totals}><div className={styles.totalRow}><span>جمع کل محصولات</span><strong>{formatPrice(productsTotal)}</strong></div><div className={styles.totalRow}><span>هزینه ارسال</span><strong>{Number(postFee) ? formatPrice(Number(postFee)) : "پس‌کرایه"}</strong></div><div className={styles.totalRow}><span>هزینه بسته‌بندی</span><strong>{formatPrice(Number(boxFee || 0))}</strong></div>{discountAmount > 0 && <div className={styles.totalRow}><span>تخفیف</span><strong className={styles.discountValue}>- {formatPrice(discountAmount)}</strong></div>}<div className={styles.finalTotal}><span>مبلغ قابل پرداخت</span><strong>{formatPrice(payableTotal)}</strong></div></div>
             <div className={styles.security}><IconShieldCheck size={17} />خرید شما با ضمانت بازگشت ۷ روزه انجام می‌شود.</div>
           </aside>

@@ -35,6 +35,9 @@
 .discountInput { display: flex; gap: 8px; }
 .discountInput input { flex: 1; min-width: 0; height: 36px; border: 1px solid #d9e7f3; border-radius: 6px; padding: 0 11px; color: #285078; font: inherit; font-size: 10px; }
 .discountInput button { width: 92px; border: 0; border-radius: 6px; background: #0877e5; color: #fff; cursor: pointer; font: inherit; font-size: 10px; font-weight: 700; }
+.discountInput button:disabled { opacity: .6; cursor: default; }
+.discountMessage { grid-column: 1 / -1; color: #145a96; font-size: 10px; margin-top: 4px; }
+.discount { grid-template-rows: auto auto auto; }
 .summaryRows { display: flex; flex-direction: column; gap: 14px; padding: 17px 2px; color: #607c99; font-size: 11px; }
 .summaryRow { display: flex; justify-content: space-between; gap: 12px; }
 .summaryRow strong { color: #294e76; }

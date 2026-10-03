@@ -27,7 +27,11 @@ async function calculateDiscount(code: string, productsTotal: number): Promise<D
 
 	const discount = await prisma.discountCode.findUnique({where: {code: normalizeDiscountCode(code)}});
 	if (!discount || !discount.active) return {amount: 0, message: "کد تخفیف معتبر نیست"};
-	if (discount.expiresAt && discount.expiresAt <= new Date()) return {amount: 0, message: "تاریخ انقضای کد تخفیف گذشته است"};
+	if (discount.expiresAt) {
+		const endOfExpiryDay = new Date(discount.expiresAt);
+		endOfExpiryDay.setHours(23, 59, 59, 999);
+		if (endOfExpiryDay < new Date()) return {amount: 0, message: "تاریخ انقضای کد تخفیف گذشته است"};
+	}
 
 	const amount = discount.type === "PERCENTAGE"
 		? productsTotal * (discount.value / 100)

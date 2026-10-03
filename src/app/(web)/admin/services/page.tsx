@@ -7,6 +7,7 @@ import Link from "next/link";
 import TaghvimTypeEnum from "@/generated/TaghvimType.enum";
 import {Service, ServiceType, Setting, Taghvim, TaghvimType} from "@prisma/client";
 import UploadTaghvimFile from "@/app/(web)/admin/services/UploadTaghvimFile";
+import JalaliDatePicker from "@/app/(web)/admin/services/JalaliDatePicker";
 import {handlePrismaQuery} from "@/app/(web)/admin/action";
 import {useAction} from "@/utils/server";
 import Loading from "@/app/(app)/loading";
@@ -14,6 +15,7 @@ import {createDiscountCode, deleteDiscountCode, getDiscountCodes, setServiceDisa
 import {useRouter} from "next/navigation";
 import SettingKeyEnum, {SettingKeyInfo} from "@/generated/SettingKey.enum";
 import {formDataToJson} from "@/utils/other";
+import {formatJalaliDate, formatJalaliDateShort} from "@/utils/format";
 
 type DiscountForm = {
 	code: string;
@@ -30,11 +32,6 @@ const emptyDiscountForm: DiscountForm = {
 	expiresAt: "",
 	active: true,
 };
-
-function dateInputValue(value: Date | string | null) {
-	if (!value) return "";
-	return new Date(value).toISOString().slice(0, 10);
-}
 
 const Page = () => {
 	const action = useAction(handlePrismaQuery, "service", 'findMany');
@@ -84,7 +81,7 @@ const Page = () => {
 			code: discount.code,
 			type: discount.type,
 			value: String(discount.value),
-			expiresAt: dateInputValue(discount.expiresAt),
+			expiresAt: discount.expiresAt ? formatJalaliDateShort(discount.expiresAt) : "",
 			active: discount.active,
 		});
 		setDiscountError("");
@@ -167,7 +164,7 @@ const Page = () => {
 					<TextInput label="کد" placeholder="مثلاً SUMMER1405" value={discountForm.code} onChange={(event) => setDiscountForm({...discountForm, code: event.currentTarget.value})} required/>
 					<Select label="نوع" data={[{value: "PERCENTAGE", label: "درصدی"}, {value: "FIXED", label: "مبلغ ثابت"}]} value={discountForm.type} onChange={(value) => setDiscountForm({...discountForm, type: value as DiscountForm["type"]})} required/>
 					<TextInput label={discountForm.type === "PERCENTAGE" ? "درصد" : "مبلغ (تومان)"} type="number" min={1} max={discountForm.type === "PERCENTAGE" ? 100 : undefined} value={discountForm.value} onChange={(event) => setDiscountForm({...discountForm, value: event.currentTarget.value})} required/>
-					<TextInput label="تاریخ انقضا" type="date" value={discountForm.expiresAt} onChange={(event) => setDiscountForm({...discountForm, expiresAt: event.currentTarget.value})}/>
+					<JalaliDatePicker label="تاریخ انقضا" placeholder="انتخاب تاریخ" value={discountForm.expiresAt} onChange={(val) => setDiscountForm({...discountForm, expiresAt: val})}/>
 					{editingId && <Switch label="فعال" checked={discountForm.active} onChange={(event) => setDiscountForm({...discountForm, active: event.currentTarget.checked})}/>} 
 					<Button type="submit">{editingId ? "ذخیره ویرایش" : "افزودن کد"}</Button>
 					{editingId && <Button type="button" variant="default" onClick={resetDiscountForm}>انصراف</Button>}
@@ -180,7 +177,7 @@ const Page = () => {
 						<tbody>{discounts.map((discount) => <tr key={discount.id} className="border-t">
 							<td className="p-2 font-bold">{discount.code}</td>
 							<td className="p-2">{discount.type === "PERCENTAGE" ? `${discount.value}%` : `${discount.value.toLocaleString("fa-IR")} تومان`}</td>
-							<td className="p-2">{discount.expiresAt ? new Date(discount.expiresAt).toLocaleDateString("fa-IR") : "بدون انقضا"}</td>
+							<td className="p-2">{discount.expiresAt ? formatJalaliDate(discount.expiresAt) : "بدون انقضا"}</td>
 							<td className="p-2">{discount.active ? "فعال" : "غیرفعال"}</td>
 							<td className="p-2"><Button size="xs" onClick={() => editDiscount(discount)}>ویرایش</Button>{" "}<Button size="xs" color="red" onClick={() => removeDiscount(discount.id)}>حذف</Button></td>
 						</tr>)}</tbody>

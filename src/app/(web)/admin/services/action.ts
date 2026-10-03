@@ -5,6 +5,7 @@ import prisma from "@backend/modules/prisma/Prisma";
 import {setVar} from "@backend/utils/setting";
 import {getUserFromCookie} from "@/utils/serverComponents/user";
 import AppConfig from "@/config/AppConfig";
+import {jalaliStringToDate} from "@/utils/format";
 
 async function requireAdmin() {
 	const user = await getUserFromCookie();
@@ -30,8 +31,9 @@ function parseDiscount(type: string, value: string) {
 
 function parseExpiry(expiresAt: string) {
 	if (!expiresAt) return null;
-	const date = new Date(expiresAt);
+	const date = jalaliStringToDate(expiresAt);
 	if (Number.isNaN(date.getTime())) throw new Error("تاریخ انقضا نامعتبر است");
+	date.setHours(23, 59, 59, 999);
 	return date;
 }
 
