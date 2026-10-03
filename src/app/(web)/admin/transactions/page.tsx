@@ -1,6 +1,7 @@
 "use client";
 
 import React, {useEffect, useState, useCallback} from "react";
+import {useSearchParams} from "next/navigation";
 import {
   ActionIcon, Badge, Button, Card, Group, Modal, Pagination, Select,
   Stack, Table, Text, TextInput, Title, Tooltip, NumberInput, ScrollArea,
@@ -42,12 +43,17 @@ function exportCSV(rows: any[]) {
 }
 
 export default function TransactionsPage() {
+  const searchParams = useSearchParams();
+  const requestedStatus = searchParams.get("status");
+  const requestedLimit = Number(searchParams.get("limit"));
+  const initialStatus: "all" | "successful" | "failed" | "pending" = requestedStatus === "successful" || requestedStatus === "failed" || requestedStatus === "pending" ? requestedStatus : "all";
+  const initialLimit = [10, 20, 25, 50, 100].includes(requestedLimit) ? requestedLimit : 10;
   const [result, setResult] = useState<TransactionResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(initialLimit);
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<"all" | "successful" | "failed" | "pending">("all");
+  const [status, setStatus] = useState<"all" | "successful" | "failed" | "pending">(initialStatus);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [minAmount, setMinAmount] = useState<number | string>("");
@@ -185,7 +191,7 @@ export default function TransactionsPage() {
         <Group justify="space-between" p="md" wrap="wrap" gap="sm">
           <Text size="sm" c="dimmed">نمایش {formatPersianNumber(from)} تا {formatPersianNumber(to)} از {formatPersianNumber(result?.total || 0)} تراکنش</Text>
           <Group gap="sm">
-            <Select size="xs" value={String(limit)} onChange={(v) => {setLimit(Number(v)); setPage(1)}} data={["10", "25", "50", "100"]} w={80}/>
+            <Select size="xs" value={String(limit)} onChange={(v) => {setLimit(Number(v)); setPage(1)}} data={["10", "20", "25", "50", "100"]} w={80}/>
             <Pagination size="sm" total={Math.ceil((result?.total || 0) / limit)} value={page} onChange={setPage}/>
           </Group>
         </Group>

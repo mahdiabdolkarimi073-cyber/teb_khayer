@@ -176,7 +176,7 @@ export default function DashboardPage() {
         {/* KPI Cards */}
         <section className={styles.statsGrid}>
           <KPICard icon="↥" label="کل سفارشات" value={formatPersianNumber(stats.totalOrders)} tone="purple" growth={13} link="/admin/orders"/>
-          <KPICard icon="🛒" label="کل فروش" value={formatPersianCurrency(stats.totalSales)} tone="green" growth={25}/>
+          <KPICard icon="🛒" label="کل فروش" value={formatPersianCurrency(stats.totalSales)} tone="green" growth={25} link="/admin/transactions?status=successful&limit=20"/>
           <KPICard icon="♙" label="کاربران" value={formatPersianNumber(stats.totalUsers)} tone="blue" growth={stats.usersGrowth}/>
           <KPICard icon="▣" label="درآمد امروز" value={formatPersianCurrency(stats.todayRevenue)} tone="orange" growth={18}/>
         </section>

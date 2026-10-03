@@ -42,6 +42,9 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   const thirtyDaysAgo = daysAgo(30);
   const lastMonthStart = daysAgo(60);
   const lastMonthEnd = daysAgo(30);
+  const salesStartedAt = new Date("2026-10-03T00:00:00.000Z");
+  const successfulPaymentWhere = {receipt: {not: null}, created_at: {gte: salesStartedAt}};
+  const salesTrendStart = thirtyDaysAgo > salesStartedAt ? thirtyDaysAgo : salesStartedAt;
 
   const totalUsers = await prisma.user.count();
   const lastMonthUsers = await prisma.user.count({
@@ -61,19 +64,19 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   const canceledOrders = await prisma.order.count({where: {status: "CANCELED"}});
 
   const salesAgg = await prisma.payment.aggregate({
-    where: {receipt: {not: null}},
+    where: successfulPaymentWhere,
     _sum: {amount: true},
   });
   const totalSales = salesAgg._sum.amount || 0;
 
   const depositedAgg = await prisma.payment.aggregate({
-    where: {receipt: {not: null}},
+    where: successfulPaymentWhere,
     _sum: {amount: true},
   });
   const totalDeposited = depositedAgg._sum.amount || 0;
 
   const successfulPayments = await prisma.payment.findMany({
-    where: {receipt: {not: null}},
+    where: successfulPaymentWhere,
     select: {amount: true},
   });
   const successfulCount = successfulPayments.length;
@@ -100,7 +103,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
   // Sales trend last 30 days
   const salesTrendRaw = await prisma.payment.findMany({
-    where: {receipt: {not: null}, created_at: {gte: thirtyDaysAgo}},
+    where: {receipt: {not: null}, created_at: {gte: salesTrendStart}},
     select: {amount: true, created_at: true},
   });
   const trendMap = new Map<string, number>();
@@ -139,7 +142,8 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   });
 
   const recentTransactions = await prisma.payment.findMany({
-    take: 10,
+    where: successfulPaymentWhere,
+    take: 20,
     orderBy: {created_at: "desc"},
     include: {user: true, order: true},
   });

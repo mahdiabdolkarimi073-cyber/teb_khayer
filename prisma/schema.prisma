@@ -132,6 +132,16 @@ model Product {
   likes            ProductLike[]
 }
 
+model DiscountCode {
+  id        String           @id @default(dbgenerated("concat('discount_', gen_random_uuid())"))
+  code      String           @unique
+  type      DiscountCodeType
+  value     Float
+  active    Boolean          @default(true)
+  expiresAt DateTime?
+  created_at DateTime        @default(now())
+}
+
 model ProductLike {
   id        Int     @id @default(autoincrement())
   productId String
@@ -266,6 +276,9 @@ enum SettingKey {
   /// @name فروش محصولات فعال است
   /// @default true
   PRODUCTS_SALE_ENABLED
+  /// @name پرداخت در محل فعال است
+  /// @default false
+  CASH_ON_DELIVERY_ENABLED
   /// @name متن نماد اعتماد الکترونیکی
   /// @default "طِب خیّر دارای نماد الکترونیکی (اینماد) از وزارت صنعت، معدن و تجارت می‌باشد. این نماد نشان‌دهنده اصالت و اعتبار فروشگاه آنلاین ماست."
   TRUST_ENAMAD
@@ -341,6 +354,11 @@ enum SettingKey {
   /// @name زمان انقضای توکن دیجی‌کالا
   /// @default ""
   DIGIKALA_TOKEN_EXPIRES
+}
+
+enum DiscountCodeType {
+  PERCENTAGE
+  FIXED
 }
 
 enum AttachmentType {

@@ -5,6 +5,7 @@
   PRODUCT_POST_FEE: "هزینه ارسال پست (تومان)",
   PRODUCT_BOX_FEE: "هزینه بسته بندی (تومان)",
   PRODUCTS_SALE_ENABLED: "فروش محصولات فعال است",
+  CASH_ON_DELIVERY_ENABLED: "پرداخت در محل فعال است",
   TRUST_ENAMAD: "متن نماد اعتماد الکترونیکی",
   TRUST_BANK_ACCOUNT: "حساب بانکی طِب خیّر",
   TRUST_ADDRESS: "آدرس",
@@ -52,6 +53,10 @@
   PRODUCTS_SALE_ENABLED: {
     name: "فروش محصولات فعال است",
     default: "true"
+  },
+  CASH_ON_DELIVERY_ENABLED: {
+    name: "پرداخت در محل فعال است",
+    default: "false"
   },
   TRUST_ENAMAD: {
     name: "متن نماد اعتماد الکترونیکی",

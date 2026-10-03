@@ -1,6 +1,6 @@
 "use client";
 
-import { getCart, removeFromCart, useCart } from "@/utils/localCart";
+import { removeFromCart, useCart } from "@/utils/localCart";
 import React, { useRef, useState } from "react";
 import { Loader } from "@mantine/core";
 import { useRouter } from "next/navigation";
@@ -9,7 +9,7 @@ import { formDataToJson } from "@/utils/other";
 import { useAction } from "@/utils/server";
 import { getUserFromCookie } from "@/utils/serverComponents/user";
 import Loading from "@/app/(app)/loading";
-import { createOrderPortal } from "@/app/(web)/dashboard/checkout/checkout.action";
+import { applyDiscountCode, createOrderPortal } from "@/app/(web)/dashboard/checkout/checkout.action";
 import { getCheckoutFees } from "@/app/(web)/dashboard/checkout/fees.action";
 import Link from "next/link";
 import {
@@ -21,7 +21,6 @@ import {
   IconShoppingCart,
   IconTag,
   IconTruckDelivery,
-  IconWallet,
 } from "@tabler/icons-react";
 import styles from "./checkout.module.css";
 
@@ -40,13 +39,38 @@ const Page = () => {
   const { result: fees, isPending: feesPending } = useAction(getCheckoutFees);
   const boxFee = fees?.boxFee;
   const postFee = fees?.postFee;
+  const cashOnDeliveryEnabled = fees?.cashOnDeliveryEnabled === true;
   const cart = useCart();
   const [submitting, setSubmitting] = useState(false);
+  const [discountCode, setDiscountCode] = useState("");
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [discountMessage, setDiscountMessage] = useState("");
+  const [discountApplying, setDiscountApplying] = useState(false);
   const requestIdRef = useRef<string>("");
   const items = Object.values(cart);
+  const productPayload = Object.fromEntries(items.map(({ product, quantity }) => [product.id, quantity]));
   const localInfo = typeof window !== "undefined" ? JSON.parse(window.localStorage.getItem("localInfo") || "{}") : {};
   const productsTotal = items.reduce((sum, item) => sum + Number(item.product.price || 0) * item.quantity, 0);
   const total = productsTotal + Number(boxFee || 0) + Number(postFee || 0);
+  const payableTotal = Math.max(0, total - discountAmount);
+  const applyDiscount = () => {
+    if (!discountCode.trim()) {
+      setDiscountAmount(0);
+      setDiscountMessage("کد تخفیف را وارد کنید");
+      return;
+    }
+    setDiscountApplying(true);
+    applyDiscountCode(discountCode, productPayload)
+      .then((result) => {
+        setDiscountAmount(result.amount);
+        setDiscountMessage(result.message);
+      })
+      .catch(() => {
+        setDiscountAmount(0);
+        setDiscountMessage("بررسی کد تخفیف انجام نشد");
+      })
+      .finally(() => setDiscountApplying(false));
+  };
   const requiredFields = ["name", "phone", "state", "city", "address"];
 
   if (isPending || feesPending) return <Loading />;
@@ -90,9 +114,13 @@ const Page = () => {
               setSubmitting(true);
               if (!requestIdRef.current) requestIdRef.current = `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
               const json = formDataToJson(formData);
-              createOrderPortal(Object.fromEntries(items.map(({ product, quantity }) => [product.id, quantity])), json as any, requestIdRef.current)
+              createOrderPortal(productPayload, json as any, requestIdRef.current)
                 .then((res) => {
-                  if (res.token) {
+                  if (res.orderCompleted) {
+                    window.localStorage.setItem("localInfo", JSON.stringify(json));
+                    window.localStorage.removeItem("cart");
+                    router.push(res.redirect || "/dashboard/orders");
+                  } else if (res.token) {
                     window.localStorage.setItem("localInfo", JSON.stringify(json));
                     window.localStorage.removeItem("cart");
                     window.doPayment(res.token);
@@ -116,13 +144,13 @@ const Page = () => {
               <div className={styles.section}>
                 <div className={styles.titleRow}><IconCreditCard className={styles.titleIcon} size={22} /><div><h2 className={styles.title}>روش پرداخت</h2><p className={styles.subtitle}>لطفاً روش پرداخت مورد نظر خود را انتخاب کنید</p></div></div>
                 <div className={styles.paymentOptions}>
-                  <label className={`${styles.paymentOption} ${styles.paymentOptionActive}`}><input type="radio" name="paymentMethod" defaultChecked /><IconCreditCard className={styles.paymentIcon} size={22} /><span className={styles.paymentOptionText}>پرداخت آنلاین<small>با کارت بانکی</small></span></label>
-                  <label className={styles.paymentOption}><input type="radio" name="paymentMethod" /><IconTruckDelivery className={styles.paymentIcon} size={22} /><span className={styles.paymentOptionText}>پرداخت در محل<small>پرداخت هنگام تحویل</small></span></label>
-                  <label className={styles.paymentOption}><input type="radio" name="paymentMethod" /><IconWallet className={styles.paymentIcon} size={22} /><span className={styles.paymentOptionText}>کیف پول تبریز<small>با موجودی حساب</small></span></label>
+                  <label className={styles.paymentOption}><input type="radio" name="paymentMethod" value="online" defaultChecked /> <IconCreditCard className={styles.paymentIcon} size={22} /><span className={styles.paymentOptionText}>پرداخت آنلاین<small>با کارت بانکی</small></span></label>
+                  {cashOnDeliveryEnabled && <label className={styles.paymentOption}><input type="radio" name="paymentMethod" value="cashOnDelivery" /> <IconTruckDelivery className={styles.paymentIcon} size={22} /><span className={styles.paymentOptionText}>پرداخت در محل<small>پرداخت هنگام تحویل</small></span></label>}
                 </div>
               </div>
 
-              <div className={styles.notice}><IconShieldCheck size={17} />پرداخت شما کاملاً امن و مطابق با استانداردهای بانکی انجام می‌شود.</div>
+              <input type="hidden" name="discountCode" value={discountCode} />
+              <div className={styles.notice}><IconShieldCheck size={17} />{cashOnDeliveryEnabled ? "پرداخت آنلاین شما کاملاً امن است و پرداخت در محل هنگام تحویل انجام می‌شود." : "پرداخت شما کاملاً امن و مطابق با استانداردهای بانکی انجام می‌شود."}</div>
               <div className={styles.actions}><Link href="/dashboard/cart" className={styles.backLink}><IconArrowLeft size={15} />بازگشت به سبد خرید</Link><button className={styles.submit} type="submit" disabled={submitting}>{submitting ? <span><Loader size="xs" color="white" /> در حال پردازش...</span> : "ثبت و پرداخت نهایی"}</button></div>
             </form>
           </section>
@@ -132,8 +160,8 @@ const Page = () => {
             <div className={styles.summaryItems}>
               {items.map(({ product, quantity }) => <div className={styles.item} key={product.id}><img className={styles.itemImage} src={product.images?.[0] || "/empty.png"} alt={product.name || "محصول"} /><div><div className={styles.itemName}>{product.name}</div><div className={styles.itemMeta}>تعداد: {quantity} عدد</div></div><div className={styles.itemPrice}>{formatPrice(Number(product.price || 0) * quantity)}<small>واحد: {formatPrice(Number(product.price || 0))}</small><button type="button" onClick={() => { removeFromCart(product); router.refresh(); }} aria-label="حذف محصول">حذف</button></div></div>)}
             </div>
-            <div className={styles.discount}><div className={styles.discountTitle}><IconTag size={16} />کد تخفیف دارید؟</div><div className={styles.discountRow}><input placeholder="کد تخفیف را وارد کنید" /><button type="button">اعمال</button></div></div>
-            <div className={styles.totals}><div className={styles.totalRow}><span>جمع کل محصولات</span><strong>{formatPrice(productsTotal)}</strong></div><div className={styles.totalRow}><span>هزینه ارسال</span><strong>{Number(postFee) ? formatPrice(Number(postFee)) : "پس‌کرایه"}</strong></div><div className={styles.totalRow}><span>هزینه بسته‌بندی</span><strong>{formatPrice(Number(boxFee || 0))}</strong></div><div className={styles.finalTotal}><span>مبلغ قابل پرداخت</span><strong>{formatPrice(total)}</strong></div></div>
+            <div className={styles.discount}><div className={styles.discountTitle}><IconTag size={16} />کد تخفیف دارید؟</div><div className={styles.discountRow}><input name="discountCode" value={discountCode} onChange={(event) => setDiscountCode(event.currentTarget.value)} placeholder="کد تخفیف را وارد کنید" /><button type="button" onClick={applyDiscount} disabled={discountApplying}>{discountApplying ? "..." : "اعمال"}</button></div>{discountMessage && <small>{discountMessage}</small>}</div>
+            <div className={styles.totals}><div className={styles.totalRow}><span>جمع کل محصولات</span><strong>{formatPrice(productsTotal)}</strong></div><div className={styles.totalRow}><span>هزینه ارسال</span><strong>{Number(postFee) ? formatPrice(Number(postFee)) : "پس‌کرایه"}</strong></div><div className={styles.totalRow}><span>هزینه بسته‌بندی</span><strong>{formatPrice(Number(boxFee || 0))}</strong></div>{discountAmount > 0 && <div className={styles.totalRow}><span>تخفیف</span><strong className={styles.discountValue}>- {formatPrice(discountAmount)}</strong></div>}<div className={styles.finalTotal}><span>مبلغ قابل پرداخت</span><strong>{formatPrice(payableTotal)}</strong></div></div>
             <div className={styles.security}><IconShieldCheck size={17} />خرید شما با ضمانت بازگشت ۷ روزه انجام می‌شود.</div>
           </aside>
         </div>
