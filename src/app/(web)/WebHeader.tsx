@@ -42,6 +42,7 @@ export let _closeCart = () => {};
 export function WebHeader(parentProps: {
   user?: User;
   phone?: string;
+  freeShippingThreshold?: string | number;
   categories: (ProductCategory & { products?: Product[] })[];
 }) {
   const { width } = useViewportSize();
@@ -138,7 +139,9 @@ export function WebHeader(parentProps: {
 
   return (
     <Box>
-      <div className={classes.announcement}>ارسال رایگان سفارش‌های بالای ۵۰۰ هزار تومان در سراسر کشور</div>
+      <div className={classes.announcement}>
+        ارسال رایگان سفارش‌های بالای {Number(parentProps.freeShippingThreshold || 500000).toLocaleString("fa-IR")} تومان در سراسر کشور
+      </div>
       <header className={classes.header}>
         <Group justify="space-between" className={"container mx-auto"} h="100%">
           <Link href={"/"} className="block h-full">

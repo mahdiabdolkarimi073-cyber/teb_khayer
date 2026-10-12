@@ -46,14 +46,33 @@
 
 /* Filter tabs */
 .filterTabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-.filterTab { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #dceaf5; border-radius: 20px; background: #fff; color: #5c7895; font: inherit; font-size: 14px; font-weight: 700; padding: 8px 16px; cursor: pointer; transition: all .15s; }
+.filterTab { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; border: 1px solid #dceaf5; border-radius: 20px; background: #fff; color: #5c7895; font: inherit; font-size: 14px; font-weight: 700; line-height: 1.4; padding: 8px 16px; cursor: pointer; opacity: 1; transition: background-color .15s, border-color .15s, color .15s, box-shadow .15s; }
 .filterTab:hover { border-color: #69b5ee; color: #0878e8; }
-.filterTabActive { background: #0878e8; border-color: #0878e8; color: #fff; }
+.filterTabActive,
+.filterTabActive:hover,
+.filterTabActive:focus-visible,
+.filterTabActive:active { background-color: #0878e8; border-color: #0878e8; color: #fff; -webkit-text-fill-color: #fff; opacity: 1; box-shadow: 0 6px 14px rgba(8, 120, 232, .2); }
+.filterTab:focus-visible { outline: 3px solid rgba(8, 120, 232, .25); outline-offset: 2px; }
+.filterTabLabel { display: inline-block; color: inherit; -webkit-text-fill-color: currentColor; opacity: 1; }
 
 /* Search */
-.search { margin-bottom: 16px; }
-.search input { width: 100%; height: 48px; border: 1px solid #dceaf5; border-radius: 10px; outline: 0; padding: 0 16px; color: #315a7e; font: inherit; font-size: 15px; }
-.search input:focus { border-color: #69b5ee; box-shadow: 0 0 0 3px rgba(8,120,232,.1); }
+.searchArea { margin-bottom: 18px; }
+.search { display: flex; align-items: center; gap: 10px; min-height: 64px; padding: 7px 10px 7px 14px; border: 1px solid #cfd9e3; border-radius: 999px; background: #fff; box-shadow: 0 8px 22px rgba(36, 76, 112, .06); color: #647789; direction: rtl; transition: border-color .2s, box-shadow .2s; }
+.search:focus-within { border-color: #0878e8; box-shadow: 0 0 0 4px rgba(8,120,232,.1); }
+.search input { flex: 1; width: 100%; height: 48px; border: 0; outline: 0; padding: 0 4px; color: #315a7e; font: inherit; font-size: 15px; background: transparent; }
+.search input::placeholder { color: #91a1b1; }
+.visualSearchButton { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 48px; border: 0; border-radius: 999px; padding: 0 16px; background: #eaf3ff; color: #0878e8; cursor: pointer; font: inherit; font-size: 13px; font-weight: 800; white-space: nowrap; transition: background .2s, transform .2s; }
+.visualSearchButton:hover { background: #d9ebff; transform: translateY(-1px); }
+.visualSearchButton:focus-visible, .clearVisualSearch:focus-visible { outline: 3px solid rgba(8,120,232,.25); outline-offset: 2px; }
+.hiddenFileInput { display: none; }
+.visualSearchPanel { display: flex; align-items: center; gap: 14px; position: relative; margin-top: 10px; padding: 12px 42px 12px 14px; border: 1px solid #dceaf5; border-radius: 14px; background: linear-gradient(135deg, #f4faff, #f0fbf6); }
+.visualPreview { width: 64px; height: 64px; flex: 0 0 auto; border-radius: 10px; object-fit: cover; background: #fff; }
+.visualSearchCopy { min-width: 0; }
+.visualSearchTitle { display: flex; align-items: center; gap: 6px; color: #0878e8; font-size: 14px; font-weight: 900; }
+.visualSearchCopy p { margin: 4px 0; color: #315a7e; font-size: 13px; line-height: 1.7; }
+.visualSearchCopy small { color: #7390a8; font-size: 11px; }
+.clearVisualSearch { position: absolute; top: 10px; left: 10px; display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 50%; background: rgba(255,255,255,.8); color: #58738b; cursor: pointer; }
+.clearVisualSearch:hover { background: #fff; color: #0878e8; }
 
 /* Product grid */
 .products { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
@@ -94,6 +113,14 @@
 }
 @media (max-width: 480px) {
   .heroContent, .benefits, .shell { width: min(100% - 24px, 1428px); }
+  .search { min-height: 58px; padding: 6px 8px 6px 10px; gap: 5px; }
+  .search input { font-size: 13px; }
+  .visualSearchButton { width: 42px; height: 42px; min-height: 42px; padding: 0; }
+  .visualSearchButton span { display: none; }
+  .visualSearchPanel { align-items: flex-start; padding-right: 42px; }
+  .visualSearchCopy p { font-size: 12px; }
+  .visualSearchCopy small { display: block; line-height: 1.6; }
+
   .heroTitle { font-size: 30px; }
   .heroSubtitle { font-size: 14px; }
   .benefit strong { font-size: 13px; }
@@ -103,5 +130,5 @@
   .productBody { padding: 12px; }
   .productDescription { display: none; }
   .filterTabs { gap: 6px; }
-  .filterTab { font-size: 13px; padding: 6px 12px; }
+  .filterTab { min-height: 38px; font-size: 13px; padding: 6px 12px; }
 }

@@ -81,7 +81,7 @@ export function ContactUs(props: { contact: Record<string, string> }) {
 
       {/* Info strip */}
       <div className={styles.infoStrip}>
-        <div className={styles.infoCard}>
+        <a href="tel:+984533790667" className={styles.infoCard}>
           <div className={styles.infoIcon} style={{ background: "#1468d8" }}>
             <IconPhoneCall aria-hidden="true" />
           </div>
@@ -89,7 +89,7 @@ export function ContactUs(props: { contact: Record<string, string> }) {
             <p className={styles.infoLabel}>شماره تماس</p>
             <p className={styles.infoValue} dir="ltr">045-33790667</p>
           </div>
-        </div>
+        </a>
 
         <div className={styles.infoCard}>
           <div className={styles.infoIcon} style={{ background: "#18a56d" }}>
@@ -101,7 +101,7 @@ export function ContactUs(props: { contact: Record<string, string> }) {
           </div>
         </div>
 
-        <div className={styles.infoCard}>
+        <a href="mailto:tebkhayyer.1358@gmail.com" className={styles.infoCard}>
           <div className={styles.infoIcon} style={{ background: "#ed812d" }}>
             <IconMail aria-hidden="true" />
           </div>
@@ -109,7 +109,7 @@ export function ContactUs(props: { contact: Record<string, string> }) {
             <p className={styles.infoLabel}>ایمیل</p>
             <p className={styles.infoValue} dir="ltr">tebkhayyer.1358@gmail.com</p>
           </div>
-        </div>
+        </a>
       </div>
     </main>
   );

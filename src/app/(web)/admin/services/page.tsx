@@ -149,7 +149,7 @@ const Page = () => {
 								<input hidden name={'value'} value={checked ? "true" : "false"} readOnly/>
 								<Switch label={name} defaultChecked={checked} onChange={(e) => updateSetting(key, e.currentTarget.checked ? "true" : "false").finally(() => { action3.refetch(); router.refresh(); })}/>
 							</> : <>
-								<TextInput name={'value'} label={name+` (${defaultValue})`} placeholder={info?.default as string} defaultValue={defaultValue as string}/>
+								<TextInput name={'value'} label={name+` (${defaultValue})`} placeholder={info?.default as string} defaultValue={defaultValue as string} type={key === 'FREE_SHIPPING_THRESHOLD' ? 'number' : undefined} min={key === 'FREE_SHIPPING_THRESHOLD' ? 1 : undefined}/>
 								<Button type={'submit'}>ذخیره</Button>
 							</>}
 						</form>

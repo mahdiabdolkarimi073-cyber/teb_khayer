@@ -418,7 +418,7 @@
 }
 .vpnBanner svg { flex-shrink: 0; }
 .vpnBanner button {
-  background: rgba(255,255,255,.25);
+  background: #092b54;
   border: 0;
   color: #fff;
   width: 24px;
@@ -434,7 +434,7 @@
   transition: background .15s;
   -webkit-transition: background .15s;
 }
-.vpnBanner button:hover { background: rgba(255,255,255,.4); }
+.vpnBanner button:hover { background: #1468d8; }
 @keyframes vpnSlideIn {
   from { opacity: 0; transform: translateY(-100%); }
   to { opacity: 1; transform: translateY(0); }

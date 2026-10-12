@@ -23,6 +23,14 @@ model User {
   /// @name شماره تلفن
   phone         Float         @unique
   avatar        String        @default("/backend/images/default_avatar.png")
+  /// @name کد ملی
+  nationalCode  String?
+  /// @name جنسیت
+  gender        String?
+  /// @name تاریخ تولد
+  birthDate     String?
+  /// @name ایمیل
+  email         String?
   likes         Like[]
   orders        Order[]
   payments      Payment[]
@@ -30,6 +38,25 @@ model User {
   services      ServiceUser[]
   courses       UserCourse[]
   views         View[]
+  addresses     UserAddress[]
+}
+
+model UserAddress {
+  id          String   @id @default(dbgenerated("concat('addr_', gen_random_uuid())"))
+  userId      String
+  title       String   @default("منزل")
+  name        String
+  phone       String
+  state       String
+  city        String
+  address     String
+  zipcode     String?
+  isDefault   Boolean  @default(false)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now()) @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Verify {
@@ -261,6 +288,9 @@ enum UserRole {
 }
 
 enum SettingKey {
+  /// @name حداقل مبلغ سفارش برای ارسال رایگان (تومان)
+  /// @default 500000
+  FREE_SHIPPING_THRESHOLD
   /// @name مدت زمان اعتبار کد تایید به دقیقه
   /// @default 5
   VERCODE_EXPIRE_MINUTES

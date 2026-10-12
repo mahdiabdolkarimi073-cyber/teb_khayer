@@ -6,6 +6,7 @@ import {setVar} from "@backend/utils/setting";
 import {getUserFromCookie} from "@/utils/serverComponents/user";
 import AppConfig from "@/config/AppConfig";
 import {jalaliStringToDate} from "@/utils/format";
+import {arabicToEnglishNumber} from "@/utils/other";
 
 async function requireAdmin() {
 	const user = await getUserFromCookie();
@@ -47,6 +48,12 @@ export async function setServiceDisabled(serviceId: ServiceType, disabled: boole
 
 export async function updateSetting(key: string, value: string) {
 	await requireAdmin();
+	if (key === "FREE_SHIPPING_THRESHOLD") {
+		const amount = Number(arabicToEnglishNumber(value));
+		if (!Number.isInteger(amount) || amount <= 0) {
+			throw new Error("حداقل مبلغ ارسال رایگان باید یک عدد صحیح بزرگ‌تر از صفر باشد");
+		}
+	}
 	await setVar(key, value);
 }
 

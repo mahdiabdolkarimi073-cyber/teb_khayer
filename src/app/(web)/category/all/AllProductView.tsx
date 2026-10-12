@@ -1,7 +1,7 @@
 'use client';
 
 import {Product} from "@prisma/client";
-import React, {useEffect, useState} from "react";
+import React, {ChangeEvent, useEffect, useRef, useState} from "react";
 import {useAction} from "@/utils/server";
 import {getAllProductCount, getProducts, SortOption} from "@/app/(web)/category/all/action";
 import {Pagination, TextInput} from "@mantine/core";
@@ -9,7 +9,7 @@ import Loading from "@/app/(app)/loading";
 import {useDebouncedState} from "@mantine/hooks";
 import Link from "next/link";
 import ProductLike from "@/components/shop/ProductLike";
-import {IconCategory, IconGrid4x4, IconList, IconShoppingCart, IconSparkles, IconStar, IconFlame, IconPercentage, IconAward} from "@tabler/icons-react";
+import {IconCamera, IconCategory, IconGrid4x4, IconList, IconSearch, IconShoppingCart, IconSparkles, IconStar, IconFlame, IconPercentage, IconAward, IconX} from "@tabler/icons-react";
 import styles from "./all-products.module.css";
 
 const categories = ["همه محصولات", "محصولات سلامت", "گیاهان دارویی", "مواد غذایی و خوراکی", "پوشاک و اکسسوری", "کتاب و لوازم فرهنگی", "لوازم دیجیتال", "زیبایی و سلامت", "ورزش و سفر"];
@@ -23,6 +23,59 @@ const filterTabs: { label: string; value: SortOption; icon: any }[] = [
   { label: "گران‌ترین", value: "priceHigh", icon: IconStar },
 ];
 
+type ImageSignature = { red: number; green: number; blue: number; brightness: number; aspect: number };
+
+async function readImageSignature(source: string): Promise<ImageSignature | null> {
+  return new Promise((resolve) => {
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.onload = () => {
+      const canvas = document.createElement("canvas");
+      const size = 24;
+      canvas.width = size;
+      canvas.height = size;
+      const context = canvas.getContext("2d");
+      if (!context) {
+        resolve(null);
+        return;
+      }
+      context.drawImage(image, 0, 0, size, size);
+      try {
+        const pixels = context.getImageData(0, 0, size, size).data;
+        let red = 0;
+        let green = 0;
+        let blue = 0;
+        let brightness = 0;
+        for (let index = 0; index < pixels.length; index += 4) {
+          red += pixels[index];
+          green += pixels[index + 1];
+          blue += pixels[index + 2];
+          brightness += (pixels[index] + pixels[index + 1] + pixels[index + 2]) / 3;
+        }
+        const pixelsCount = pixels.length / 4;
+        resolve({
+          red: red / pixelsCount / 255,
+          green: green / pixelsCount / 255,
+          blue: blue / pixelsCount / 255,
+          brightness: brightness / pixelsCount / 255,
+          aspect: image.width / image.height,
+        });
+      } catch {
+        resolve(null);
+      }
+    };
+    image.onerror = () => resolve(null);
+    image.src = source;
+  });
+}
+
+function signatureDistance(first: ImageSignature, second: ImageSignature) {
+  const colorDistance = Math.abs(first.red - second.red) + Math.abs(first.green - second.green) + Math.abs(first.blue - second.blue);
+  const brightnessDistance = Math.abs(first.brightness - second.brightness);
+  const aspectDistance = Math.min(Math.abs(first.aspect - second.aspect), 1);
+  return colorDistance * 0.6 + brightnessDistance * 0.25 + aspectDistance * 0.15;
+}
+
 const AllProductView = (props: { products: Product[]; count: number; search?: string; sort?: SortOption; saleEnabled?: boolean; id?: string }) => {
   const MAX = 20;
   const [search, setSearch] = useState(props.search || "");
@@ -33,6 +86,11 @@ const AllProductView = (props: { products: Product[]; count: number; search?: st
   const {result: nCount, isPending} = useAction(getAllProductCount, search, sort);
   const {result: newProducts, isPending: isLoading} = useAction(getProducts, skip, search, MAX, sort);
   const [count, setCount] = useState(props.count);
+  const [visualResults, setVisualResults] = useState<Product[] | null>(null);
+  const [visualPreview, setVisualPreview] = useState<string | null>(null);
+  const [visualSearchPending, setVisualSearchPending] = useState(false);
+  const [visualSearchMessage, setVisualSearchMessage] = useState<string | null>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { if (nCount !== undefined) setCount(nCount); }, [nCount]);
   useEffect(() => { if (newProducts) { window.scrollTo({top: 0, behavior: "smooth"}); setProducts(newProducts); } }, [newProducts]);
@@ -44,6 +102,42 @@ const AllProductView = (props: { products: Product[]; count: number; search?: st
       <Pagination total={Math.max(Math.ceil(count / MAX), 1)} value={Math.max(Math.floor(skip / MAX) + 1, 1)} onChange={(page) => setSkip((page - 1) * MAX)} />
     </div>
   );
+
+  const handleVisualSearch = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setVisualSearchPending(true);
+    setVisualSearchMessage(null);
+    setVisualResults(null);
+    const preview = URL.createObjectURL(file);
+    setVisualPreview(preview);
+    const uploadedSignature = await readImageSignature(preview);
+    if (!uploadedSignature) {
+      setVisualSearchPending(false);
+      setVisualSearchMessage("امکان تحلیل این تصویر وجود ندارد. لطفاً تصویر دیگری انتخاب کنید.");
+      return;
+    }
+    const scoredProducts = await Promise.all(products.map(async (product) => {
+      const signature = await readImageSignature(product.images?.[0] || "/empty.png");
+      return { product, score: signature ? signatureDistance(uploadedSignature, signature) : Number.POSITIVE_INFINITY };
+    }));
+    const matches = scoredProducts
+      .filter(({score}) => Number.isFinite(score))
+      .sort((first, second) => first.score - second.score)
+      .slice(0, 6)
+      .map(({product}) => product);
+    setVisualResults(matches);
+    setVisualSearchMessage(matches.length ? `${matches.length.toLocaleString("fa-IR")} محصول با شباهت تصویری بیشتر پیدا شد` : "محصول مشابهی در این صفحه پیدا نشد");
+    setVisualSearchPending(false);
+  };
+
+  const clearVisualSearch = () => {
+    if (visualPreview) URL.revokeObjectURL(visualPreview);
+    setVisualPreview(null);
+    setVisualResults(null);
+    setVisualSearchMessage(null);
+  };
 
   return (
     <section className={styles.shell} id={props.id}>
@@ -67,16 +161,37 @@ const AllProductView = (props: { products: Product[]; count: number; search?: st
             const Icon = tab.icon;
             return (
               <button key={tab.value} className={`${styles.filterTab} ${sort === tab.value ? styles.filterTabActive : ""}`} type="button" onClick={() => setSort(tab.value)}>
-                <Icon size={16} /> {tab.label}
+                <Icon size={16} aria-hidden="true" /> <span className={styles.filterTabLabel}>{tab.label}</span>
               </button>
             );
           })}
         </div>
 
-        <div className={styles.search}><TextInput placeholder="جستجو در محصولات، نام محصول یا توضیحات..." defaultValue={tempSearch} onChange={(event) => setTempSearch(event.currentTarget.value)} /></div>
-        {pagination}
-        {skip !== 0 && isLoading ? <Loading /> : <div className={styles.products}>
-          {products.map((product) => {
+        <div className={styles.searchArea}>
+          <div className={styles.search}>
+            <IconSearch size={22} aria-hidden="true" />
+            <TextInput placeholder="جستجو در محصولات، نام محصول یا توضیحات..." defaultValue={tempSearch} onChange={(event) => { clearVisualSearch(); setTempSearch(event.currentTarget.value); }} />
+            <button type="button" className={styles.visualSearchButton} onClick={() => imageInputRef.current?.click()} aria-label="جستجوی تصویری محصولات">
+              <IconCamera size={23} aria-hidden="true" />
+              <span>جستجوی تصویری</span>
+            </button>
+            <input ref={imageInputRef} className={styles.hiddenFileInput} type="file" accept="image/png,image/jpeg,image/webp" onChange={handleVisualSearch} />
+          </div>
+          {(visualPreview || visualSearchPending || visualSearchMessage) && (
+            <div className={styles.visualSearchPanel}>
+              {visualPreview && <img className={styles.visualPreview} src={visualPreview} alt="تصویر انتخاب‌شده برای جستجو" />}
+              <div className={styles.visualSearchCopy}>
+                <div className={styles.visualSearchTitle}><IconSparkles size={18} /> تحلیل تصویری داخلی</div>
+                <p>{visualSearchPending ? "در حال بررسی رنگ، فرم و ویژگی‌های بصری تصویر در همین دستگاه..." : visualSearchMessage}</p>
+                <small>تصویر شما به هیچ سرویس بیرونی ارسال نمی‌شود.</small>
+              </div>
+              <button type="button" className={styles.clearVisualSearch} onClick={clearVisualSearch} aria-label="پاک کردن جستجوی تصویری"><IconX size={18} /></button>
+            </div>
+          )}
+        </div>
+        {visualResults ? null : pagination}
+        {skip !== 0 && isLoading && !visualResults ? <Loading /> : <div className={styles.products}>
+          {(visualResults || products).map((product) => {
             const outOfStock = props.saleEnabled === false || !product.stock || product.stock <= 0;
             const hasDiscount = (product.discountPercent || 0) > 0;
             return <article className={styles.productCard} key={product.id}>
@@ -108,7 +223,7 @@ const AllProductView = (props: { products: Product[]; count: number; search?: st
             </article>;
           })}
         </div>}
-        {pagination}
+        {!visualResults && pagination}
       </div>
     </section>
   );

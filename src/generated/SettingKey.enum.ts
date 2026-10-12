@@ -1,5 +1,6 @@
 
   const SettingKeyEnum = { 
+  FREE_SHIPPING_THRESHOLD: "حداقل مبلغ سفارش برای ارسال رایگان (تومان)",
   VERCODE_EXPIRE_MINUTES: "مدت زمان اعتبار کد تایید به دقیقه",
   MAIN_PHONE: "شماره تلفن ثابت",
   PRODUCT_POST_FEE: "هزینه ارسال پست (تومان)",
@@ -34,6 +35,10 @@
  }
   export type SettingKeyEnumType = typeof SettingKeyEnum;
   export const SettingKeyInfo = {
+  FREE_SHIPPING_THRESHOLD: {
+    name: "حداقل مبلغ سفارش برای ارسال رایگان (تومان)",
+    default: 500000
+  },
   VERCODE_EXPIRE_MINUTES: {
     name: "مدت زمان اعتبار کد تایید به دقیقه",
     default: 5

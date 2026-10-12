@@ -11,6 +11,7 @@ import { getUserFromCookie } from "@/utils/serverComponents/user";
 import Loading from "@/app/(app)/loading";
 import { applyDiscountCode, createOrderPortal } from "@/app/(web)/dashboard/checkout/checkout.action";
 import { getCheckoutFees } from "@/app/(web)/dashboard/checkout/fees.action";
+import { getAddresses } from "@/app/(web)/dashboard/addresses/action";
 import Link from "next/link";
 import {
   IconArrowLeft,
@@ -21,6 +22,9 @@ import {
   IconShoppingCart,
   IconTag,
   IconTruckDelivery,
+  IconHome,
+  IconBriefcase,
+  IconPlus,
 } from "@tabler/icons-react";
 import styles from "./checkout.module.css";
 
@@ -37,6 +41,7 @@ const Page = () => {
   const router = useRouter();
   const { result: user, isPending } = useAction(getUserFromCookie);
   const { result: fees, isPending: feesPending } = useAction(getCheckoutFees);
+  const { result: savedAddresses } = useAction(getAddresses);
   const boxFee = fees?.boxFee;
   const postFee = fees?.postFee;
   const cashOnDeliveryEnabled = fees?.cashOnDeliveryEnabled === true;
@@ -48,6 +53,7 @@ const Page = () => {
   const [discountApplying, setDiscountApplying] = useState(false);
   const requestIdRef = useRef<string>("");
   const [prefilledDiscount, setPrefilledDiscount] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>("");
   const items = Object.values(cart);
   const productPayload = Object.fromEntries(items.map(({ product, quantity }) => [product.id, quantity]));
   const localInfo = typeof window !== "undefined" ? JSON.parse(window.localStorage.getItem("localInfo") || "{}") : {};
@@ -96,6 +102,28 @@ const Page = () => {
     }
   }, [prefilledDiscount, feesPending, items.length]);
 
+  useEffect(() => {
+    if (selectedAddressId || !savedAddresses?.length) return;
+    const def = (savedAddresses as any[]).find((a) => a.isDefault);
+    if (def) setSelectedAddressId(def.id);
+  }, [savedAddresses, selectedAddressId]);
+
+  useEffect(() => {
+    if (!selectedAddressId || !savedAddresses?.length) return;
+    const addr = (savedAddresses as any[]).find((a) => a.id === selectedAddressId);
+    if (!addr) return;
+    const setVal = (id: string, val: string) => {
+      const el = document.getElementById(id) as HTMLInputElement | null;
+      if (el) el.value = val;
+    };
+    setVal("name", addr.name || "");
+    setVal("phone", addr.phone || "");
+    setVal("state", addr.state || "");
+    setVal("city", addr.city || "");
+    setVal("address", addr.address || "");
+    setVal("zipcode", addr.zipcode || "");
+  }, [selectedAddressId, savedAddresses]);
+
   if (isPending || feesPending) return <Loading />;
 
   if (!items.length) {
@@ -131,6 +159,45 @@ const Page = () => {
               <IconMapPin className={styles.titleIcon} size={22} />
               <div><h1 className={styles.title}>اطلاعات ارسال</h1><p className={styles.subtitle}>لطفاً آدرس و مشخصات خود را وارد کنید</p></div>
             </div>
+
+            {savedAddresses && (savedAddresses as any[]).length > 0 && (
+              <div className={styles.savedAddresses}>
+                <div className={styles.savedAddressesTitle}>
+                  <IconMapPin size={16} />
+                  انتخاب از آدرس‌های ذخیره شده
+                </div>
+                <div className={styles.savedAddressesList}>
+                  {(savedAddresses as any[]).map((addr) => (
+                    <label key={addr.id} className={styles.savedAddressCard}>
+                      <input
+                        type="radio"
+                        name="savedAddress"
+                        value={addr.id}
+                        checked={selectedAddressId === addr.id}
+                        onChange={() => setSelectedAddressId(addr.id)}
+                      />
+                      <div className={styles.savedAddressCardHead}>
+                        <div className={styles.savedAddressCardTitle}>
+                          {addr.title === "محل کار" ? <IconBriefcase size={14} /> : <IconHome size={14} />}
+                          {addr.title}
+                        </div>
+                        {addr.isDefault && <span className={styles.savedAddressCardBadge}>پیش‌فرض</span>}
+                      </div>
+                      <div className={styles.savedAddressCardBody}>
+                        <strong>{addr.name}</strong>
+                        <div>{addr.phone}</div>
+                        <div>{addr.state} - {addr.city}</div>
+                        <div>{addr.address}</div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+                <Link href="/dashboard/addresses" className={styles.savedAddressNewBtn}>
+                  <IconPlus size={14} />
+                  افزودن آدرس جدید
+                </Link>
+              </div>
+            )}
 
             <form action={async (formData: FormData) => {
               if (submitting) return;

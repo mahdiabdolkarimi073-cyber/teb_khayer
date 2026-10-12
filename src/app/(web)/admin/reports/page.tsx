@@ -131,10 +131,10 @@ export default function ReportsPage() {
   };
 
   return (
-    <div dir="rtl" className="flex flex-col gap-4">
+    <div dir="rtl" className={`flex flex-col gap-4 ${styles.page}`}>
       <Title order={4}>گزارش‌های مالی و آماری</Title>
 
-      <Card withBorder shadow="sm" radius="md" p="md">
+      <Card className={styles.filterCard} withBorder shadow="sm" radius="md" p="md">
         <Stack gap="sm">
           <Group className={styles.filters} gap="sm" wrap="wrap" grow>
             <Select
@@ -179,7 +179,7 @@ export default function ReportsPage() {
               style={{minWidth: 140, flex: "1 1 140px"}}
             />
           </Group>
-          <Group gap="sm" wrap="wrap">
+          <Group className={styles.filterActions} gap="sm" wrap="wrap">
             <Button leftSection={<IconFilter size="1rem"/>} onClick={() => {setLoading(true); fetchReport()}}>اعمال فیلتر</Button>
             <Button variant="light" onClick={() => {setPreset("last30"); setStartDate(jalaliDaysAgo(30)); setEndDate(jalaliToday()); setStatus(undefined); setGroupBy("day")}}>بازنشانی</Button>
             <Button variant="light" leftSection={<IconDownload size="1rem"/>} onClick={() => data && exportCSV(data)} disabled={!data}>خروجی CSV</Button>
@@ -188,7 +188,7 @@ export default function ReportsPage() {
         </Stack>
       </Card>
 
-      <Group justify="flex-end">
+      <Group className={styles.lastUpdated} justify="flex-end">
         <Text size="xs" c="dimmed">آخرین به‌روزرسانی: {lastUpdated}</Text>
       </Group>
 

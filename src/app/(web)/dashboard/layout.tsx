@@ -1,7 +1,7 @@
 import {getUserFromCookie} from "@/utils/serverComponents/user";
 import {redirect} from "next/navigation";
 import Dashboard from "@/components/ui/Dashboard";
-import {IconGardenCart, IconHeart, IconListDetails, IconLogout, IconShoppingCart} from "@tabler/icons-react";
+import {IconGardenCart, IconHeart, IconListDetails, IconLogout, IconMapPin, IconSettings, IconShoppingCart} from "@tabler/icons-react";
 
 const Layout = async (props: any)=>{
     const user = await getUserFromCookie();
@@ -33,6 +33,16 @@ const Layout = async (props: any)=>{
                     name: "لیست علاقه مندی های من",
                     path: "/favorite",
                     icon: <IconHeart />
+                },
+                {
+                    name: "آدرس‌های من",
+                    path: "/addresses",
+                    icon: <IconMapPin />
+                },
+                {
+                    name: "تنظیمات",
+                    path: "/settings",
+                    icon: <IconSettings />
                 },
                 {
                     name: "خروج",

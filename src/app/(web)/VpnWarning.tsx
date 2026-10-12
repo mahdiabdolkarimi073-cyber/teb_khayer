@@ -1,8 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { IconX } from "@tabler/icons-react";
 import styles from "./home.module.css";
+
+type NetworkStatus = {
+  isOutsideIran: boolean;
+};
+
+const CHECK_INTERVAL = 5 * 60 * 1000;
 
 export default function VpnWarning() {
   const [show, setShow] = useState(false);
@@ -10,32 +16,38 @@ export default function VpnWarning() {
   useEffect(() => {
     let cancelled = false;
 
-    async function checkVpn() {
+    async function checkNetworkStatus() {
+      if (!navigator.onLine) return;
+
       try {
-        const start = performance.now();
-        const res = await fetch("/robots.txt", {
+        const response = await fetch("/api/network-status", {
           cache: "no-store",
           headers: { "Cache-Control": "no-cache" },
         });
-        if (cancelled) return;
-        const elapsed = performance.now() - start;
 
-        const entries = performance.getEntriesByName(window.location.origin + "/robots.txt") as PerformanceResourceTiming[];
-        const timing = entries[entries.length - 1];
-        const duration = timing ? timing.duration : elapsed;
+        if (!response.ok) return;
 
-        if (duration > 600) {
-          setShow(true);
-        }
+        const status = (await response.json()) as NetworkStatus;
+        if (!cancelled) setShow(status.isOutsideIran);
       } catch {
-        // Network error — don't show VPN warning
+        if (!cancelled) setShow(false);
       }
     }
 
-    const timer = setTimeout(checkVpn, 2000);
+    const checkWhenVisible = () => {
+      if (document.visibilityState === "visible") void checkNetworkStatus();
+    };
+
+    void checkNetworkStatus();
+    const interval = window.setInterval(checkNetworkStatus, CHECK_INTERVAL);
+    window.addEventListener("online", checkNetworkStatus);
+    document.addEventListener("visibilitychange", checkWhenVisible);
+
     return () => {
       cancelled = true;
-      clearTimeout(timer);
+      window.clearInterval(interval);
+      window.removeEventListener("online", checkNetworkStatus);
+      document.removeEventListener("visibilitychange", checkWhenVisible);
     };
   }, []);
 
@@ -48,11 +60,7 @@ export default function VpnWarning() {
         src="/IMG_20260926_221538.jpg"
         alt="برای دریافت خدمات بهتر، لطفاً فیلترشکن خود را خاموش کنید"
       />
-      <button
-        type="button"
-        onClick={() => setShow(false)}
-        aria-label="بستن"
-      >
+      <button type="button" onClick={() => setShow(false)} aria-label="بستن">
         <IconX size={14} />
       </button>
     </div>

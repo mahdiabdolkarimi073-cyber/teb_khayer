@@ -1,20 +1,90 @@
+.page {
+  min-width: 0;
+}
+
 .filters {
   width: 100%;
 }
 
 @media (max-width: 575px) {
+  .page {
+    width: 100%;
+    gap: 16px !important;
+  }
+
+  .filterCard {
+    width: 100%;
+    padding: 14px !important;
+  }
+
   .filters {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: end;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px !important;
   }
 
   .filters > * {
-    width: 100%;
+    width: 100% !important;
     min-width: 0 !important;
+    flex: 0 0 auto !important;
   }
 
-  .filters > :first-child {
-    grid-column: 1 / -1;
+  .filters :global(.mantine-InputWrapper-root),
+  .filters :global(.mantine-Select-root),
+  .filters :global(.mantine-TextInput-root) {
+    width: 100%;
+  }
+
+  .filters :global(.mantine-InputWrapper-label) {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: normal;
+  }
+
+  .filters :global(.mantine-Input-input),
+  .filters :global(.mantine-Select-input) {
+    width: 100%;
+    min-height: 44px;
+    font-size: 15px;
+  }
+
+  .filterActions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px !important;
+  }
+
+  .filterActions > * {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    margin: 0 !important;
+  }
+
+  .lastUpdated {
+    justify-content: flex-start !important;
+    padding: 0 4px;
+  }
+
+  .lastUpdated :global(.mantine-Text-root) {
+    font-size: 11px;
+  }
+
+  .page > :global(.mantine-SimpleGrid-root) {
+    width: 100%;
+  }
+
+  .page > :global(.mantine-Card-root) {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 360px) {
+  .filterActions {
+    grid-template-columns: 1fr;
   }
 }

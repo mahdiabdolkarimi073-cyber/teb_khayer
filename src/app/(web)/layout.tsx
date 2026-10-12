@@ -33,7 +33,8 @@ const Layout = async (props: any) => {
 		<ShopLatestUpdate/>
 			<VisitTracker/>
 			<WebHeader
-				phone={await getVar('MAIN_PHONE')}
+				phone={await getVar<string>('MAIN_PHONE')}
+				freeShippingThreshold={await getVar<string>('FREE_SHIPPING_THRESHOLD')}
 				user={await getUserFromCookie() as User}
 					 categories={categories?.filter?.(c => !!c?.products?.length)}/>
 			{props.children}

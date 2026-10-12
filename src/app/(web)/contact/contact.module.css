@@ -251,6 +251,9 @@
   border: 1px solid var(--line);
   box-shadow: 0 8px 24px rgba(9, 43, 84, .05);
   transition: transform .25s ease, box-shadow .25s ease;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
 
 .infoCard:hover {
