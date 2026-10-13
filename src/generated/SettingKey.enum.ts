@@ -6,6 +6,7 @@
   PRODUCT_POST_FEE: "هزینه ارسال پست (تومان)",
   PRODUCT_BOX_FEE: "هزینه بسته بندی (تومان)",
   PRODUCTS_SALE_ENABLED: "فروش محصولات فعال است",
+  PRODUCT_MARKUP_PERCENT: "درصد افزایش قیمت محصولات",
   CASH_ON_DELIVERY_ENABLED: "پرداخت در محل فعال است",
   TRUST_ENAMAD: "متن نماد اعتماد الکترونیکی",
   TRUST_BANK_ACCOUNT: "حساب بانکی طِب خیّر",
@@ -58,6 +59,10 @@
   PRODUCTS_SALE_ENABLED: {
     name: "فروش محصولات فعال است",
     default: "true"
+  },
+  PRODUCT_MARKUP_PERCENT: {
+    name: "درصد افزایش قیمت محصولات",
+    default: 0
   },
   CASH_ON_DELIVERY_ENABLED: {
     name: "پرداخت در محل فعال است",

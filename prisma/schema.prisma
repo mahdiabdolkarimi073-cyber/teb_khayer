@@ -306,6 +306,9 @@ enum SettingKey {
   /// @name فروش محصولات فعال است
   /// @default true
   PRODUCTS_SALE_ENABLED
+  /// @name درصد افزایش قیمت محصولات
+  /// @default 0
+  PRODUCT_MARKUP_PERCENT
   /// @name پرداخت در محل فعال است
   /// @default false
   CASH_ON_DELIVERY_ENABLED

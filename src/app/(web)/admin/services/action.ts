@@ -48,13 +48,33 @@ export async function setServiceDisabled(serviceId: ServiceType, disabled: boole
 
 export async function updateSetting(key: string, value: string) {
 	await requireAdmin();
+	const normalizedValue = arabicToEnglishNumber(value);
 	if (key === "FREE_SHIPPING_THRESHOLD") {
-		const amount = Number(arabicToEnglishNumber(value));
+		const amount = Number(normalizedValue);
 		if (!Number.isInteger(amount) || amount <= 0) {
 			throw new Error("حداقل مبلغ ارسال رایگان باید یک عدد صحیح بزرگ‌تر از صفر باشد");
 		}
 	}
-	await setVar(key, value);
+	if (key === "PRODUCT_MARKUP_PERCENT") {
+		const markup = Number(normalizedValue);
+		if (!Number.isFinite(markup) || markup < 0 || markup > 100) {
+			throw new Error("درصد افزایش باید بین صفر تا ۱۰۰ باشد");
+		}
+		const previousMarkup = Number(await prisma.setting.findUnique({where: {key: "PRODUCT_MARKUP_PERCENT"}}).then((setting) => setting?.value || "0"));
+		const previousFactor = 1 + previousMarkup / 100;
+		const nextFactor = 1 + markup / 100;
+		if (previousFactor !== nextFactor) {
+			const products = await prisma.product.findMany({select: {id: true, price: true, originalPrice: true}});
+			await prisma.$transaction(products.map((product) => prisma.product.update({
+				where: {id: product.id},
+				data: {
+					price: Math.round((product.price / previousFactor) * nextFactor),
+					...(product.originalPrice !== null && {originalPrice: Math.round((product.originalPrice / previousFactor) * nextFactor)}),
+				},
+			})));
+		}
+	}
+	await setVar(key, normalizedValue);
 }
 
 export async function getDiscountCodes() {

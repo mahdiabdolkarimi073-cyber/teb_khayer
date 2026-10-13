@@ -2,8 +2,8 @@
 
 import React, {useEffect, useState, useCallback} from "react";
 import {
-  Card, Grid, Group, Stack, Text, Title, Button, Select, Badge,
-  Skeleton, Table, ThemeIcon, TextInput, Divider, ScrollArea, SimpleGrid,
+  Card, Group, Stack, Text, Title, Button, Select,
+  Skeleton, Table, ThemeIcon, TextInput, ScrollArea, SimpleGrid,
 } from "@mantine/core";
 import {
   IconFilter, IconDownload, IconPrinter,
@@ -12,8 +12,8 @@ import {
 import {getReportData, ReportData} from "@/app/(web)/admin/reports/reports.action";
 import styles from "./reports.module.css";
 import {
-  formatPersianCurrency, formatPersianNumber, toPersianDateTime, daysAgo,
-  toJalaliString, jalaliStringToDate, jalaliToday, jalaliDaysAgo,
+  formatPersianCurrency, formatPersianNumber, toPersianDateTime,
+  jalaliStringToDate, jalaliToday, jalaliDaysAgo,
   formatJalaliDateShort,
 } from "@/utils/format";
 
@@ -22,7 +22,9 @@ function exportCSV(data: ReportData) {
   rows.push("بخش,مقدار");
   rows.push(`کاربران جدید,${data.newUsers}`);
   rows.push(`کاربران فعال,${data.activeUsers}`);
-  rows.push(`کل فروش,${data.totalSales}`);
+  rows.push(`مجموع فروش تحویل‌شده,${data.totalSales}`);
+  rows.push(`بهای تمام‌شده کالا,${data.costOfGoods}`);
+  rows.push(`سود خالص,${data.netProfit}`);
   rows.push(`تعداد سفارش,${data.orderCount}`);
   rows.push(`میانگین سفارش,${data.avgOrderValue}`);
   rows.push(`تراکنش موفق,${data.successfulCount}`);
@@ -31,6 +33,9 @@ function exportCSV(data: ReportData) {
   rows.push("");
   rows.push("دسته,فروش");
   data.salesByCategory.forEach((c) => rows.push(`${c.name},${c.total}`));
+  rows.push("");
+  rows.push("کالا,تعداد,فروش,بهای تمام‌شده,سود خالص");
+  data.salesByProduct.forEach((p) => rows.push(`${p.name},${p.quantity},${p.sales},${p.cost},${p.profit}`));
   const blob = new Blob(["\uFEFF" + rows.join("\n")], {type: "text/csv;charset=utf-8"});
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -98,7 +103,6 @@ export default function ReportsPage() {
   const [endDate, setEndDate] = useState(jalaliToday());
   const [groupBy, setGroupBy] = useState<"day" | "week" | "month">("day");
   const [status, setStatus] = useState<string | undefined>(undefined);
-  const [search, setSearch] = useState("");
 
   const fetchReport = useCallback(async () => {
     try {
@@ -132,7 +136,7 @@ export default function ReportsPage() {
 
   return (
     <div dir="rtl" className={`flex flex-col gap-4 ${styles.page}`}>
-      <Title order={4}>گزارش‌های مالی و آماری</Title>
+      <Title order={4}>گزارش سود و زیان</Title>
 
       <Card className={styles.filterCard} withBorder shadow="sm" radius="md" p="md">
         <Stack gap="sm">
@@ -165,19 +169,7 @@ export default function ReportsPage() {
               ]}
               style={{minWidth: 120, flex: "1 1 120px"}}
             />
-            <Select
-              label="وضعیت سفارش"
-              value={status}
-              onChange={(v) => setStatus(v || undefined)}
-              data={[
-                {value: "", label: "همه"},
-                {value: "PENDING", label: "در حال آماده‌سازی"},
-                {value: "SENDED", label: "ارسال شده"},
-                {value: "DELAY", label: "تحویل شده"},
-                {value: "CANCELED", label: "لغو شده"},
-              ]}
-              style={{minWidth: 140, flex: "1 1 140px"}}
-            />
+            <Text size="sm" c="dimmed" style={{alignSelf: "end", paddingBottom: 10, minWidth: 180}}>مبنای گزارش: سفارش‌های نهایی‌شده و تحویل‌شده</Text>
           </Group>
           <Group className={styles.filterActions} gap="sm" wrap="wrap">
             <Button leftSection={<IconFilter size="1rem"/>} onClick={() => {setLoading(true); fetchReport()}}>اعمال فیلتر</Button>
@@ -208,10 +200,10 @@ export default function ReportsPage() {
           </SimpleGrid>
 
           <SimpleGrid cols={{base: 1, sm: 2, lg: 4}} spacing="md">
-            <StatCard icon={IconCurrencyDollar} label="کل فروش" value={formatPersianCurrency(data.totalSales)} color="green"/>
-            <StatCard icon={IconCurrencyDollar} label="کل سپرده‌ها" value={formatPersianCurrency(data.totalDeposited)} color="violet"/>
-            <StatCard icon={IconChartBar} label="نرخ موفقیت" value={`${formatPersianNumber(data.successRate)}%`} color="green"/>
-            <StatCard icon={IconCurrencyDollar} label="درآمد خالص" value={formatPersianCurrency(data.netRevenue)} color="teal"/>
+            <StatCard icon={IconCurrencyDollar} label="مجموع فروش تحویل‌شده" value={formatPersianCurrency(data.totalSales)} color="green"/>
+            <StatCard icon={IconCurrencyDollar} label="بهای تمام‌شده کالا" value={formatPersianCurrency(data.costOfGoods)} color="orange"/>
+            <StatCard icon={IconChartBar} label="سود خالص" value={formatPersianCurrency(data.netProfit)} color="teal"/>
+            <StatCard icon={IconUsers} label="نرخ موفقیت تراکنش" value={`${formatPersianNumber(data.successRate)}%`} color="cyan"/>
           </SimpleGrid>
 
           <SimpleGrid cols={{base: 1, sm: 2, lg: 4}} spacing="md">
@@ -239,6 +231,26 @@ export default function ReportsPage() {
                 ))}
               </Table.Tbody>
             </Table>
+            </ScrollArea>
+          </Card>
+
+          <Card withBorder shadow="sm" radius="md" p="md">
+            <Text fw={600} mb="md">سود و زیان به تفکیک کالا</Text>
+            <ScrollArea>
+              <Table miw={720}>
+                <Table.Thead><Table.Tr><Table.Th>کالا</Table.Th><Table.Th>تعداد</Table.Th><Table.Th>فروش</Table.Th><Table.Th>بهای تمام‌شده</Table.Th><Table.Th>سود خالص</Table.Th></Table.Tr></Table.Thead>
+                <Table.Tbody>
+                  {data.salesByProduct.length === 0 ? <Table.Tr><Table.Td colSpan={5}><Text c="dimmed" ta="center">در این بازه سفارش نهایی‌شده‌ای وجود ندارد</Text></Table.Td></Table.Tr> : data.salesByProduct.map((product) => (
+                    <Table.Tr key={product.name}>
+                      <Table.Td>{product.name}</Table.Td>
+                      <Table.Td>{formatPersianNumber(product.quantity)}</Table.Td>
+                      <Table.Td>{formatPersianCurrency(product.sales)}</Table.Td>
+                      <Table.Td>{formatPersianCurrency(product.cost)}</Table.Td>
+                      <Table.Td c={product.profit >= 0 ? "teal" : "red"}>{formatPersianCurrency(product.profit)}</Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
             </ScrollArea>
           </Card>
 

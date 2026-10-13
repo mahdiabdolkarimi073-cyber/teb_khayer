@@ -7,7 +7,7 @@ import styles from "./dashboard/dashboard.module.css";
 
 const sections = [
   {name: "داشبورد", path: "/dashboard", icon: "⌂"},
-  {name: "گزارش‌های مالی", path: "/reports", icon: "▥"},
+  {name: "گزارش سود و زیان", path: "/reports", icon: "▥"},
   {name: "تراکنش‌ها", path: "/transactions", icon: "▤"},
   {name: "جزئیات فروش", path: "/sales-details", icon: "₪"},
   {name: "دوره‌ها", path: "/courses", icon: "▦"},
