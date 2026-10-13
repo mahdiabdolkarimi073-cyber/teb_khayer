@@ -27,6 +27,25 @@ const Layout = async (props: any) => {
 			<script dangerouslySetInnerHTML={{
 				__html: `
 			window.isApplication = false;
+			if ('serviceWorker' in navigator) {
+				navigator.serviceWorker.register('/sw.js').then(function(reg) {
+					if (reg.waiting) {
+						reg.waiting.postMessage('SKIP_WAITING');
+					}
+					reg.addEventListener('updatefound', function() {
+						var nw = reg.installing;
+						if (!nw) return;
+						nw.addEventListener('statechange', function() {
+							if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+								nw.postMessage('SKIP_WAITING');
+							}
+						});
+					});
+				});
+				navigator.serviceWorker.addEventListener('controllerchange', function() {
+					window.location.reload();
+				});
+			}
 			`
 			}}></script>
 			<VpnWarning/>

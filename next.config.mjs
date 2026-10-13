@@ -5,6 +5,146 @@ const withPWA = nextPWA({
     register: true,
     skipWaiting: true,
     disable: process.env.NODE_ENV === "development",
+    runtimeCaching: [
+        {
+            urlPattern: "/api/network-status",
+            handler: "NetworkOnly",
+        },
+        {
+            urlPattern: ({ url }) => url.pathname === "/",
+            handler: "NetworkFirst",
+            options: {
+                cacheName: "start-url",
+                networkTimeoutSeconds: 3,
+            },
+        },
+        {
+            urlPattern: /^https:\/\/fonts\.(?:gstatic)\.com\/.*/i,
+            handler: "CacheFirst",
+            options: {
+                cacheName: "google-fonts-webfonts",
+                expiration: { maxEntries: 4, maxAgeSeconds: 31536000 },
+            },
+        },
+        {
+            urlPattern: /^https:\/\/fonts\.(?:googleapis)\.com\/.*/i,
+            handler: "StaleWhileRevalidate",
+            options: {
+                cacheName: "google-fonts-stylesheets",
+                expiration: { maxEntries: 4, maxAgeSeconds: 604800 },
+            },
+        },
+        {
+            urlPattern: /\.(?:eot|otf|ttc|ttf|woff|woff2|font.css)$/i,
+            handler: "StaleWhileRevalidate",
+            options: {
+                cacheName: "static-font-assets",
+                expiration: { maxEntries: 4, maxAgeSeconds: 604800 },
+            },
+        },
+        {
+            urlPattern: /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
+            handler: "StaleWhileRevalidate",
+            options: {
+                cacheName: "static-image-assets",
+                expiration: { maxEntries: 64, maxAgeSeconds: 86400 },
+            },
+        },
+        {
+            urlPattern: /\/_next\/image\?url=.+$/i,
+            handler: "StaleWhileRevalidate",
+            options: {
+                cacheName: "next-image",
+                expiration: { maxEntries: 64, maxAgeSeconds: 86400 },
+            },
+        },
+        {
+            urlPattern: /\.(?:mp3|wav|ogg)$/i,
+            handler: "CacheFirst",
+            options: {
+                cacheName: "static-audio-assets",
+                rangeRequests: true,
+                expiration: { maxEntries: 32, maxAgeSeconds: 86400 },
+            },
+        },
+        {
+            urlPattern: /\.(?:mp4)$/i,
+            handler: "CacheFirst",
+            options: {
+                cacheName: "static-video-assets",
+                rangeRequests: true,
+                expiration: { maxEntries: 32, maxAgeSeconds: 86400 },
+            },
+        },
+        {
+            urlPattern: /\.(?:js)$/i,
+            handler: "StaleWhileRevalidate",
+            options: {
+                cacheName: "static-js-assets",
+                expiration: { maxEntries: 32, maxAgeSeconds: 86400 },
+            },
+        },
+        {
+            urlPattern: /\.(?:css|less)$/i,
+            handler: "StaleWhileRevalidate",
+            options: {
+                cacheName: "static-style-assets",
+                expiration: { maxEntries: 32, maxAgeSeconds: 86400 },
+            },
+        },
+        {
+            urlPattern: /\/_next\/data\/.+\/.+\.json$/i,
+            handler: "StaleWhileRevalidate",
+            options: {
+                cacheName: "next-data",
+                expiration: { maxEntries: 32, maxAgeSeconds: 86400 },
+            },
+        },
+        {
+            urlPattern: /\.(?:json|xml|csv)$/i,
+            handler: "NetworkFirst",
+            options: {
+                cacheName: "static-data-assets",
+                expiration: { maxEntries: 32, maxAgeSeconds: 86400 },
+            },
+        },
+        {
+            urlPattern: ({ url }) => {
+                if (url.origin !== self.location.origin) return false;
+                const p = url.pathname;
+                if (p.startsWith("/api/network-status")) return false;
+                if (p.startsWith("/api/auth/")) return false;
+                return p.startsWith("/api/");
+            },
+            handler: "NetworkFirst",
+            options: {
+                cacheName: "apis",
+                networkTimeoutSeconds: 10,
+                expiration: { maxEntries: 16, maxAgeSeconds: 86400 },
+            },
+        },
+        {
+            urlPattern: ({ url }) => {
+                if (url.origin !== self.location.origin) return false;
+                return !url.pathname.startsWith("/api/");
+            },
+            handler: "NetworkFirst",
+            options: {
+                cacheName: "others",
+                networkTimeoutSeconds: 3,
+                expiration: { maxEntries: 32, maxAgeSeconds: 86400 },
+            },
+        },
+        {
+            urlPattern: ({ url }) => url.origin !== self.location.origin,
+            handler: "NetworkFirst",
+            options: {
+                cacheName: "cross-origin",
+                networkTimeoutSeconds: 10,
+                expiration: { maxEntries: 32, maxAgeSeconds: 3600 },
+            },
+        },
+    ],
 });
 
 const nextConfig = {

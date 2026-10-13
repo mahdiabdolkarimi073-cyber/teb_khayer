@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { IconX } from "@tabler/icons-react";
 import styles from "./home.module.css";
 
@@ -8,16 +8,22 @@ type NetworkStatus = {
   isOutsideIran: boolean;
 };
 
-const CHECK_INTERVAL = 5 * 60 * 1000;
+const CHECK_INTERVAL = 60 * 1000;
+const DISMISS_COOLDOWN = 3 * 60 * 1000;
 
 export default function VpnWarning() {
   const [show, setShow] = useState(false);
+  const dismissedAtRef = useRef<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
     async function checkNetworkStatus() {
       if (!navigator.onLine) return;
+
+      if (dismissedAtRef.current && Date.now() - dismissedAtRef.current < DISMISS_COOLDOWN) {
+        return;
+      }
 
       try {
         const response = await fetch("/api/network-status", {
@@ -28,7 +34,13 @@ export default function VpnWarning() {
         if (!response.ok) return;
 
         const status = (await response.json()) as NetworkStatus;
-        if (!cancelled) setShow(status.isOutsideIran);
+        if (cancelled) return;
+        if (status.isOutsideIran) {
+          dismissedAtRef.current = null;
+          setShow(true);
+        } else {
+          setShow(false);
+        }
       } catch {
         if (!cancelled) setShow(false);
       }
@@ -51,6 +63,11 @@ export default function VpnWarning() {
     };
   }, []);
 
+  const handleDismiss = () => {
+    setShow(false);
+    dismissedAtRef.current = Date.now();
+  };
+
   if (!show) return null;
 
   return (
@@ -60,7 +77,7 @@ export default function VpnWarning() {
         src="/IMG_20260926_221538.jpg"
         alt="برای دریافت خدمات بهتر، لطفاً فیلترشکن خود را خاموش کنید"
       />
-      <button type="button" onClick={() => setShow(false)} aria-label="بستن">
+      <button type="button" onClick={handleDismiss} aria-label="بستن">
         <IconX size={14} />
       </button>
     </div>
