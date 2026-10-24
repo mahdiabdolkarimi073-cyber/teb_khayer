@@ -6,9 +6,26 @@ import styles from "./all-products.module.css";
 
 const validSorts: SortOption[] = ["new", "priceLow", "priceHigh", "bestSeller", "discount", "special"];
 
-const Page = async (props: any) => {
-  const search = props.searchParams.query;
-  const sortRaw = props.searchParams.sort as string | undefined;
+interface PageProps {
+  params?: Promise<Record<string, string | string[]>> | Record<string, string | string[]>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>> | Record<string, string | string[] | undefined>;
+}
+
+const Page = async (props: PageProps) => {
+  let resolvedParams: Record<string, string | string[] | undefined> = {};
+  if (props?.searchParams) {
+    try {
+      resolvedParams = typeof (props.searchParams as any)?.then === "function" || props.searchParams instanceof Promise
+        ? await props.searchParams
+        : props.searchParams;
+    } catch {
+      resolvedParams = {};
+    }
+  }
+
+  const rawQuery = resolvedParams?.query;
+  const search = typeof rawQuery === "string" ? rawQuery.trim() : (Array.isArray(rawQuery) && rawQuery.length > 0 ? String(rawQuery[0]).trim() : undefined);
+  const sortRaw = typeof resolvedParams?.sort === "string" ? resolvedParams.sort : undefined;
   const sort: SortOption = validSorts.includes(sortRaw as SortOption) ? (sortRaw as SortOption) : "new";
 
   const products = await getProducts(0, search, undefined, sort);
