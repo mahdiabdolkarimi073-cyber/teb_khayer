@@ -6,7 +6,7 @@ import Link from "next/link";
 import { SettingKeyInfo } from "@/generated/SettingKey.enum";
 
 const Page = (props: any) => {
-	const {status: statusText, msg = "خطا در پرداخت", redirect = '/dashboard/orders'} = props?.searchParams;
+	const {status: statusText, msg = "خطا در پرداخت", redirect = '/dashboard/orders?status=current'} = props?.searchParams;
 	const status = statusText === 'true';
 	const supportPhone = SettingKeyInfo["MAIN_PHONE"]?.default;
 

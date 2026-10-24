@@ -158,7 +158,7 @@ export async function createOrderPortal(
 			if (!paymentWithActions) return {message: "خطا در ثبت سفارش", status: 500};
 			await Payment.handlePaymentAction(paymentWithActions);
 			await prisma.payment.update({where: {id: payment.id}, data: {receipt: `COD_${payment.id}`}});
-			return {message: payment.successMsg, orderCompleted: true, redirect: "/dashboard/orders"};
+			return {message: payment.successMsg, orderCompleted: true, redirect: "/dashboard/orders?status=current"};
 		}
 
 		const token = await payment.getToken();

@@ -213,7 +213,7 @@ const Page = () => {
                   if (res.orderCompleted) {
                     window.localStorage.setItem("localInfo", JSON.stringify(json));
                     window.localStorage.removeItem("cart");
-                    router.push(res.redirect || "/dashboard/orders");
+                    router.push(res.redirect || "/dashboard/orders?status=current");
                   } else if (res.token) {
                     window.localStorage.setItem("localInfo", JSON.stringify(json));
                     window.localStorage.removeItem("cart");

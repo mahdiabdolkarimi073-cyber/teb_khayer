@@ -1,7 +1,17 @@
 import {getUserFromCookie} from "@/utils/serverComponents/user";
 import {redirect} from "next/navigation";
 import Dashboard from "@/components/ui/Dashboard";
-import {IconGardenCart, IconHeart, IconListDetails, IconLogout, IconMapPin, IconSettings, IconShoppingCart} from "@tabler/icons-react";
+import {
+    IconCircleCheck,
+    IconClock,
+    IconGardenCart,
+    IconHeart,
+    IconListDetails,
+    IconLogout,
+    IconMapPin,
+    IconSettings,
+    IconShoppingCart
+} from "@tabler/icons-react";
 
 const Layout = async (props: any)=>{
     const user = await getUserFromCookie();
@@ -28,9 +38,17 @@ const Layout = async (props: any)=>{
                     name: "لیست سفارشات من",
                     path: "/orders",
                     icon: <IconListDetails />,
-                    children: [
-                        {path: "/orders?status=current", name: "جاری"},
-                        {path: "/orders?status=delivered", name: "تحویل داده شده"}
+                    subSections: [
+                        {
+                            name: "جاری",
+                            path: "/orders?status=current",
+                            icon: <IconClock size={16} />
+                        },
+                        {
+                            name: "تحویل داده شده",
+                            path: "/orders?status=delivered",
+                            icon: <IconCircleCheck size={16} />
+                        }
                     ]
                 },
                 {

@@ -243,6 +243,9 @@ function NaturalProductsBanner() {
         <span>سلامتی واقعی از دل طبیعت</span>
         <h2>محصولات طبیعی و ارگانیک</h2>
         <p>انتخابی سالم برای زندگی بهتر شما</p>
+        <Button component={Link} href="/category/all" className={styles.greenButton} rightSection={<IconArrowLeft size={18} />} aria-label="مشاهده محصولات طبیعی">
+          مشاهده محصولات
+        </Button>
         <div className={styles.naturalFeatures}>
           <span><IconShieldCheck size={20} aria-hidden="true" /> کیفیت تضمینی</span>
           <span><IconLeaf size={20} aria-hidden="true" /> محصولات ارگانیک</span>
