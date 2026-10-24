@@ -2,25 +2,74 @@ import prisma from "@backend/modules/prisma/Prisma";
 import {
   IconSparkles,
   IconLayoutGrid,
-  IconAdjustmentsHorizontal,
   IconArrowLeft,
   IconCategory,
-  IconChevronLeft,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import classes from "./category-list.module.css";
 import React from "react";
+import CategoryListView, { ViewMode } from "./CategoryListView";
 
 const HERO_IMAGE = "/ChatGPT_Image_Sep_19,_2026,_11_41_28_AM.png";
 
-const Page = async (props: any) => {
-  let categories = await prisma.productCategory.findMany({
+interface PageProps {
+  searchParams?:
+    | Promise<{ [key: string]: string | string[] | undefined }>
+    | { [key: string]: string | string[] | undefined };
+}
+
+const Page = async (props: PageProps) => {
+  const resolvedSearchParams = props.searchParams
+    ? await Promise.resolve(props.searchParams)
+    : {};
+  const initialSort =
+    typeof resolvedSearchParams.sort === "string"
+      ? resolvedSearchParams.sort
+      : "default";
+  const initialSearch =
+    typeof resolvedSearchParams.q === "string"
+      ? resolvedSearchParams.q
+      : typeof resolvedSearchParams.search === "string"
+      ? resolvedSearchParams.search
+      : "";
+  const initialView: ViewMode =
+    resolvedSearchParams.view === "list" ? "list" : "grid";
+
+  const rawCategories = await prisma.productCategory.findMany({
     include: {
       products: true,
     },
+    orderBy: {
+      created_at: "asc",
+    },
   });
 
-  categories = categories.filter((c) => c.products?.length > 0);
+  const categories = rawCategories.filter((c) => c.products?.length > 0);
+
+  // Serialize Date objects safely across client component boundary
+  const serializedCategories = categories.map((c) => ({
+    id: c.id,
+    name: c.name,
+    thumbnail: c.thumbnail,
+    created_at:
+      c.created_at instanceof Date
+        ? c.created_at.toISOString()
+        : String(c.created_at || ""),
+    parentId: c.parentId,
+    products: (c.products || []).map((p) => ({
+      id: p.id,
+      name: p.name,
+      price: Number(p.price) || 0,
+      originalPrice: p.originalPrice ? Number(p.originalPrice) : null,
+      discountPercent: Number(p.discountPercent) || 0,
+      isBestSeller: Boolean(p.isBestSeller),
+      isSpecial: Boolean(p.isSpecial),
+      created_at:
+        p.created_at instanceof Date
+          ? p.created_at.toISOString()
+          : String(p.created_at || ""),
+    })),
+  }));
 
   return (
     <div className={classes.page}>
@@ -64,65 +113,12 @@ const Page = async (props: any) => {
           </div>
         </section>
 
-        <div className={classes.sectionHeader}>
-          <h2 className={classes.sectionTitle}>
-            <IconLayoutGrid size="22" />
-            تمام دسته‌بندی‌ها
-          </h2>
-          <div className={classes.toolbar}>
-            <button type="button" className={classes.toolButton}>
-              <IconAdjustmentsHorizontal size="16" />
-              مرتب‌سازی
-            </button>
-            <button
-              type="button"
-              className={`${classes.viewButton} ${classes.viewButtonActive}`}
-              aria-label="نمای شبکه‌ای"
-            >
-              <IconLayoutGrid size="16" />
-            </button>
-            <button
-              type="button"
-              className={classes.viewButton}
-              aria-label="نمای لیستی"
-            >
-              <IconAdjustmentsHorizontal size="16" />
-            </button>
-          </div>
-        </div>
-
-        <div className={classes.categoryGrid}>
-          {categories.map((c) => (
-            <Link
-              key={c.id}
-              href={`/category/${c.id}`}
-              className={classes.categoryCard}
-            >
-              <div className={classes.imageFrame}>
-                <img
-                  src={c.thumbnail || "/empty.png"}
-                  alt={c.name}
-                  className={classes.categoryImage}
-                />
-                <div className={classes.imageWash} />
-                <div className={classes.cardBadge}>
-                  <IconCategory size="15" />
-                </div>
-              </div>
-              <div className={classes.cardBody}>
-                <div className={classes.cardText}>
-                  <h3 className={classes.cardTitle}>{c.name}</h3>
-                  <p className={classes.cardCount}>
-                    {c.products?.length || 0} محصول
-                  </p>
-                </div>
-                <span className={classes.cardArrow}>
-                  <IconChevronLeft size="15" />
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
+        <CategoryListView
+          categories={serializedCategories}
+          initialSort={initialSort}
+          initialView={initialView}
+          initialSearch={initialSearch}
+        />
       </div>
     </div>
   );
