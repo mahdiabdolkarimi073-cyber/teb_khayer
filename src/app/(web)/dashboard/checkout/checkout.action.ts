@@ -71,7 +71,6 @@ export async function createOrderPortal(
 		if (!user) return {message: "لطفاً ابتدا وارد شوید", status: 401};
 
 		const saleEnabled = (await getVar<string>("PRODUCTS_SALE_ENABLED")) !== "false";
-		if (!saleEnabled) return {message: "فعلاً فروش محصولات غیرفعال است", status: 400};
 
 		const paymentMethod = fields.paymentMethod === "cashOnDelivery" ? "cashOnDelivery" : "online";
 		const cashOnDeliveryEnabled = (await getVar<string>("CASH_ON_DELIVERY_ENABLED")) === "true";
@@ -84,6 +83,7 @@ export async function createOrderPortal(
 			const product = await prisma.product.findUnique({where: {id}});
 			if (!product) return {message: `محصول با شناسه ${id} یافت نشد`, status: 404};
 			if (product.stock < count) return {message: `موجودی محصول ${product.name} کافی نیست (${product.stock} عدد موجود است)`, status: 400};
+			if (!saleEnabled && !product.forceAvailable) return {message: `فعلاً فروش محصول ${product.name} غیرفعال است`, status: 400};
 			productsTotal += Number(product.price) * count;
 			fetchedProduct[product.id] = product;
 		}
@@ -93,7 +93,11 @@ export async function createOrderPortal(
 		if (discountCode.trim() && !discount.amount) return {message: discount.message, status: 400};
 		const boxFee = +(await getVar<string>("PRODUCT_BOX_FEE") || "0");
 		const postFee = +(await getVar<string>("PRODUCT_POST_FEE") || "0");
-		const total = Math.max(0, productsTotal + boxFee + postFee - discount.amount);
+		const freeShippingThreshold = +(await getVar<string>("FREE_SHIPPING_THRESHOLD") || "0");
+		const hasFreeShippingProduct = Object.values(fetchedProduct).some(p => p.freeShipping);
+		const qualifiesFreeShipping = hasFreeShippingProduct || (freeShippingThreshold > 0 && productsTotal >= freeShippingThreshold);
+		const effectivePostFee = qualifiesFreeShipping ? 0 : postFee;
+		const total = Math.max(0, productsTotal + boxFee + effectivePostFee - discount.amount);
 
 		const paymentId = `pymt_${requestId}`;
 		const existingPayment = await prisma.payment.findUnique({where: {id: paymentId}});

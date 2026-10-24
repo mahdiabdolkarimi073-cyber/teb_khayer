@@ -192,7 +192,7 @@ const AllProductView = (props: { products: Product[]; count: number; search?: st
         {visualResults ? null : pagination}
         {skip !== 0 && isLoading && !visualResults ? <Loading /> : <div className={styles.products}>
           {(visualResults || products).map((product) => {
-            const outOfStock = props.saleEnabled === false || !product.stock || product.stock <= 0;
+            const outOfStock = (props.saleEnabled === false && !product.forceAvailable) || !product.stock || product.stock <= 0;
             const hasDiscount = (product.discountPercent || 0) > 0;
             return <article className={styles.productCard} key={product.id}>
               <div className={styles.badgeRow}>

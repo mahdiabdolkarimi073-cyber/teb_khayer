@@ -9,7 +9,7 @@ import ProductLike from "@/components/shop/ProductLike";
 import {ProductImage} from "@/components/shop/ProductImage";
 
 
-export function ProductCard(props: { product: Product & { category?: ProductCategory }, footer?: any, saleEnabled?: boolean }) {
+export function ProductCard(props: { product: Product & { category?: ProductCategory }, footer?: any, saleEnabled?: boolean, cartQualifiedFreeShipping?: boolean }) {
 	let {
 		category,
 		categoryId,
@@ -24,21 +24,25 @@ export function ProductCard(props: { product: Product & { category?: ProductCate
 		discountPercent,
 		isSpecial,
 		isBestSeller,
+		freeShipping,
 		properties,
 		updated_at,
-		stock
+		stock,
+		forceAvailable
 	} = props.product;
-	const outOfStock = (props.saleEnabled === false) || !stock || stock <= 0;
+	const outOfStock = ((props.saleEnabled === false) && !forceAvailable) || !stock || stock <= 0;
 	const image = images?.[0] || "/empty.png";
 	const features = properties?.split("\n")?.map(line => ({label: line?.split(":")?.pop(), emoji: ""}))?.slice(0, 3).filter(n => !!n.label) || [];
 	const hasDiscount = (discountPercent || 0) > 0 && originalPrice;
+	const showFreeShipping = !!freeShipping || !!props.cartQualifiedFreeShipping;
 
 	return (
 		<Card withBorder radius="md" p="md" pt={0} className={classes.card + " justify-between relative"}>
-			{/* Badges */}
+			{/* Badges - order: ویژه, پرفروش, ارسال رایگان, تخفیف */}
 			<div className={'absolute right-0 top-0 p-2 z-10 flex flex-col gap-1 items-end'}>
 				{isSpecial && <Badge color={'blue'} size={'md'} variant={'filled'}>ویژه</Badge>}
 				{isBestSeller && <Badge color={'orange'} size={'md'} variant={'filled'}>پرفروش</Badge>}
+				{showFreeShipping && <Badge color={'green'} size={'md'} variant={'filled'}>ارسال رایگان</Badge>}
 				{hasDiscount && <Badge color={'red'} size={'md'} variant={'filled'}>٪{Number(discountPercent).toLocaleString('fa')} تخفیف</Badge>}
 			</div>
 			{outOfStock && (

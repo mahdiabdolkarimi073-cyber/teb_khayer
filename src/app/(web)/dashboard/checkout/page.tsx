@@ -12,6 +12,7 @@ import Loading from "@/app/(app)/loading";
 import { applyDiscountCode, createOrderPortal } from "@/app/(web)/dashboard/checkout/checkout.action";
 import { getCheckoutFees } from "@/app/(web)/dashboard/checkout/fees.action";
 import { getAddresses } from "@/app/(web)/dashboard/addresses/action";
+import { isFreeShipping, productShowsFreeBadge } from "@/utils/freeShipping";
 import Link from "next/link";
 import {
   IconArrowLeft,
@@ -45,6 +46,7 @@ const Page = () => {
   const boxFee = fees?.boxFee;
   const postFee = fees?.postFee;
   const cashOnDeliveryEnabled = fees?.cashOnDeliveryEnabled === true;
+  const freeShippingThreshold = fees?.freeShippingThreshold || 0;
   const cart = useCart();
   const [submitting, setSubmitting] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
@@ -58,7 +60,9 @@ const Page = () => {
   const productPayload = Object.fromEntries(items.map(({ product, quantity }) => [product.id, quantity]));
   const localInfo = typeof window !== "undefined" ? JSON.parse(window.localStorage.getItem("localInfo") || "{}") : {};
   const productsTotal = items.reduce((sum, item) => sum + Number(item.product.price || 0) * item.quantity, 0);
-  const total = productsTotal + Number(boxFee || 0) + Number(postFee || 0);
+  const freeShipping = isFreeShipping(items, freeShippingThreshold);
+  const effectivePostFee = freeShipping ? 0 : Number(postFee || 0);
+  const total = productsTotal + Number(boxFee || 0) + effectivePostFee;
   const payableTotal = Math.max(0, total - discountAmount);
   const applyDiscount = () => {
     if (!discountCode.trim()) {
@@ -248,10 +252,13 @@ const Page = () => {
           <aside className={`${styles.card} ${styles.summaryCard}`}>
             <div className={styles.titleRow}><IconShoppingCart className={styles.titleIcon} size={22} /><h2 className={styles.title}>خلاصه سفارش</h2></div>
             <div className={styles.summaryItems}>
-              {items.map(({ product, quantity }) => <div className={styles.item} key={product.id}><img className={styles.itemImage} src={product.images?.[0] || "/empty.png"} alt={product.name || "محصول"} /><div><div className={styles.itemName}>{product.name}</div><div className={styles.itemMeta}>تعداد: {quantity} عدد</div></div><div className={styles.itemPrice}>{formatPrice(Number(product.price || 0) * quantity)}<small>واحد: {formatPrice(Number(product.price || 0))}</small><button type="button" onClick={() => { removeFromCart(product); router.refresh(); }} aria-label="حذف محصول">حذف</button></div></div>)}
+              {items.map(({ product, quantity }) => {
+                const showFree = productShowsFreeBadge({ product, quantity }, items, freeShippingThreshold);
+                return <div className={styles.item} key={product.id}><img className={styles.itemImage} src={product.images?.[0] || "/empty.png"} alt={product.name || "محصول"} /><div><div className={styles.itemName}>{product.name}</div><div className={styles.itemMeta}>تعداد: {quantity} عدد</div>{showFree && <span className={styles.itemFreeBadge}>ارسال رایگان</span>}</div><div className={styles.itemPrice}>{formatPrice(Number(product.price || 0) * quantity)}<small>واحد: {formatPrice(Number(product.price || 0))}</small><button type="button" onClick={() => { removeFromCart(product); router.refresh(); }} aria-label="حذف محصول">حذف</button></div></div>;
+              })}
             </div>
             <div className={styles.discount}><div className={styles.discountTitle}><IconTag size={16} />کد تخفیف دارید؟</div><div className={styles.discountRow}><input value={discountCode} onChange={(event) => setDiscountCode(event.currentTarget.value)} placeholder="کد تخفیف را وارد کنید" /><button type="button" onClick={applyDiscount} disabled={discountApplying}>{discountApplying ? "..." : "اعمال"}</button></div>{discountMessage && <small>{discountMessage}</small>}</div>
-            <div className={styles.totals}><div className={styles.totalRow}><span>جمع کل محصولات</span><strong>{formatPrice(productsTotal)}</strong></div><div className={styles.totalRow}><span>هزینه ارسال</span><strong>{Number(postFee) ? formatPrice(Number(postFee)) : "پس‌کرایه"}</strong></div><div className={styles.totalRow}><span>هزینه بسته‌بندی</span><strong>{formatPrice(Number(boxFee || 0))}</strong></div>{discountAmount > 0 && <div className={styles.totalRow}><span>تخفیف</span><strong className={styles.discountValue}>- {formatPrice(discountAmount)}</strong></div>}<div className={styles.finalTotal}><span>مبلغ قابل پرداخت</span><strong>{formatPrice(payableTotal)}</strong></div></div>
+            <div className={styles.totals}><div className={styles.totalRow}><span>جمع کل محصولات</span><strong>{formatPrice(productsTotal)}</strong></div><div className={styles.totalRow}><span>هزینه ارسال</span><strong>{freeShipping ? "رایگان" : Number(postFee) ? formatPrice(Number(postFee)) : "پس‌کرایه"}</strong></div><div className={styles.totalRow}><span>هزینه بسته‌بندی</span><strong>{formatPrice(Number(boxFee || 0))}</strong></div>{discountAmount > 0 && <div className={styles.totalRow}><span>تخفیف</span><strong className={styles.discountValue}>- {formatPrice(discountAmount)}</strong></div>}<div className={styles.finalTotal}><span>مبلغ قابل پرداخت</span><strong>{formatPrice(payableTotal)}</strong></div></div>
             <div className={styles.security}><IconShieldCheck size={17} />خرید شما با ضمانت بازگشت ۷ روزه انجام می‌شود.</div>
           </aside>
         </div>

@@ -2,25 +2,35 @@ import prisma from "@backend/modules/prisma/Prisma";
 import { SettingKeyInfo } from "@/generated/SettingKey.enum";
 import {arabicToEnglishNumber} from "@/utils/other";
 
-export async function getVar<T>(key: string, defaultValue: string | undefined = undefined): Promise<T> {
+function settingValueToString(value: unknown): string | undefined {
+    if (value == null) return undefined;
+    if (typeof value === "string") return value;
+    if (typeof value === "number" || typeof value === "bigint" || typeof value === "boolean") {
+        return String(value);
+    }
+    return undefined;
+}
+
+export async function getVar<T>(key: string, defaultValue: string | number | boolean | undefined = undefined): Promise<T> {
     const value = (await prisma.setting.findFirst({
         where: {
             key
         }
     }))?.value;
 
-    if (!defaultValue) {
+    if (defaultValue === undefined) {
         const info = (SettingKeyInfo as any)?.[key];
         if (info?.default !== undefined) {
             defaultValue = info.default as any;
         }
     }
 
-    return arabicToEnglishNumber(value ?? defaultValue) as T;
+    const resolved = settingValueToString(value ?? defaultValue);
+    return (resolved === undefined ? resolved : arabicToEnglishNumber(resolved)) as T;
 }
 
 export async function setVar(key: string, value: string) {
-    value = arabicToEnglishNumber(value);
+    value = arabicToEnglishNumber(typeof value === "string" ? value : settingValueToString(value) ?? "");
     const pre = await prisma.setting.findUnique({
         where: {
             key

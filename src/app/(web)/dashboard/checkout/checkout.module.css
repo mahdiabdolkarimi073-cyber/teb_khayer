@@ -113,6 +113,7 @@
 .itemMeta { margin-top: 6px; color: #9aabba; font-size: 9px; }
 .itemPrice { color: #17375e; font-size: 11px; font-weight: 800; text-align: left; white-space: nowrap; }
 .itemPrice small { display: block; margin-top: 5px; color: #9aabba; font-size: 9px; font-weight: 400; }
+.itemFreeBadge { display: inline-block; margin-top: 5px; background: #16a34a; color: #fff; font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
 
 .discount { margin: 2px 0 18px; border: 1px solid #b9ddfb; border-radius: 8px; background: #f4faff; padding: 11px; }
 .discountTitle { display: flex; align-items: center; gap: 6px; margin-bottom: 9px; color: #24547f; font-size: 11px; font-weight: 800; }

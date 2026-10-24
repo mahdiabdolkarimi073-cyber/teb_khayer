@@ -19,6 +19,7 @@ import {
   IconTruck,
 } from "@tabler/icons-react";
 import styles from "./cart.module.css";
+import { isFreeShipping, productShowsFreeBadge, remainingForFreeShipping } from "@/utils/freeShipping";
 
 const steps = [
   { title: "سبد خرید", detail: "بررسی محصولات", icon: IconShoppingCart },
@@ -34,6 +35,7 @@ const Page = () => {
   const { result: fees, isPending: feesPending } = useAction(getCartFees);
   const boxFee = fees?.boxFee;
   const postFee = fees?.postFee;
+  const freeShippingThreshold = fees?.freeShippingThreshold || 0;
   const cart = useCart();
   const items = Object.values(cart);
 
@@ -43,8 +45,11 @@ const Page = () => {
   const [discountApplying, setDiscountApplying] = useState(false);
 
   const productsTotal = items.reduce((sum, item) => sum + Number(item.product.price || 0) * item.quantity, 0);
-  const total = productsTotal + Number(boxFee || 0) + Number(postFee || 0);
+  const freeShipping = isFreeShipping(items, freeShippingThreshold);
+  const effectivePostFee = freeShipping ? 0 : Number(postFee || 0);
+  const total = productsTotal + Number(boxFee || 0) + effectivePostFee;
   const payableTotal = Math.max(0, total - discountAmount);
+  const remaining = remainingForFreeShipping(items, freeShippingThreshold);
 
   const productPayload = Object.fromEntries(items.map(({ product, quantity }) => [product.id, quantity]));
 
@@ -111,9 +116,19 @@ const Page = () => {
               <IconShoppingCart className={styles.titleIcon} size={22} />
               <div><h2 className={styles.title}>خلاصه سفارش</h2><p className={styles.subtitle}>جمع‌بندی هزینه‌ها و تخفیف‌ها</p></div>
             </div>
+            {freeShippingThreshold > 0 && (
+              <div className={freeShipping ? styles.freeShippingDone : styles.freeShippingProgress}>
+                <IconTruck size={18} />
+                {freeShipping ? (
+                  <span>تبریک! سفارش شما شامل ارسال رایگان شد.</span>
+                ) : (
+                  <span>فقط {remaining.toLocaleString("fa-IR")} تومان دیگر خرید کنید تا از ارسال رایگان بهره‌مند شوید.</span>
+                )}
+              </div>
+            )}
             <div className={styles.summaryRows}>
               <div className={styles.summaryRow}><span>جمع کل محصولات</span><strong>{formatPrice(productsTotal)}</strong></div>
-              <div className={styles.summaryRow}><span>هزینه ارسال</span><strong>{Number(postFee) ? formatPrice(Number(postFee)) : "پس‌کرایه"}</strong></div>
+              <div className={styles.summaryRow}><span>هزینه ارسال</span><strong>{freeShipping ? "رایگان" : Number(postFee) ? formatPrice(Number(postFee)) : "پس‌کرایه"}</strong></div>
               <div className={styles.summaryRow}><span>هزینه بسته‌بندی</span><strong>{formatPrice(Number(boxFee || 0))}</strong></div>
               {discountAmount > 0 && <div className={styles.summaryRow}><span>تخفیف</span><strong className={styles.discountValue}>- {formatPrice(discountAmount)}</strong></div>}
               <div className={styles.payable}><span>مبلغ قابل پرداخت</span><strong>{formatPrice(payableTotal)}</strong></div>
@@ -128,24 +143,30 @@ const Page = () => {
               <div><h1 className={styles.title}>سبد خرید من</h1><p className={styles.subtitle}>{items.length.toLocaleString("fa-IR")} کالا در سبد شما وجود دارد</p></div>
             </div>
             <div className={styles.items}>
-              {items.map(({ product, quantity }) => (
-                <div className={styles.item} key={product.id}>
-                  <img className={styles.image} src={product.images?.[0] || "/empty.png"} alt={product.name || "محصول"} />
-                  <div>
-                    <div className={styles.name}>{product.name}</div>
-                    <div className={styles.meta}>{product.description_text?.slice?.(0, 70) || ""}</div>
-                    <div className={styles.stock}><IconCircleCheck size={12} />موجود در انبار</div>
+              {items.map(({ product, quantity }) => {
+                const showFree = productShowsFreeBadge({ product, quantity }, items, freeShippingThreshold);
+                return (
+                  <div className={styles.item} key={product.id}>
+                    <div className={styles.imageWrap}>
+                      <img className={styles.image} src={product.images?.[0] || "/empty.png"} alt={product.name || "محصول"} />
+                      {showFree && <span className={styles.freeBadge}>ارسال رایگان</span>}
+                    </div>
+                    <div>
+                      <div className={styles.name}>{product.name}</div>
+                      <div className={styles.meta}>{product.description_text?.slice?.(0, 70) || ""}</div>
+                      <div className={styles.stock}><IconCircleCheck size={12} />موجود در انبار</div>
+                    </div>
+                    <div className={styles.unit}>قیمت واحد<strong>{formatPrice(Number(product.price || 0))}</strong></div>
+                    <div className={styles.quantity}>
+                      <button type="button" onClick={() => setLocalCart(product, Math.max(1, quantity - 1))}><IconMinus size={14} /></button>
+                      <span>{quantity.toLocaleString("fa-IR")}</span>
+                      <button type="button" onClick={() => setLocalCart(product, quantity + 1)}><IconPlus size={14} /></button>
+                    </div>
+                    <div className={styles.lineTotal}>قیمت کل<strong>{formatPrice(Number(product.price || 0) * quantity)}</strong></div>
+                    <button className={styles.remove} type="button" onClick={() => removeFromCart(product)} aria-label="حذف"><IconTrash size={15} /></button>
                   </div>
-                  <div className={styles.unit}>قیمت واحد<strong>{formatPrice(Number(product.price || 0))}</strong></div>
-                  <div className={styles.quantity}>
-                    <button type="button" onClick={() => setLocalCart(product, Math.max(1, quantity - 1))}><IconMinus size={14} /></button>
-                    <span>{quantity.toLocaleString("fa-IR")}</span>
-                    <button type="button" onClick={() => setLocalCart(product, quantity + 1)}><IconPlus size={14} /></button>
-                  </div>
-                  <div className={styles.lineTotal}>قیمت کل<strong>{formatPrice(Number(product.price || 0) * quantity)}</strong></div>
-                  <button className={styles.remove} type="button" onClick={() => removeFromCart(product)} aria-label="حذف"><IconTrash size={15} /></button>
-                </div>
-              ))}
+                );
+              })}
             </div>
             <div className={styles.discount}>
               <div className={styles.discountLabel}><IconTag size={16} />کد تخفیف دارید؟</div>

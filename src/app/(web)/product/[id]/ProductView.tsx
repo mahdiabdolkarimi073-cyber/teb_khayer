@@ -17,13 +17,13 @@ const ProductView = (props: {
   saleEnabled?: boolean
 }) => {
   const {product, saleEnabled = true} = props;
-  const {categoryId, images, name, price, originalPrice, discountPercent, isSpecial, isBestSeller, properties, stock} = product;
+  const {categoryId, images, name, price, originalPrice, discountPercent, isSpecial, isBestSeller, freeShipping, properties, stock, forceAvailable} = product;
   const cart = useCart();
   const router = useRouter();
   const productCart = cart[product.id];
   const [quantity, setQuantity] = useState(productCart?.quantity || 1);
   const [activeTab, setActiveTab] = useState(0);
-  const available = saleEnabled && stock > 0;
+  const available = (saleEnabled || forceAvailable) && stock > 0;
   const hasDiscount = Number(discountPercent || 0) > 0 && Boolean(originalPrice);
   const related = product.category?.products?.filter((item) => item.id !== product.id) || [];
   const parsedProperties = useMemo(() => properties?.split("\n").map((line) => {
@@ -56,6 +56,7 @@ const ProductView = (props: {
             <div className={classes.galleryBadges}>
               {isSpecial && <span className={classes.bSpecial}>محصول ویژه</span>}
               {isBestSeller && <span className={classes.bBest}>پرفروش</span>}
+              {freeShipping && <span className={classes.bFree}>ارسال رایگان</span>}
               {hasDiscount && <span className={classes.bDisc}>٪{Number(discountPercent).toLocaleString("fa")} تخفیف</span>}
             </div>
             <ProductImageGallery images={images || []} alt={name}/>

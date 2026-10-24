@@ -154,6 +154,10 @@ model Product {
   images           String[]
   categoryId       String
   stock            Int             @default(10)
+  /// @name اجبار به نمایش موجود (حتی وقتی فروش کل محصولات غیرفعال است)
+  forceAvailable   Boolean         @default(false)
+  /// @name ارسال رایگان اختصاصی این محصول
+  freeShipping     Boolean         @default(false)
   inOrders         OrderProduct[]
   category         ProductCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   likes            ProductLike[]

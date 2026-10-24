@@ -168,7 +168,19 @@ const NewProduct = (props: {
 				)}
 			</div>
 
-			<div className={'flex items-center gap-6 border rounded-xl p-3 bg-gray-50'}>
+			<div className={'flex flex-col gap-2 border rounded-xl p-3 bg-gray-50'}>
+				<Checkbox
+					label="اجبار به نمایش موجود (حتی وقتی فروش کل محصولات غیرفعال است)"
+					checked={!!data?.forceAvailable}
+					onChange={(e) => {
+						const checked = e.currentTarget.checked;
+						setData(pre => ({ ...pre, forceAvailable: checked } as Product));
+					}}
+				/>
+				<small className="text-gray-500">با فعال کردن این گزینه، این محصول حتی زمانی که فروش کل محصولات غیرفعال است، به‌عنوان «موجود در انبار» نمایش داده می‌شود و قابل خرید خواهد بود.</small>
+			</div>
+
+			<div className={'flex flex-wrap items-center gap-6 border rounded-xl p-3 bg-gray-50'}>
 				<Checkbox
 					label="محصول ویژه"
 					checked={!!data?.isSpecial}
@@ -185,6 +197,15 @@ const NewProduct = (props: {
 						setData(pre => ({ ...pre, isBestSeller: checked } as Product));
 					}}
 				/>
+				<Checkbox
+					label="ارسال رایگان اختصاصی"
+					checked={!!data?.freeShipping}
+					onChange={(e) => {
+						const checked = e.currentTarget.checked;
+						setData(pre => ({ ...pre, freeShipping: checked } as Product));
+					}}
+				/>
+				<small className="text-gray-500 basis-full">با فعال کردن این گزینه، برچسب «ارسال رایگان» روی این محصول نمایش داده می‌شود و هزینه ارسال آن صفر است، حتی اگر کل سبد خرید به حد نصاب نرسد.</small>
 			</div>
 
 			<Textarea

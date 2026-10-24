@@ -93,7 +93,7 @@ const SouvenirProductView = (props: { products: Product[]; count: number; search
         {pagination}
         {skip !== 0 && isLoading ? <Loading /> : <div className={styles.products}>
           {products.map((product) => {
-            const outOfStock = props.saleEnabled === false || !product.stock || product.stock <= 0;
+            const outOfStock = (props.saleEnabled === false && !product.forceAvailable) || !product.stock || product.stock <= 0;
             const hasDiscount = (product.discountPercent || 0) > 0;
             return (
               <article className={styles.productCard} key={product.id}>

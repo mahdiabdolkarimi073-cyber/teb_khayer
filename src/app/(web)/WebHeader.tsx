@@ -2,6 +2,7 @@
 import {
   ActionIcon,
   Anchor,
+  Badge,
   Box,
   Burger,
   Button,
@@ -15,6 +16,7 @@ import {
   ScrollArea,
   SimpleGrid,
   Text,
+  Tooltip,
   UnstyledButton,
   useMantineTheme,
 } from "@mantine/core";
@@ -29,12 +31,13 @@ import {
 } from "@tabler/icons-react";
 import classes from "./HeaderMegaMenu.module.css";
 import AppConfig from "@/config/AppConfig";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import CartList from "@/app/(web)/CartList";
 import { usePathname } from "next/navigation";
 import { Product, ProductCategory, User } from "@prisma/client";
 import { SettingKeyInfo } from "@/generated/SettingKey.enum";
+import { useCart } from "@/utils/localCart";
 
 export let _openCart = () => {};
 export let _closeCart = () => {};
@@ -60,6 +63,9 @@ export function WebHeader(parentProps: {
   const [cartOpened, { toggle: toggleCart, close: closeCart, open: openCart }] =
     useDisclosure();
   const theme = useMantineTheme();
+  const cart = useCart();
+  const cartCount = Object.values(cart).reduce((sum, item) => sum + (item.quantity || 0), 0);
+  const [addedToast, setAddedToast] = useState<string | null>(null);
 
   _openCart = openCart;
   _closeCart = closeCart;
@@ -68,6 +74,22 @@ export function WebHeader(parentProps: {
     closeCart();
     closeDrawer();
   }, [pathname]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onItemAdded = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      setAddedToast(detail?.name ? `«${detail.name}» به سبد اضافه شد` : "کالا اضافه شد");
+    };
+    window.addEventListener("cart-item-added", onItemAdded as EventListener);
+    return () => window.removeEventListener("cart-item-added", onItemAdded as EventListener);
+  }, []);
+
+  useEffect(() => {
+    if (!addedToast) return;
+    const t = setTimeout(() => setAddedToast(null), 2500);
+    return () => clearTimeout(t);
+  }, [addedToast]);
 
   const links = mockdata.map((item) => (
     <UnstyledButton className={classes.subLink} key={item.title}>
@@ -117,9 +139,51 @@ export function WebHeader(parentProps: {
         <p>{parentProps?.phone || SettingKeyInfo["MAIN_PHONE"]?.default}</p>
         <IconPhoneCall className={"text-primary"} />
       </Link>
-      <ActionIcon onClick={toggleCart} variant={"transparent"}>
-        <IconGardenCart />
-      </ActionIcon>
+      <div className={"flex flex-col items-center gap-0.5 relative"}>
+        <div className={"center gap-1 relative"}>
+          <Tooltip label={addedToast || "سبد خرید"} opened={addedToast ? true : undefined} position="bottom" withArrow>
+            <ActionIcon
+              onClick={toggleCart}
+              variant={"transparent"}
+              size={"lg"}
+              className={"relative"}
+            >
+              <IconGardenCart />
+              {cartCount > 0 && (
+                <Badge
+                  size="xs"
+                  circle
+                  color="red"
+                  variant="filled"
+                  style={{
+                    position: "absolute",
+                    top: -4,
+                    left: -4,
+                    minWidth: 18,
+                    height: 18,
+                    padding: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {cartCount.toLocaleString("fa-IR")}
+                </Badge>
+              )}
+            </ActionIcon>
+          </Tooltip>
+          {addedToast && (
+            <Text size="xs" c="green" fw={600} className={"whitespace-nowrap animate-pulse"}>
+              کالا اضافه شد
+            </Text>
+          )}
+        </div>
+        <Link href={"/category/all"} className={"block"}>
+          <Text size="xs" c="orange" fw={500} className={"whitespace-nowrap cursor-pointer hover:underline"}>
+            خریدت رو کاملتر کن تا رایگان ارسال بشه برات
+          </Text>
+        </Link>
+      </div>
       {!parentProps?.user ? (
         <>
           <Link href={"/auth"}>

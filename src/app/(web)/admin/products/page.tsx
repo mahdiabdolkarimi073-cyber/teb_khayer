@@ -4,7 +4,7 @@ import {useAction} from "@/utils/server";
 import {handlePrismaQuery} from "@/app/(web)/admin/action";
 import {Category, Prisma, Product} from "@prisma/client";
 import React, {useEffect, useMemo, useState, useTransition} from "react";
-import {IconCopy, IconDots, IconEdit, IconImageInPicture, IconPlus, IconReplace, IconTrash} from "@tabler/icons-react";
+import {IconCheck, IconCopy, IconDots, IconEdit, IconImageInPicture, IconPlus, IconReplace, IconTrash, IconTruckDelivery} from "@tabler/icons-react";
 import {closeLastModal, modal} from "@/utils/modal";
 import {uploadFile} from "@/utils/api";
 import ApiLoadingState from "@/components/api/ApiLoadingState";
@@ -274,6 +274,24 @@ const CategoryItem = (props: Category & { open: boolean, refetch: any, search?: 
 								</div>
 							</div>
 							<div className={'center gap-2 flex-wrap'}>
+								<ActionIcon color={item.freeShipping ? 'green' : 'gray'} title={item.freeShipping ? 'ارسال رایگان غیرفعال شد' : 'ارسال رایگان'} onClick={async () => {
+									await handlePrismaQuery('product', 'update', {
+										where: { id: item.id },
+										data: { freeShipping: !item.freeShipping }
+									});
+									refetch();
+								}}>
+									<IconTruckDelivery size={'1rem'}/>
+								</ActionIcon>
+								<ActionIcon color={item.forceAvailable ? 'green' : 'gray'} title={item.forceAvailable ? 'اجبار به موجود غیرفعال شد' : 'اجبار به موجود'} onClick={async () => {
+									await handlePrismaQuery('product', 'update', {
+										where: { id: item.id },
+										data: { forceAvailable: !item.forceAvailable }
+									});
+									refetch();
+								}}>
+									<IconCheck size={'1rem'}/>
+								</ActionIcon>
 								<ActionIcon color={'blue'} title={'کپی'} onClick={() => {
 									setCopy(item as any);
 									alert("کپی شد")

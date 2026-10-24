@@ -4,6 +4,8 @@ import {IconTrash} from "@tabler/icons-react";
 import {closeLastModal, modal} from "@/utils/modal";
 import {_closeCart, _openCart} from "@/app/(web)/WebHeader";
 import {useRouter} from "next/navigation";
+import {useEffect, useState} from "react";
+import {ActionIcon, Button, NumberInput} from "@mantine/core";
 
 const ProductCartHandler = (props: Product & {remove?: boolean, hideBtn?: boolean,second?: boolean}) => {
 	let {id, stock} = props;
@@ -65,8 +67,13 @@ const ProductCartHandler = (props: Product & {remove?: boolean, hideBtn?: boolea
 				<div className="flex flex-wrap items-center">
 					{!props.remove ? (
 						<Button disabled={stock <= 0} onClick={() => {
-							setLocalCart(props, quantity || 1,props.second);
-							router.push("/dashboard/cart");
+							const newQty = (quantity || 0) + 1;
+							setQuantity(newQty);
+							setLocalCart(props, newQty, props.second);
+							if (typeof window !== "undefined") {
+								window.dispatchEvent(new CustomEvent("cart-item-added", {detail: {name: props.name}}));
+							}
+							_openCart();
 						}}>
 							{props.stock <= 0 ? "ناموجود" : "افزودن به سبدخرید"}
 						</Button>
