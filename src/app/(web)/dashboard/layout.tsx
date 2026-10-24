@@ -27,7 +27,11 @@ const Layout = async (props: any)=>{
                 {
                     name: "لیست سفارشات من",
                     path: "/orders",
-                    icon: <IconListDetails />
+                    icon: <IconListDetails />,
+                    children: [
+                        {path: "/orders?status=current", name: "جاری"},
+                        {path: "/orders?status=delivered", name: "تحویل داده شده"}
+                    ]
                 },
                 {
                     name: "لیست علاقه مندی های من",

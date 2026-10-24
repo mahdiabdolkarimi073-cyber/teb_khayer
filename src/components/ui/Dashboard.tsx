@@ -1,6 +1,6 @@
 "use client";
 
-import {usePathname, useRouter} from "next/navigation";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import React, {Component, FunctionComponent, ReactNode, useEffect, useMemo, useState} from "react";
 import Link from "next/link";
 import ApiLoadingState from "@/components/api/ApiLoadingState";
@@ -15,6 +15,10 @@ export type DashboardType = {
         path: string,
         icon: any,
         name: string
+        children?: {
+            path: string,
+            name: string
+        }[]
     }[],
     children: ReactNode,
     title?: string,
@@ -30,6 +34,7 @@ const Dashboard = (props: DashboardType) => {
         showHeader = false
     } = props;
     const pathname = usePathname();
+    const searchParams = useSearchParams();
     const router = useRouter();
     const {width} = useViewportSize();
 
@@ -87,15 +92,26 @@ const Dashboard = (props: DashboardType) => {
                                     const isActive = active?.path === section.path;
                                     const Icon = RIcon(section.icon);
                                     return (
-                                        <Link href={`${basePath}${section.path}`}>
-                                            <Button key={section.path} fullWidth variant={isActive ? "solid" : 'flat'}
-                                                    color={'primary'}>
-                                                <div className={'center justify-start gap-2 w-full'}>
-                                                    {Icon}
-                                                    {section.name}
+                                        <React.Fragment key={section.path}>
+                                            <Link href={`${basePath}${section.path}`}>
+                                                <Button fullWidth variant={isActive ? "solid" : 'flat'} color={'primary'}>
+                                                    <div className={'center justify-start gap-2 w-full'}>
+                                                        {Icon}
+                                                        {section.name}
+                                                    </div>
+                                                </Button>
+                                            </Link>
+                                            {isActive && section.children && (
+                                                <div className={'flex flex-col gap-1 pr-6'}>
+                                                    {section.children.map(child => {
+                                                        const childHref = `${basePath}${child.path}`;
+                                                        const childUrl = new URL(childHref, 'http://dashboard.local');
+                                                        const childActive = pathname === childUrl.pathname && searchParams.toString() === childUrl.searchParams.toString();
+                                                        return <Link key={child.path} href={childHref} className={'text-sm rounded px-3 py-2 hover:bg-gray-100 ' + (childActive ? 'bg-gray-100 font-bold' : '')}>{child.name}</Link>;
+                                                    })}
                                                 </div>
-                                            </Button>
-                                        </Link>
+                                            )}
+                                        </React.Fragment>
                                     )
                                 })}
                             </div>
