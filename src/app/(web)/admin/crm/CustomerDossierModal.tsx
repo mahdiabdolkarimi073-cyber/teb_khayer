@@ -114,6 +114,13 @@ export default function CustomerDossierModal({ userId, onClose }: CustomerDossie
                       {data.user.email && (
                         <p className="text-xs text-gray-600 mt-1">ایمیل: {data.user.email}</p>
                       )}
+                      {data.lastLogin && (
+                        <p className="text-[11px] text-blue-700 bg-blue-50/80 px-2 py-1 rounded border border-blue-100 mt-2">
+                          <strong>آخرین ورود موفق: </strong>
+                          <span>{toPersianDateTime(data.lastLogin.created_at)}</span>
+                          <span className="text-gray-500 mr-2">({data.lastLogin.userAgent?.includes("Mobile") ? "موبایل" : "رایانه"})</span>
+                        </p>
+                      )}
                     </div>
 
                     <div className="flex flex-col items-end gap-1">
@@ -254,6 +261,23 @@ export default function CustomerDossierModal({ userId, onClose }: CustomerDossie
                           </div>
                         </div>
 
+                        {/* Postal Tracking in Dossier */}
+                        {ord.trackingCode && (
+                          <div className="bg-blue-50/80 px-2.5 py-1.5 rounded-lg border border-blue-200 flex items-center justify-between text-[11px]">
+                            <span className="text-gray-700">
+                              کد رهگیری پستی: <strong className="font-mono text-blue-900">{ord.trackingCode}</strong>
+                            </span>
+                            <a
+                              href={`https://tracking.post.ir/?id=${ord.trackingCode}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-blue-700 hover:underline font-bold"
+                            >
+                              سامانه رهگیری پست ↗
+                            </a>
+                          </div>
+                        )}
+
                         {/* Items preview */}
                         {ord.products?.length > 0 && (
                           <div className="flex flex-wrap gap-2 pt-1">
@@ -266,6 +290,39 @@ export default function CustomerDossierModal({ userId, onClose }: CustomerDossie
                                 <span className="text-blue-600 font-bold">({formatPersianNumber(p.count)}×)</span>
                               </span>
                             ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Support Inquiries & Tickets Section */}
+              <div>
+                <h4 className="font-bold text-gray-800 text-xs sm:text-sm flex items-center gap-1.5 mb-2.5">
+                  <IconFileText size={16} className="text-blue-600" />
+                  <span>تیکت‌ها، شکایات و سؤالات مشتری ({formatPersianNumber(data.tickets?.length || 0)})</span>
+                </h4>
+                {!data.tickets || data.tickets.length === 0 ? (
+                  <p className="text-xs text-gray-400 bg-gray-50 p-3 rounded-lg border border-dashed border-gray-200">
+                    این کاربر تاکنون تیکت یا شکایتی ثبت نکرده است.
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {data.tickets.map((t: any) => (
+                      <div key={t.id} className="p-3 bg-gray-50 rounded-xl border border-gray-200 text-xs space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-gray-900">{t.subject}</span>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800">
+                            {t.status === "ANSWERED" ? "پاسخ داده شده" : t.status === "PENDING" ? "در انتظار بررسی" : t.status}
+                          </span>
+                        </div>
+                        <p className="text-gray-700">{t.message}</p>
+                        {t.adminReply && (
+                          <div className="p-2 bg-emerald-50 rounded border border-emerald-100 text-emerald-900 text-[11px] mt-1">
+                            <strong>پاسخ ثبت‌شده ادمین: </strong>
+                            <span>{t.adminReply}</span>
                           </div>
                         )}
                       </div>

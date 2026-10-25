@@ -338,6 +338,31 @@ export async function getCustomerDossier(userId: string) {
     }
   }
 
+  // Fetch support tickets and last login for the customer
+  let tickets: any[] = [];
+  let lastLogin: any = null;
+  try {
+    const { getLastSuccessfulLogin } = await import("@/backend/modules/crm/loginTracker");
+    lastLogin = await getLastSuccessfulLogin(userId);
+    const ticketRows = await prisma.$queryRawUnsafe<any[]>(
+      `SELECT * FROM "SupportTicket" WHERE "userId" = $1 ORDER BY "created_at" DESC`,
+      userId
+    );
+    tickets = (ticketRows || []).map((t) => ({
+      id: t.id,
+      ticketNumber: t.ticketNumber,
+      subject: t.subject,
+      type: t.type,
+      status: t.status,
+      priority: t.priority,
+      message: t.message,
+      adminReply: t.adminReply,
+      created_at: t.created_at ? new Date(t.created_at).toISOString() : new Date().toISOString(),
+    }));
+  } catch (e) {
+    console.warn("Could not fetch tickets/login in dossier:", e);
+  }
+
   return {
     user: {
       id: user.id,
@@ -351,6 +376,8 @@ export async function getCustomerDossier(userId: string) {
       date: user.date.toISOString(),
       role: user.role,
     },
+    lastLogin,
+    tickets,
     addresses: user.addresses.map((a) => ({
       id: a.id,
       title: a.title,
@@ -369,28 +396,37 @@ export async function getCustomerDossier(userId: string) {
       price: c.course?.price || 0,
       enrolledAt: c.created_at.toISOString(),
     })),
-    orders: user.orders.map((o) => ({
-      id: o.id,
-      status: o.status,
-      created_at: o.created_at.toISOString(),
-      info: o.info,
-      payment: o.payment
-        ? {
-            id: o.payment.id,
-            amount: o.payment.amount,
-            receipt: o.payment.receipt,
-            type: o.payment.type,
-          }
-        : null,
-      products: o.products.map((p) => ({
-        id: p.id,
-        productId: p.productId,
-        count: p.count,
-        productName: p.product?.name || "محصول",
-        price: p.product?.price || 0,
-        image: Array.isArray(p.product?.images) && p.product.images.length > 0 ? p.product.images[0] : "/empty.png",
-      })),
-    })),
+    orders: user.orders.map((o) => {
+      let rawInfo: any = {};
+      try {
+        rawInfo = typeof o.info === "string" ? JSON.parse(o.info as string) : (o.info || {});
+      } catch {
+        rawInfo = {};
+      }
+      return {
+        id: o.id,
+        status: o.status,
+        created_at: o.created_at.toISOString(),
+        info: rawInfo,
+        trackingCode: rawInfo?.trackingCode || rawInfo?.postalCode || null,
+        payment: o.payment
+          ? {
+              id: o.payment.id,
+              amount: o.payment.amount,
+              receipt: o.payment.receipt,
+              type: o.payment.type,
+            }
+          : null,
+        products: o.products.map((p) => ({
+          id: p.id,
+          productId: p.productId,
+          count: p.count,
+          productName: p.product?.name || "محصول",
+          price: p.product?.price || 0,
+          image: Array.isArray(p.product?.images) && p.product.images.length > 0 ? p.product.images[0] : "/empty.png",
+        })),
+      };
+    }),
     metrics: {
       totalOrders: user.orders.length,
       successfulOrders,

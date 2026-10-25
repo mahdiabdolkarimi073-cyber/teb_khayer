@@ -186,6 +186,12 @@ export default function OrderInvoiceModal({ order, onClose }: OrderInvoiceModalP
                     <span className="font-mono text-gray-800 text-[11px]">{order.payment.receipt}</span>
                   </div>
                 )}
+                {(rawInfo?.trackingCode || rawInfo?.postalCode) && (
+                  <div className="flex justify-between gap-2">
+                    <span className="text-gray-500">کد رهگیری پستی:</span>
+                    <span className="font-mono text-blue-800 font-bold text-[11px]">{rawInfo.trackingCode || rawInfo.postalCode}</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -10,7 +10,8 @@ import {
     IconLogout,
     IconMapPin,
     IconSettings,
-    IconShoppingCart
+    IconShoppingCart,
+    IconHeadphones
 } from "@tabler/icons-react";
 
 const Layout = async (props: any)=>{
@@ -62,7 +63,12 @@ const Layout = async (props: any)=>{
                     icon: <IconMapPin />
                 },
                 {
-                    name: "تنظیمات",
+                    name: "پشتیبانی و درخواست‌های من",
+                    path: "/support",
+                    icon: <IconHeadphones />
+                },
+                {
+                    name: "تنظیمات و حساب من",
                     path: "/settings",
                     icon: <IconSettings />
                 },

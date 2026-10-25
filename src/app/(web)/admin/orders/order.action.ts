@@ -59,3 +59,30 @@ export async function getOrdersCount(status: OrderStatus | undefined, phone: num
 		},
 	}):{});
 }
+
+export async function updateOrderTrackingCode(orderId: number, trackingCode: string, shippingCompany = "پست پیشتاز") {
+	const order = await prisma.order.findUnique({ where: { id: orderId } });
+	if (!order) return { success: false, message: "سفارش یافت نشد" };
+
+	let info: any = {};
+	try {
+		info = typeof order.info === "string" ? JSON.parse(order.info as string) : (order.info || {});
+	} catch {
+		info = {};
+	}
+
+	info.trackingCode = trackingCode.trim();
+	info.shippingCompany = shippingCompany.trim();
+	info.shippedAt = new Date().toISOString();
+
+	await prisma.order.update({
+		where: { id: orderId },
+		data: {
+			info,
+			status: OrderStatus.SENDED
+		}
+	});
+
+	return { success: true, message: "کد رهگیری با موفقیت ثبت و وضعیت سفارش به «ارسال شده» تغییر یافت." };
+}
+

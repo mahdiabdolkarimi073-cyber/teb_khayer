@@ -12,8 +12,11 @@ import {
     IconCamera,
     IconCheck,
     IconLoader2,
+    IconShieldCheck,
+    IconDeviceDesktop,
 } from "@tabler/icons-react";
 import {useAction} from "@/utils/server";
+import {toPersianDateTime} from "@/utils/format";
 import {
     getProfile,
     updateProfile,
@@ -39,7 +42,13 @@ const GENDER_OPTIONS = [
     {value: "female", label: "خانم"},
 ];
 
-const SettingsView = ({initialProfile}: {initialProfile: UserProfile}) => {
+const SettingsView = ({
+    initialProfile,
+    lastLogin,
+}: {
+    initialProfile: UserProfile;
+    lastLogin?: { created_at: string; ip: string; userAgent: string } | null;
+}) => {
     const {result: profile, refetch} = useAction(getProfile);
     const [form, setForm] = useState<ProfileData>({
         name: initialProfile?.name || "",
@@ -251,6 +260,41 @@ const SettingsView = ({initialProfile}: {initialProfile: UserProfile}) => {
                         </button>
                     </div>
                 </form>
+            </div>
+
+            {/* Last Successful Login & Security Section */}
+            <div className={styles.card} style={{ marginTop: "20px" }}>
+                <div className={styles.sectionTitle}>
+                    <IconShieldCheck size={18} />
+                    امنیت حساب و آخرین ورودهای موفق
+                </div>
+                <div style={{
+                    background: "#f8fafc",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "12px",
+                    padding: "16px",
+                    fontSize: "13px",
+                    lineHeight: "1.8",
+                    color: "#334155"
+                }}>
+                    {lastLogin ? (
+                        <div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: "bold", color: "#0f172a" }}>
+                                <IconDeviceDesktop size={18} color="#2563eb" />
+                                <span>آخرین ورود موفق شما به سامانه:</span>
+                                <span style={{ color: "#2563eb" }}>{toPersianDateTime(lastLogin.created_at)}</span>
+                            </div>
+                            <div style={{ marginTop: "6px", color: "#64748b", fontSize: "12px" }}>
+                                دستگاه / مرورگر: {lastLogin.userAgent?.includes("Mobile") ? "تلفن همراه" : "رایانه یا تبلت"} (آدرس اتصال امن)
+                            </div>
+                        </div>
+                    ) : (
+                        <p>نشست فعلی شما به صورت امن برقرار گردیده و آخرین اطلاعات اتصال ثبت شده است.</p>
+                    )}
+                    <p style={{ marginTop: "8px", fontSize: "11px", color: "#94a3b8" }}>
+                        نکته امنیتی: در صورتی که ورود غیرمعمولی مشاهده نمودید، سریعاً رمز عبور خود را تغییر داده یا با پشتیبانی تماس حاصل فرمایید.
+                    </p>
+                </div>
             </div>
         </div>
     );

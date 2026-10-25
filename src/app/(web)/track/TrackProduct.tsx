@@ -110,6 +110,70 @@ const TrackProduct = (props: any) => {
             مبلغ سفارش: {Number(order.payment?.amount || 0).toLocaleString("fa")} تومان
           </p>
 
+          {(() => {
+            let rawInfo: any = {};
+            try {
+              rawInfo = typeof order.info === "string" ? JSON.parse(order.info) : (order.info || {});
+            } catch {
+              rawInfo = {};
+            }
+            const trackingCode = rawInfo?.trackingCode || rawInfo?.postalCode || rawInfo?.trackingBarcode;
+            if (trackingCode) {
+              return (
+                <div style={{
+                  background: "#f0f7ff",
+                  border: "1px solid #bfdbfe",
+                  borderRadius: "8px",
+                  padding: "10px 14px",
+                  margin: "12px 0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
+                  gap: "8px",
+                  fontSize: "13px"
+                }}>
+                  <div>
+                    <span style={{ color: "#4b5563" }}>کد رهگیری مرسوله پستی: </span>
+                    <strong style={{ fontFamily: "monospace", color: "#1e40af", fontSize: "14px" }}>{trackingCode}</strong>
+                  </div>
+                  <a
+                    href={`https://tracking.post.ir/?id=${trackingCode}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      background: "#2563eb",
+                      color: "#fff",
+                      padding: "4px 10px",
+                      borderRadius: "6px",
+                      textDecoration: "none",
+                      fontSize: "12px",
+                      fontWeight: 700
+                    }}
+                  >
+                    پیگیری در سامانه شرکت ملی پست ↗
+                  </a>
+                </div>
+              );
+            }
+            if (order.status === "SENDED" || order.status === "DELAY") {
+              return (
+                <div style={{
+                  background: "#fefce8",
+                  border: "1px solid #fef08a",
+                  color: "#854d0e",
+                  borderRadius: "8px",
+                  padding: "8px 12px",
+                  margin: "10px 0",
+                  fontSize: "12px"
+                }}>
+                  سفارش تحویل پست گردیده و به زودی کد ۲۴ رقمی رهگیری پیامک خواهد شد.
+                </div>
+              );
+            }
+            return null;
+          })()}
+
           <div className={styles.resultProducts}>
             {order.products?.map((p: any, idx: number) => (
               <Link

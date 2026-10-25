@@ -78,3 +78,10 @@ export async function uploadAvatar(file: File) {
 
     return {success: true, avatar: updated.avatar};
 }
+
+export async function getLastLogin() {
+    const user = await getUserFromCookie();
+    if (!user) return null;
+    const { getLastSuccessfulLogin } = await import("@/backend/modules/crm/loginTracker");
+    return getLastSuccessfulLogin(user.id);
+}
