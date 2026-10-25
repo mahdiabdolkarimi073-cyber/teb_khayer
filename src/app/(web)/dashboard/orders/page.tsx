@@ -61,6 +61,7 @@ const Page = async (props: PageProps) => {
 			},
 			include: {
 				payment: true,
+				user: true,
 				products: {
 					include: {
 						product: true

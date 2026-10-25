@@ -14,6 +14,7 @@ const sections = [
   {name: "دانشجویان", path: "/students", icon: "♙"},
   {name: "محصولات", path: "/products", icon: "▦"},
   {name: "سفارشات", path: "/orders", icon: "☷"},
+  {name: "مدیریت مشتریان و CRM", path: "/crm", icon: "👥"},
   {name: "کاربران", path: "/users", icon: "♙"},
   {name: "پشتیبان‌گیری", path: "/backup", icon: "◉"},
 ];

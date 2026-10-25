@@ -2,7 +2,7 @@
 
 import {Badge, ScrollArea, Table} from "@mantine/core";
 import {Order, OrderProduct, Payment, Product} from "@prisma/client";
-import React from "react";
+import React, {useState} from "react";
 import OrderStatusEnum from "@/generated/OrderStatus.enum";
 import Link from "next/link";
 import {
@@ -12,13 +12,16 @@ import {
 	IconListDetails,
 	IconPackageOff,
 	IconTruckDelivery,
-	IconAlertTriangle
+	IconAlertTriangle,
+	IconFileText
 } from "@tabler/icons-react";
 import {formatPersianCurrency, formatPersianNumber, toPersianDateTime} from "@/utils/format";
+import OrderInvoiceModal from "@/app/(web)/dashboard/orders/OrderInvoiceModal";
 
 type OrderItem = Order & {
 	products?: (OrderProduct & {product?: Product | null})[];
 	payment?: Payment | null;
+	user?: any;
 };
 
 interface OrderViewProps {
@@ -32,6 +35,7 @@ interface OrderViewProps {
 }
 
 const OrderView = ({orders = [], activeFilter = "all", counts}: OrderViewProps) => {
+	const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState<any | null>(null);
 	const orderList = Array.isArray(orders) ? orders : [];
 
 	const getStatusBadge = (status: string) => {
@@ -168,6 +172,7 @@ const OrderView = ({orders = [], activeFilter = "all", counts}: OrderViewProps) 
 								<Table.Th className="text-right">تاریخ ثبت</Table.Th>
 								<Table.Th className="text-right">وضعیت</Table.Th>
 								<Table.Th className="text-right">محصولات</Table.Th>
+								<Table.Th className="text-right">فاکتور</Table.Th>
 								<Table.Th className="text-right">پیگیری</Table.Th>
 							</Table.Tr>
 						</Table.Thead>
@@ -243,6 +248,20 @@ const OrderView = ({orders = [], activeFilter = "all", counts}: OrderViewProps) 
 											)}
 										</Table.Td>
 										<Table.Td>
+											<button
+												type="button"
+												onClick={() => setSelectedInvoiceOrder(order)}
+												className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-md transition ${
+													order?.status === "PENDING"
+														? "text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200"
+														: "text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200"
+												}`}
+											>
+												<IconFileText size={14} />
+												<span>{order?.status === "PENDING" ? "پیش‌فاکتور" : "فاکتور خرید"}</span>
+											</button>
+										</Table.Td>
+										<Table.Td>
 											{order?.id != null ? (
 												<Link
 													href={`/track?orderId=${order.id}`}
@@ -261,6 +280,13 @@ const OrderView = ({orders = [], activeFilter = "all", counts}: OrderViewProps) 
 						</Table.Tbody>
 					</Table>
 				</ScrollArea>
+			)}
+
+			{selectedInvoiceOrder && (
+				<OrderInvoiceModal
+					order={selectedInvoiceOrder}
+					onClose={() => setSelectedInvoiceOrder(null)}
+				/>
 			)}
 		</div>
 	);
