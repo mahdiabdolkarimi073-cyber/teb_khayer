@@ -57,6 +57,104 @@
 .appSection { max-width: 1400px; margin: 0 auto 40px; padding: 38px 7%; border-radius: 14px; -webkit-border-radius: 14px; -moz-border-radius: 14px; background: #eef7ff; display: flex; align-items: center; gap: 70px; min-height: 360px; }
 .appImageWrap { flex: 1; width: 100%; max-width: 520px; height: 320px; overflow: hidden; border-radius: 28px; -webkit-border-radius: 28px; -moz-border-radius: 28px; background: #d6e8fa; }.appImageWrap img { display: block; width: 100%; height: 100%; object-fit: cover; -webkit-object-fit: cover; }.appCopy { flex: 1; }.appCopy h2 { font-size: 34px; margin: 0 0 10px; color: #092b54; }.appCopy p { color: #526e88; line-height: 2; max-width: 560px; margin-bottom: 18px; }.appStats { display: flex; gap: 25px; margin-top: 25px; flex-wrap: wrap; }.appStats span { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #123d68; }
 
+/* Enhanced App Download Button with Elegant Glow & Shimmer Animation */
+.appDownloadButton {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1067cb 0%, #197fe8 50%, #1067cb 100%) !important;
+  background-size: 200% auto;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 0 0 0 rgba(18, 110, 216, 0.45), 0 10px 24px rgba(18, 110, 216, 0.3) !important;
+  animation: appButtonPulse 2.8s ease-in-out infinite, appButtonShimmer 6s ease-in-out infinite;
+  will-change: box-shadow, transform, filter;
+  cursor: pointer;
+}
+
+.appDownloadButton::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 45%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 100%
+  );
+  transform: rotate(25deg);
+  animation: appButtonSheen 3.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.downloadIcon {
+  animation: appIconBob 2.8s ease-in-out infinite;
+  margin-left: 6px;
+  color: #fff;
+}
+
+@keyframes appButtonPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(18, 110, 216, 0.5), 0 10px 24px rgba(18, 110, 216, 0.3);
+    filter: brightness(1);
+  }
+  50% {
+    box-shadow: 0 0 0 9px rgba(18, 110, 216, 0), 0 14px 30px rgba(18, 110, 216, 0.52);
+    filter: brightness(1.1);
+  }
+}
+
+@keyframes appButtonShimmer {
+  0% {
+    background-position: 0% center;
+  }
+  50% {
+    background-position: 100% center;
+  }
+  100% {
+    background-position: 0% center;
+  }
+}
+
+@keyframes appButtonSheen {
+  0%, 35% {
+    left: -60%;
+  }
+  65%, 100% {
+    left: 140%;
+  }
+}
+
+@keyframes appIconBob {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+.appDownloadButton:hover {
+  background: #0d5dbb !important;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 0 0 4px rgba(18, 110, 216, 0.25), 0 16px 32px rgba(18, 110, 216, 0.42) !important;
+  filter: brightness(1.12);
+}
+
+.appDownloadButton:active {
+  transform: translateY(0) scale(0.99);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .appDownloadButton,
+  .appDownloadButton::after,
+  .downloadIcon {
+    animation: none !important;
+    filter: none !important;
+  }
+}
+
 .productSection { max-width: 1270px; margin: 0 auto 46px; padding: 0 20px; position: relative; z-index: 30; }.sectionHeading { text-align: center; }.sectionHeading > span { color: #2b75bb; font-size: 14px; font-weight: 700; }.sectionHeading h2 { margin: 4px 0; font-size: 30px; color: #092b54; }.sectionHeading p { color: #7990a5; margin: 0 0 22px; font-size: 13px; }.categoryTabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 50px; }
 .categoryTab { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 22px 16px; border-radius: 13px; -webkit-border-radius: 13px; -moz-border-radius: 13px; text-decoration: none; font-size: 13px; transition: transform .2s, box-shadow .2s; -webkit-transition: transform .2s, box-shadow .2s; -moz-transition: transform .2s, box-shadow .2s; -o-transition: transform .2s, box-shadow .2s; }
 .categoryTab:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(26,66,112,.1); }

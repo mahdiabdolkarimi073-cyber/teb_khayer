@@ -21,6 +21,7 @@ import {
   IconTruckDelivery,
   IconUserCircle,
   IconX,
+  IconDownload,
 } from "@tabler/icons-react";
 import AppDownloadModal from "@/app/(web)/AppDownloadModal";
 import styles from "./home.module.css";
@@ -266,7 +267,13 @@ function AppSection({onDownload}: {onDownload: () => void}) {
         <span className={styles.eyebrow}>همراه همیشگی سلامتی شما</span>
         <h2>اپلیکیشن طِب خیّر</h2>
         <p>با دریافت اپلیکیشن طِب خیّر، می‌توانید با استفاده از گوشی همراه به راحتی در هر مکان و هر زمان از امکانات مجموعه آموزشی و فروشگاه گیاهان دارویی بهره‌مند شوید.</p>
-        <Button className={styles.primaryButton} rightSection={<IconArrowLeft size={18} />} aria-label="دانلود اپلیکیشن طِب خیّر" onClick={onDownload}>
+        <Button
+          className={`${styles.primaryButton} ${styles.appDownloadButton}`}
+          leftSection={<IconDownload size={19} className={styles.downloadIcon} />}
+          rightSection={<IconArrowLeft size={18} />}
+          aria-label="دانلود اپلیکیشن طِب خیّر"
+          onClick={onDownload}
+        >
           دانلود اپلیکیشن طِب خیّر
         </Button>
         <div className={styles.appStats}>

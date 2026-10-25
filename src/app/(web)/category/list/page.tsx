@@ -34,40 +34,82 @@ const Page = async (props: PageProps) => {
       : "";
   const initialView: ViewMode =
     resolvedSearchParams.view === "list" ? "list" : "grid";
+  const initialCategory =
+    typeof resolvedSearchParams.category === "string"
+      ? resolvedSearchParams.category
+      : undefined;
+  const initialSub =
+    typeof resolvedSearchParams.sub === "string"
+      ? resolvedSearchParams.sub
+      : undefined;
 
   const rawCategories = await prisma.productCategory.findMany({
     include: {
       products: true,
+      children: {
+        include: {
+          products: true,
+        },
+      },
+      parent: true,
     },
     orderBy: {
       created_at: "asc",
     },
   });
 
-  const categories = rawCategories.filter((c) => c.products?.length > 0);
+  const categories = rawCategories.filter(
+    (c) => c.products?.length > 0 || (c.children && c.children.length > 0)
+  );
 
-  // Serialize Date objects safely across client component boundary
+  const serializeProduct = (p: any) => ({
+    id: String(p.id),
+    name: String(p.name || ""),
+    description: String(p.description || ""),
+    description_text: String(p.description_text || ""),
+    properties: String(p.properties || ""),
+    price: Number(p.price) || 0,
+    originalPrice: p.originalPrice ? Number(p.originalPrice) : null,
+    discountPercent: Number(p.discountPercent) || 0,
+    isBestSeller: Boolean(p.isBestSeller),
+    isSpecial: Boolean(p.isSpecial),
+    freeShipping: Boolean(p.freeShipping),
+    stock: typeof p.stock === "number" ? p.stock : 10,
+    forceAvailable: Boolean(p.forceAvailable),
+    images: Array.isArray(p.images) ? p.images : [],
+    categoryId: String(p.categoryId || ""),
+    created_at:
+      p.created_at instanceof Date
+        ? p.created_at.toISOString()
+        : String(p.created_at || ""),
+    updated_at:
+      p.updated_at instanceof Date
+        ? p.updated_at.toISOString()
+        : String(p.updated_at || ""),
+  });
+
+  // Serialize Date objects and nested hierarchies safely across client component boundary
   const serializedCategories = categories.map((c) => ({
-    id: c.id,
-    name: c.name,
-    thumbnail: c.thumbnail,
+    id: String(c.id),
+    name: String(c.name),
+    thumbnail: c.thumbnail || null,
     created_at:
       c.created_at instanceof Date
         ? c.created_at.toISOString()
         : String(c.created_at || ""),
-    parentId: c.parentId,
-    products: (c.products || []).map((p) => ({
-      id: p.id,
-      name: p.name,
-      price: Number(p.price) || 0,
-      originalPrice: p.originalPrice ? Number(p.originalPrice) : null,
-      discountPercent: Number(p.discountPercent) || 0,
-      isBestSeller: Boolean(p.isBestSeller),
-      isSpecial: Boolean(p.isSpecial),
+    parentId: c.parentId ? String(c.parentId) : null,
+    parent: c.parent ? { id: String(c.parent.id), name: String(c.parent.name) } : null,
+    products: (c.products || []).map(serializeProduct),
+    children: (c.children || []).map((ch: any) => ({
+      id: String(ch.id),
+      name: String(ch.name),
+      thumbnail: ch.thumbnail || null,
+      parentId: ch.parentId ? String(ch.parentId) : String(c.id),
       created_at:
-        p.created_at instanceof Date
-          ? p.created_at.toISOString()
-          : String(p.created_at || ""),
+        ch.created_at instanceof Date
+          ? ch.created_at.toISOString()
+          : String(ch.created_at || ""),
+      products: (ch.products || []).map(serializeProduct),
     })),
   }));
 
@@ -118,6 +160,8 @@ const Page = async (props: PageProps) => {
           initialSort={initialSort}
           initialView={initialView}
           initialSearch={initialSearch}
+          initialCategory={initialCategory}
+          initialSub={initialSub}
         />
       </div>
     </div>
