@@ -123,12 +123,27 @@ export async function createOrderPortal(
 			if (!(await prisma.order.findUnique({where: {id: orderId}}))) break;
 		} while (true);
 
+		const orderInfo = {
+			...fields,
+			shippingFee: effectivePostFee,
+			originalShippingFee: postFee,
+			boxFee,
+			isFreeShipping: qualifiesFreeShipping,
+			freeShippingReason: hasFreeShippingProduct
+				? "حاوی محصول با ارسال رایگان"
+				: qualifiesFreeShipping
+				? "مبلغ سفارش بالاتر از سقف ارسال رایگان"
+				: null,
+			productsTotal,
+			discountAmount: discount.amount,
+		};
+
 		await prisma.paymentAction.create({
 			data: {
 				type: "CREATE_MODEL",
 				targetModel: "order",
 				paymentId: payment.id,
-				data: {id: orderId, paymentId: payment.id, userId: user.id, status: "PENDING", info: fields} as OrderCreateArgs['data']
+				data: {id: orderId, paymentId: payment.id, userId: user.id, status: "PENDING", info: orderInfo} as OrderCreateArgs['data']
 			}
 		});
 

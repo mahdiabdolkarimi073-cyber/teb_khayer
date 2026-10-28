@@ -120,7 +120,7 @@ const Page = () => {
               <div className={freeShipping ? styles.freeShippingDone : styles.freeShippingProgress}>
                 <IconTruck size={18} />
                 {freeShipping ? (
-                  <span>تبریک! سفارش شما شامل ارسال رایگان شد.</span>
+                  <span>تبریک! سفارش شما شامل ارسال رایگان شد 🎁</span>
                 ) : (
                   <span>فقط {remaining.toLocaleString("fa-IR")} تومان دیگر خرید کنید تا از ارسال رایگان بهره‌مند شوید.</span>
                 )}

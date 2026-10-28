@@ -218,7 +218,7 @@ const OrderView = ({orders = [], activeFilter = "all", counts}: OrderViewProps) 
 					<Table miw={820} striped highlightOnHover verticalSpacing="sm">
 						<Table.Thead className="bg-gray-50">
 							<Table.Tr>
-								<Table.Th className="text-right">شناسه</Table.Th>
+								<Table.Th className="text-right">شماره سفارش (ID)</Table.Th>
 								<Table.Th className="text-right">مبلغ پرداختی</Table.Th>
 								<Table.Th className="text-right">تاریخ ثبت</Table.Th>
 								<Table.Th className="text-right">وضعیت سفارش</Table.Th>
@@ -245,8 +245,25 @@ const OrderView = ({orders = [], activeFilter = "all", counts}: OrderViewProps) 
 
 								return (
 									<Table.Tr key={order?.id != null ? order.id : Math.random()}>
-										<Table.Td className="font-bold text-gray-800">
-											#{formatPersianNumber(Number(order?.id || 0))}
+										<Table.Td className="font-bold text-gray-900">
+											<div className="flex items-center gap-1.5 font-mono">
+												<span className="text-sm">#{formatPersianNumber(Number(order?.id || 0))}</span>
+												<button
+													type="button"
+													onClick={() => copyToClipboard(String(order?.id || ""))}
+													className="text-gray-400 hover:text-blue-600 p-1 rounded hover:bg-gray-100 transition inline-flex items-center"
+													title="کپی شماره سفارش"
+												>
+													{copiedTracking === String(order?.id) ? (
+														<span className="text-emerald-600 flex items-center gap-0.5 text-[10px] font-sans font-bold">
+															<IconCheck size={13} />
+															<span>کپی شد</span>
+														</span>
+													) : (
+														<IconCopy size={14} />
+													)}
+												</button>
+											</div>
 										</Table.Td>
 
 										<Table.Td className="font-semibold text-blue-600">

@@ -42,7 +42,16 @@ export function ProductCard(props: { product: Product & { category?: ProductCate
 			<div className={'absolute right-0 top-0 p-2 z-10 flex flex-col gap-1 items-end'}>
 				{isSpecial && <Badge color={'blue'} size={'md'} variant={'filled'}>ویژه</Badge>}
 				{isBestSeller && <Badge color={'orange'} size={'md'} variant={'filled'}>پرفروش</Badge>}
-				{showFreeShipping && <Badge color={'green'} size={'md'} variant={'filled'}>ارسال رایگان</Badge>}
+				{showFreeShipping && (
+					<Badge
+						size={'md'}
+						variant={'filled'}
+						style={{ backgroundColor: '#059669', color: '#ffffff' }}
+						className="shadow-xs font-bold"
+					>
+						ارسال رایگان
+					</Badge>
+				)}
 				{hasDiscount && <Badge color={'red'} size={'md'} variant={'filled'}>٪{Number(discountPercent).toLocaleString('fa')} تخفیف</Badge>}
 			</div>
 			{outOfStock && (

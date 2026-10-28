@@ -1,7 +1,12 @@
 import React from "react";
 import { getUserFromCookie } from "@/utils/serverComponents/user";
 import { redirect } from "next/navigation";
-import { getUserSupportTickets, getUserOrdersForTicket } from "./support.action";
+import {
+  getUserSupportTickets,
+  getUserOrdersForTicket,
+  getSupportWorkingHoursInfo,
+  getSupportFAQs,
+} from "./support.action";
 import SupportView from "./SupportView";
 
 export default async function SupportPage() {
@@ -10,10 +15,19 @@ export default async function SupportPage() {
     redirect("/auth/login");
   }
 
-  const [tickets, orders] = await Promise.all([
+  const [tickets, orders, hoursInfo, faqs] = await Promise.all([
     getUserSupportTickets(),
     getUserOrdersForTicket(),
+    getSupportWorkingHoursInfo(),
+    getSupportFAQs(),
   ]);
 
-  return <SupportView initialTickets={tickets} userOrders={orders} />;
+  return (
+    <SupportView
+      initialTickets={tickets}
+      userOrders={orders}
+      hoursInfo={hoursInfo}
+      initialFaqs={faqs}
+    />
+  );
 }

@@ -1,6 +1,10 @@
 
   const SettingKeyEnum = { 
   FREE_SHIPPING_THRESHOLD: "حداقل مبلغ سفارش برای ارسال رایگان (تومان)",
+  SENDER_NAME: "نام فروشگاه / فرستنده برچسب پستی",
+  SENDER_PHONE: "تلفن فرستنده برچسب پستی",
+  SENDER_ADDRESS: "نشانی کامل فرستنده برچسب پستی",
+  SENDER_ZIPCODE: "کد پستی ۱۰ رقمی فرستنده",
   VERCODE_EXPIRE_MINUTES: "مدت زمان اعتبار کد تایید به دقیقه",
   MAIN_PHONE: "شماره تلفن ثابت",
   PRODUCT_POST_FEE: "هزینه ارسال پست (تومان)",
@@ -38,7 +42,23 @@
   export const SettingKeyInfo = {
   FREE_SHIPPING_THRESHOLD: {
     name: "حداقل مبلغ سفارش برای ارسال رایگان (تومان)",
-    default: 500000
+    default: 2000000
+  },
+  SENDER_NAME: {
+    name: "نام فروشگاه / فرستنده برچسب پستی",
+    default: "فروشگاه آنلاین طِب خیّر"
+  },
+  SENDER_PHONE: {
+    name: "تلفن فرستنده برچسب پستی",
+    default: "045-33790667"
+  },
+  SENDER_ADDRESS: {
+    name: "نشانی کامل فرستنده برچسب پستی",
+    default: "اردبیل، میدان شریعتی، مجتمع خیّر، طبقه ۲، فروشگاه طِب خیّر"
+  },
+  SENDER_ZIPCODE: {
+    name: "کد پستی ۱۰ رقمی فرستنده",
+    default: "5613612345"
   },
   VERCODE_EXPIRE_MINUTES: {
     name: "مدت زمان اعتبار کد تایید به دقیقه",

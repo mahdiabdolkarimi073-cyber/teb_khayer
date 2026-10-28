@@ -47,9 +47,11 @@ const TrackProduct = (props: any) => {
   return (
     <>
       <div className={styles.formCard}>
-        <h2 className={styles.formTitle}>اطلاعات پیگیری</h2>
-        <p className={styles.formDesc}>
-          شماره سفارش و شماره تلفن خود را وارد کنید تا وضعیت سفارش را مشاهده کنید.
+        <h2 className={styles.formTitle} style={{ color: "#000000" }}>اطلاعات پیگیری</h2>
+        <p className={styles.formDesc} style={{ color: "#000000", fontWeight: 600, fontSize: "14px", lineHeight: "2.1" }}>
+          برای پیگیری سفارش، لطفا شماره سفارش و شماره تلفن خود را در کادرهای زیر وارد نمایید.
+          <br />
+          شماره سفارش شما قبلا به صورت پیامکی ارسال شده است، همچنین میتوانید شماره سفارش خود را از قسمت (حساب من) و سپس (لیست سفارشات من) کپی نمایید.
         </p>
 
         <div className={styles.form}>

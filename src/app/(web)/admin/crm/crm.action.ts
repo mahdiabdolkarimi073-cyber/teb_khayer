@@ -436,3 +436,186 @@ export async function getCustomerDossier(userId: string) {
     },
   };
 }
+
+export async function addCustomerAdminNote(userId: string, noteText: string) {
+  const { ensureCRMTables } = await import("@/backend/modules/crm/crmDb");
+  await ensureCRMTables();
+  const { getUserFromCookie } = await import("@/utils/serverComponents/user");
+  const admin = await getUserFromCookie();
+  if (!admin || admin.role !== "ADMIN") return { success: false, message: "دسترسی غیرمجاز" };
+
+  if (!noteText?.trim()) return { success: false, message: "متن یادداشت الزامی است." };
+
+  try {
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO "CustomerAdminNote" ("userId", "adminId", "adminName", "note", "created_at")
+       VALUES ($1, $2, $3, $4, now())`,
+      userId,
+      admin.id,
+      admin.name || "مدیر سیستم",
+      noteText.trim()
+    );
+
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO "CustomerActivityLog" ("userId", "action", "details", "actor", "created_at")
+       VALUES ($1, 'ثبت یادداشت داخلی مدیریت', $2, $3, now())`,
+      userId,
+      noteText.trim().slice(0, 100),
+      admin.name || "مدیر سیستم"
+    );
+
+    return { success: true, message: "یادداشت داخلی با موفقیت ذخیره شد." };
+  } catch (e) {
+    console.error(e);
+    return { success: false, message: "خطا در ثبت یادداشت." };
+  }
+}
+
+export async function getCustomerAdminNotes(userId: string) {
+  const { ensureCRMTables } = await import("@/backend/modules/crm/crmDb");
+  await ensureCRMTables();
+  try {
+    const rows = await prisma.$queryRawUnsafe<any[]>(
+      `SELECT * FROM "CustomerAdminNote" WHERE "userId" = $1 ORDER BY "created_at" DESC`,
+      userId
+    );
+    return rows.map((r) => ({
+      id: r.id,
+      userId: r.userId,
+      adminName: r.adminName || "مدیر سیستم",
+      note: r.note,
+      created_at: r.created_at ? new Date(r.created_at).toISOString() : new Date().toISOString(),
+    }));
+  } catch (e) {
+    console.warn(e);
+    return [];
+  }
+}
+
+export async function getCustomerActivityLogs(userId: string) {
+  const { ensureCRMTables } = await import("@/backend/modules/crm/crmDb");
+  await ensureCRMTables();
+  try {
+    const rows = await prisma.$queryRawUnsafe<any[]>(
+      `SELECT * FROM "CustomerActivityLog" WHERE "userId" = $1 ORDER BY "created_at" DESC LIMIT 30`,
+      userId
+    );
+    return rows.map((r) => ({
+      id: r.id,
+      userId: r.userId,
+      action: r.action,
+      details: r.details,
+      actor: r.actor,
+      created_at: r.created_at ? new Date(r.created_at).toISOString() : new Date().toISOString(),
+    }));
+  } catch (e) {
+    console.warn(e);
+    return [];
+  }
+}
+
+export async function getCustomerCancellations(userId: string) {
+  const { ensureCRMTables } = await import("@/backend/modules/crm/crmDb");
+  await ensureCRMTables();
+  try {
+    const rows = await prisma.$queryRawUnsafe<any[]>(
+      `SELECT * FROM "OrderCancellation" WHERE "userId" = $1 ORDER BY "created_at" DESC`,
+      userId
+    );
+    return rows.map((r) => ({
+      id: r.id,
+      orderId: r.orderId,
+      reason: r.reason,
+      note: r.note,
+      canceledBy: r.canceledBy,
+      created_at: r.created_at ? new Date(r.created_at).toISOString() : new Date().toISOString(),
+    }));
+  } catch (e) {
+    console.warn(e);
+    return [];
+  }
+}
+
+/**
+ * 360-degree Unified Customer and Order Search for Admin:
+ * Accepts customer phone, order ID, national code, or customer name.
+ * Returns customer profile, full order history, payments, tracking codes,
+ * support tickets, cancellations, internal notes, and activity history in one single payload!
+ */
+export async function searchUnifiedCustomerAndOrder(query: string) {
+  const clean = query.trim().replace(/^#/, "");
+  if (!clean) return { success: false, message: "عبارت جستجو را وارد کنید." };
+
+  const { ensureCRMTables } = await import("@/backend/modules/crm/crmDb");
+  await ensureCRMTables();
+
+  let targetUserId: string | null = null;
+  let matchedOrderId: number | null = null;
+
+  // 1. Try matching Order ID first if numeric
+  const numericVal = Number(clean.replace(/^0+/, ""));
+  if (!isNaN(numericVal) && clean.length <= 8) {
+    const matchedOrder = await prisma.order.findUnique({
+      where: { id: Number(clean) },
+      select: { id: true, userId: true },
+    });
+    if (matchedOrder) {
+      targetUserId = matchedOrder.userId;
+      matchedOrderId = matchedOrder.id;
+    }
+  }
+
+  // 2. If not matched by order ID, try matching user by phone, national code, or id
+  if (!targetUserId) {
+    // Phone numbers in db are stored as Float (e.g. 9123456789)
+    const phoneNum = Number(clean.replace(/^0+/, ""));
+    const isPhone = !isNaN(phoneNum) && clean.length >= 7;
+
+    const matchedUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          ...(isPhone ? [{ phone: phoneNum }] : []),
+          { nationalCode: clean },
+          { id: clean },
+          { name: { contains: clean, mode: "insensitive" } },
+        ],
+      },
+      select: { id: true },
+    });
+
+    if (matchedUser) {
+      targetUserId = matchedUser.id;
+    }
+  }
+
+  if (!targetUserId) {
+    return {
+      success: false,
+      message: `هیچ مشتری یا سفارشی با عبارت «${query}» یافت نشد. لطفاً شماره همراه کامل یا شماره دقیق سفارش را وارد فرمایید.`,
+    };
+  }
+
+  // Retrieve complete 360 dossier
+  const dossier = await getCustomerDossier(targetUserId);
+  if (!dossier) {
+    return { success: false, message: "اطلاعات مشتری یافت نشد." };
+  }
+
+  const [notes, cancellations, activityLogs] = await Promise.all([
+    getCustomerAdminNotes(targetUserId),
+    getCustomerCancellations(targetUserId),
+    getCustomerActivityLogs(targetUserId),
+  ]);
+
+  return {
+    success: true,
+    matchedOrderId,
+    data: {
+      ...dossier,
+      adminNotes: notes,
+      cancellations,
+      activityLogs,
+    },
+  };
+}
+
