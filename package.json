@@ -13,6 +13,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google/genai": "^2.32.0",
     "@mantine/carousel": "7.5.2",
     "@mantine/core": "7.5.2",
     "@mantine/hooks": "7.5.2",

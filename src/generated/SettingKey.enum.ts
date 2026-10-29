@@ -37,9 +37,59 @@
   DIGIKALA_ACCESS_TOKEN: "Access Token دیجی‌کالا (خودکار)",
   DIGIKALA_REFRESH_TOKEN: "Refresh Token دیجی‌کالا (خودکار)",
   DIGIKALA_TOKEN_EXPIRES: "زمان انقضای توکن دیجی‌کالا",
+  SMS_ENABLED: "ارسال خودکار پیامک فعال است",
+  SMS_PROVIDER: "سامانه وب‌سرویس پیامکی",
+  SMS_API_KEY: "کلید وب‌سرویس پیامک (API Key)",
+  SMS_LINE_NUMBER: "شماره خط اختصاصی پیامک",
+  SMS_REMINDER_DELAY_MINUTES: "زمان انتظار ارسال پیامک یادآوری خرید (دقیقه)",
+  SMS_ABANDONED_TEMPLATE: "قالب پیامک یادآوری خرید ناتمام",
+  DELIVERY_ESTIMATED_DAYS: "زمان تقریبی ارسال سفارش",
+  UNIFIED_SHIPPING_ENABLED: "هزینه ارسال یکپارچه فروشگاه فعال است",
+  UNIFIED_SHIPPING_FEE: "مبلغ هزینه ارسال یکپارچه (تومان)",
+  UNIFIED_SHIPPING_DISCOUNT: "تخفیف هزینه ارسال یکپارچه (تومان)",
  }
   export type SettingKeyEnumType = typeof SettingKeyEnum;
   export const SettingKeyInfo = {
+  DELIVERY_ESTIMATED_DAYS: {
+    name: "زمان تقریبی ارسال سفارش",
+    default: "۳ تا ۵ روز کاری"
+  },
+  UNIFIED_SHIPPING_ENABLED: {
+    name: "هزینه ارسال یکپارچه فروشگاه فعال است",
+    default: "false"
+  },
+  UNIFIED_SHIPPING_FEE: {
+    name: "مبلغ هزینه ارسال یکپارچه (تومان)",
+    default: 39000
+  },
+  UNIFIED_SHIPPING_DISCOUNT: {
+    name: "تخفیف هزینه ارسال یکپارچه (تومان)",
+    default: 0
+  },
+  SMS_ENABLED: {
+    name: "ارسال خودکار پیامک فعال است",
+    default: "false"
+  },
+  SMS_PROVIDER: {
+    name: "سامانه وب‌سرویس پیامکی",
+    default: "sms.ir"
+  },
+  SMS_API_KEY: {
+    name: "کلید وب‌سرویس پیامک (API Key)",
+    default: ""
+  },
+  SMS_LINE_NUMBER: {
+    name: "شماره خط اختصاصی پیامک",
+    default: ""
+  },
+  SMS_REMINDER_DELAY_MINUTES: {
+    name: "زمان انتظار ارسال پیامک یادآوری خرید (دقیقه)",
+    default: 10
+  },
+  SMS_ABANDONED_TEMPLATE: {
+    name: "قالب پیامک یادآوری خرید ناتمام",
+    default: "{name} عزیز، خرید شما در طِب خیّر ناتمام ماند! جهت تکمیل سفارش خود روی لینک زیر کلیک کنید:\n{link}\nکد پیگیری: {orderId}"
+  },
   FREE_SHIPPING_THRESHOLD: {
     name: "حداقل مبلغ سفارش برای ارسال رایگان (تومان)",
     default: 2000000

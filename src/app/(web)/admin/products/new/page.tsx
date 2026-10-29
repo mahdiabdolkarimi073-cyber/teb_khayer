@@ -3,13 +3,14 @@
 import {useAction} from "@/utils/server";
 import {handlePrismaQuery} from "@/app/(web)/admin/action";
 import {Button, Checkbox, FileInput, NumberInput, Textarea, TextInput as Input} from "@mantine/core";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Product} from "@prisma/client";
 import {uploadFile} from "@/utils/api";
-import {IconImageInPicture} from "@tabler/icons-react";
+import {IconImageInPicture, IconTruckDelivery} from "@tabler/icons-react";
 import BlogContentEditor from "@/app/(web)/admin/courses/new/BlogContentEditor";
 import {_SET_API_LOADING} from "@/components/api/ApiLoadingState";
 import {useRouter} from "next/navigation";
+import {getProductShipping, saveProductShipping} from "@/app/(web)/admin/products/shipping.action";
 
 const NewProduct = (props: {
 	Product?: Product,
@@ -27,6 +28,23 @@ const NewProduct = (props: {
 		categoryId: catId
 	});
 
+	// Per-product custom shipping state
+	const [hasCustomShipping, setHasCustomShipping] = useState(false);
+	const [shippingFee, setShippingFee] = useState<number>(0);
+	const [shippingDiscount, setShippingDiscount] = useState<number>(0);
+
+	useEffect(() => {
+		if (Product?.id) {
+			getProductShipping(Product.id).then((cfg) => {
+				if (cfg) {
+					setHasCustomShipping(cfg.hasCustomShipping);
+					setShippingFee(cfg.shippingFee || 0);
+					setShippingDiscount(cfg.shippingDiscount || 0);
+				}
+			});
+		}
+	}, [Product?.id]);
+
 	const p = (key: keyof Product)=>{
 		return {
 			key,
@@ -41,6 +59,8 @@ const NewProduct = (props: {
 			}
 		}
 	}
+
+	const finalShippingFee = Math.max(0, shippingFee - shippingDiscount);
 
 	return (
 		<div className={'flex flex-col gap-3'}>
@@ -168,16 +188,72 @@ const NewProduct = (props: {
 				)}
 			</div>
 
+			{/* ۱. مدیریت موجودی مستقل از تنظیمات سراسری انبار */}
 			<div className={'flex flex-col gap-2 border rounded-xl p-3 bg-gray-50'}>
 				<Checkbox
-					label="اجبار به نمایش موجود (حتی وقتی فروش کل محصولات غیرفعال است)"
+					label="موجودی این محصول را مستقل از تنظیمات کلی مدیریت کن (موجود در انبار)"
 					checked={!!data?.forceAvailable}
 					onChange={(e) => {
 						const checked = e.currentTarget.checked;
 						setData(pre => ({ ...pre, forceAvailable: checked } as Product));
 					}}
 				/>
-				<small className="text-gray-500">با فعال کردن این گزینه، این محصول حتی زمانی که فروش کل محصولات غیرفعال است، به‌عنوان «موجود در انبار» نمایش داده می‌شود و قابل خرید خواهد بود.</small>
+				<small className="text-gray-500">
+					با فعال کردن این گزینه، این محصول حتی زمانی که فروش کلی محصولات در تنظیمات غیرفعال است، به‌عنوان «موجود در انبار» نمایش داده می‌شود و مشتریان می‌توانند آن را بخرند.
+				</small>
+			</div>
+
+			{/* ۴. هزینه ارسال اختصاصی هر محصول و تخفیف هزینه ارسال */}
+			<div className={'flex flex-col gap-3 border rounded-xl p-3 bg-blue-50/50 border-blue-200'}>
+				<div className="flex items-center gap-2">
+					<IconTruckDelivery size={18} className="text-blue-600" />
+					<strong className="text-sm text-blue-900">تنظیمات هزینه ارسال اختصاصی این محصول</strong>
+				</div>
+				<Checkbox
+					label="تعیین هزینه ارسال اختصاصی برای این محصول"
+					checked={hasCustomShipping}
+					onChange={(e) => setHasCustomShipping(e.currentTarget.checked)}
+				/>
+				<small className="text-gray-600">
+					در صورتی که هزینه ارسال یکپارچه فعال نباشد، هزینه اختصاصی تعیین‌شده در این بخش ملاک قرار می‌گیرد.
+				</small>
+
+				{hasCustomShipping && (
+					<div className="space-y-3 pt-2">
+						<div className="grid grid-cols-2 gap-3">
+							<NumberInput
+								label="هزینه ارسال اختصاصی (تومان)"
+								value={shippingFee}
+								min={0}
+								onChange={(val) => setShippingFee(Number(val) || 0)}
+								formatter={(value) => !Number.isNaN(parseFloat(value)) ? value.toLocaleString("fa-IR") : ''}
+								thousandSeparator
+							/>
+							<NumberInput
+								label="تخفیف روی هزینه ارسال (تومان)"
+								value={shippingDiscount}
+								min={0}
+								onChange={(val) => setShippingDiscount(Number(val) || 0)}
+								formatter={(value) => !Number.isNaN(parseFloat(value)) ? value.toLocaleString("fa-IR") : ''}
+								thousandSeparator
+							/>
+						</div>
+
+						<div className="p-2.5 rounded-lg bg-white border border-blue-200 text-xs flex items-center justify-between">
+							<span>هزینه نهایی ارسال پس از تخفیف:</span>
+							<div className="flex items-center gap-2 font-bold">
+								{shippingDiscount > 0 && (
+									<span className="line-through text-gray-400">
+										{shippingFee.toLocaleString("fa-IR")} تومان
+									</span>
+								)}
+								<span className="text-emerald-700 font-black">
+									{finalShippingFee.toLocaleString("fa-IR")} تومان
+								</span>
+							</div>
+						</div>
+					</div>
+				)}
 			</div>
 
 			<div className={'flex flex-wrap items-center gap-6 border rounded-xl p-3 bg-gray-50'}>
@@ -218,19 +294,31 @@ const NewProduct = (props: {
 					try {
 						_SET_API_LOADING(true);
 						const {id, created_at, updated_at, ...productData} = data;
+						let targetProductId = id;
 						if (id) {
 							await handlePrismaQuery("product", "update", {
 								where: {id},
 								data: productData
 							});
 						} else {
-							await handlePrismaQuery("product", "create", {
+							const created = await handlePrismaQuery("product", "create", {
 								data: productData
 							});
+							targetProductId = created?.id;
 						}
+
+						if (targetProductId) {
+							await saveProductShipping(targetProductId, {
+								hasCustomShipping,
+								shippingFee,
+								shippingDiscount
+							});
+						}
+
 						router.push("/admin/products");
-					} catch {
+					} catch (err) {
 						_SET_API_LOADING(false);
+						console.error("Save product error:", err);
 						alert("لطفا در وارد کردن اطلاعات دقت کنید");
 					}
 				}}>

@@ -12,6 +12,7 @@ export type AddressData = {
     city: string;
     address: string;
     zipcode?: string;
+    isDefault?: boolean;
 };
 
 export async function getAddresses() {
@@ -31,99 +32,177 @@ export async function getAddresses() {
 
 export async function addAddress(data: AddressData) {
     const user = await getUserFromCookie();
-    if (!user) return {success: false, message: "لطفاً ابتدا وارد شوید"};
+    if (!user) return {success: false, message: "لطفاً ابتدا وارد حساب کاربری خود شوید."};
+
+    if (!data.name?.trim() || !data.phone?.trim() || !data.state?.trim() || !data.city?.trim() || !data.address?.trim()) {
+        return {success: false, message: "لطفاً کلیه فیلدهای ضروری آدرس را تکمیل فرمایید."};
+    }
+
+    if (data.address.trim().length < 6) {
+        return {success: false, message: "آدرس تحویل باید شامل جزئیات کافی باشد."};
+    }
+
+    const cleanZip = data.zipcode ? data.zipcode.replace(/\D/g, "") : null;
+    if (cleanZip && cleanZip.length !== 10) {
+        return {success: false, message: "کد پستی باید دقیقاً ۱۰ رقم باشد."};
+    }
 
     const existingCount = await prisma.userAddress.count({where: {userId: user.id}});
+    const shouldBeDefault = data.isDefault === true || existingCount === 0;
 
-    const address = await prisma.userAddress.create({
-        data: {
-            userId: user.id,
-            title: data.title || "منزل",
-            name: data.name,
-            phone: data.phone,
-            state: data.state,
-            city: data.city,
-            address: data.address,
-            zipcode: data.zipcode || null,
-            isDefault: existingCount === 0,
-        },
-    });
+    let address;
+    if (shouldBeDefault && existingCount > 0) {
+        address = await prisma.$transaction(async (tx) => {
+            await tx.userAddress.updateMany({
+                where: {userId: user.id, isDefault: true},
+                data: {isDefault: false},
+            });
+            return tx.userAddress.create({
+                data: {
+                    userId: user.id,
+                    title: data.title?.trim() || "منزل",
+                    name: data.name.trim(),
+                    phone: data.phone.trim(),
+                    state: data.state.trim(),
+                    city: data.city.trim(),
+                    address: data.address.trim(),
+                    zipcode: cleanZip,
+                    isDefault: true,
+                },
+            });
+        });
+    } else {
+        address = await prisma.userAddress.create({
+            data: {
+                userId: user.id,
+                title: data.title?.trim() || "منزل",
+                name: data.name.trim(),
+                phone: data.phone.trim(),
+                state: data.state.trim(),
+                city: data.city.trim(),
+                address: data.address.trim(),
+                zipcode: cleanZip,
+                isDefault: shouldBeDefault,
+            },
+        });
+    }
 
-    return {success: true, address: ssrOptimize(address)};
+    return {success: true, message: "آدرس با موفقیت ذخیره شد.", address: ssrOptimize(address)};
 }
 
 export async function updateAddress(id: string, data: AddressData) {
     const user = await getUserFromCookie();
-    if (!user) return {success: false, message: "لطفاً ابتدا وارد شوید"};
+    if (!user) return {success: false, message: "لطفاً ابتدا وارد حساب کاربری خود شوید."};
 
     const existing = await prisma.userAddress.findFirst({
         where: {id, userId: user.id},
     });
-    if (!existing) return {success: false, message: "آدرس یافت نشد"};
+    if (!existing) return {success: false, message: "آدرس مورد نظر یافت نشد."};
 
-    const address = await prisma.userAddress.update({
-        where: {id},
-        data: {
-            title: data.title || "منزل",
-            name: data.name,
-            phone: data.phone,
-            state: data.state,
-            city: data.city,
-            address: data.address,
-            zipcode: data.zipcode || null,
-        },
-    });
+    if (!data.name?.trim() || !data.phone?.trim() || !data.state?.trim() || !data.city?.trim() || !data.address?.trim()) {
+        return {success: false, message: "لطفاً کلیه فیلدهای ضروری آدرس را تکمیل فرمایید."};
+    }
 
-    return {success: true, address: ssrOptimize(address)};
+    if (data.address.trim().length < 6) {
+        return {success: false, message: "آدرس تحویل باید شامل جزئیات کافی باشد."};
+    }
+
+    const cleanZip = data.zipcode ? data.zipcode.replace(/\D/g, "") : null;
+    if (cleanZip && cleanZip.length !== 10) {
+        return {success: false, message: "کد پستی باید دقیقاً ۱۰ رقم باشد."};
+    }
+
+    let address;
+    if (data.isDefault === true) {
+        address = await prisma.$transaction(async (tx) => {
+            await tx.userAddress.updateMany({
+                where: {userId: user.id, isDefault: true},
+                data: {isDefault: false},
+            });
+            return tx.userAddress.update({
+                where: {id},
+                data: {
+                    title: data.title?.trim() || "منزل",
+                    name: data.name.trim(),
+                    phone: data.phone.trim(),
+                    state: data.state.trim(),
+                    city: data.city.trim(),
+                    address: data.address.trim(),
+                    zipcode: cleanZip,
+                    isDefault: true,
+                },
+            });
+        });
+    } else {
+        address = await prisma.userAddress.update({
+            where: {id},
+            data: {
+                title: data.title?.trim() || "منزل",
+                name: data.name.trim(),
+                phone: data.phone.trim(),
+                state: data.state.trim(),
+                city: data.city.trim(),
+                address: data.address.trim(),
+                zipcode: cleanZip,
+                ...(data.isDefault !== undefined ? {isDefault: data.isDefault} : {}),
+            },
+        });
+    }
+
+    return {success: true, message: "آدرس با موفقیت به‌روزرسانی شد.", address: ssrOptimize(address)};
 }
 
 export async function deleteAddress(id: string) {
     const user = await getUserFromCookie();
-    if (!user) return {success: false, message: "لطفاً ابتدا وارد شوید"};
+    if (!user) return {success: false, message: "لطفاً ابتدا وارد حساب کاربری خود شوید."};
 
     const existing = await prisma.userAddress.findFirst({
         where: {id, userId: user.id},
     });
-    if (!existing) return {success: false, message: "آدرس یافت نشد"};
+    if (!existing) return {success: false, message: "آدرس مورد نظر یافت نشد."};
 
     const wasDefault = existing.isDefault;
 
-    await prisma.userAddress.delete({where: {id}});
+    await prisma.$transaction(async (tx) => {
+        await tx.userAddress.delete({where: {id}});
 
-    if (wasDefault) {
-        const next = await prisma.userAddress.findFirst({
-            where: {userId: user.id},
-            orderBy: {created_at: "desc"},
-        });
-        if (next) {
-            await prisma.userAddress.update({
-                where: {id: next.id},
-                data: {isDefault: true},
+        if (wasDefault) {
+            const next = await tx.userAddress.findFirst({
+                where: {userId: user.id},
+                orderBy: {created_at: "desc"},
             });
+            if (next) {
+                await tx.userAddress.update({
+                    where: {id: next.id},
+                    data: {isDefault: true},
+                });
+            }
         }
-    }
+    });
 
-    return {success: true};
+    return {success: true, message: "آدرس با موفقیت حذف شد."};
 }
 
 export async function setDefaultAddress(id: string) {
     const user = await getUserFromCookie();
-    if (!user) return {success: false, message: "لطفاً ابتدا وارد شوید"};
+    if (!user) return {success: false, message: "لطفاً ابتدا وارد حساب کاربری خود شوید."};
 
     const existing = await prisma.userAddress.findFirst({
         where: {id, userId: user.id},
     });
-    if (!existing) return {success: false, message: "آدرس یافت نشد"};
+    if (!existing) return {success: false, message: "آدرس مورد نظر یافت نشد."};
 
-    await prisma.userAddress.updateMany({
-        where: {userId: user.id, isDefault: true},
-        data: {isDefault: false},
+    await prisma.$transaction(async (tx) => {
+        await tx.userAddress.updateMany({
+            where: {userId: user.id, isDefault: true},
+            data: {isDefault: false},
+        });
+
+        await tx.userAddress.update({
+            where: {id},
+            data: {isDefault: true},
+        });
     });
 
-    await prisma.userAddress.update({
-        where: {id},
-        data: {isDefault: true},
-    });
-
-    return {success: true};
+    return {success: true, message: "آدرس پیش‌فرض با موفقیت تنظیم شد."};
 }

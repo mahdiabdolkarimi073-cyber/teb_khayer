@@ -38,8 +38,13 @@ import {
   IconUser,
   IconMapPin,
   IconListDetails,
+  IconMessage,
+  IconStarFilled,
+  IconHome,
+  IconBriefcase,
 } from "@tabler/icons-react";
 import { formatPersianCurrency, formatPersianNumber, toPersianDateTime } from "@/utils/format";
+import { SmsManagerTab } from "@/components/admin/SmsManagerTab";
 import {
   getCRMStats,
   getCRMCustomers,
@@ -65,7 +70,7 @@ import OrderStatusEnum from "@/generated/OrderStatus.enum";
 import Link from "next/link";
 
 export default function CRMPage() {
-  const [viewMode, setViewMode] = useState<"unified" | "cancellations" | "support" | "faqs" | "customers">(
+  const [viewMode, setViewMode] = useState<"unified" | "cancellations" | "support" | "faqs" | "customers" | "sms">(
     "unified"
   );
 
@@ -466,6 +471,19 @@ export default function CRMPage() {
           <IconUsers size={18} />
           <span>دسته‌بندی و سگمنت مشتریان</span>
         </button>
+
+        <button
+          type="button"
+          onClick={() => setViewMode("sms")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition ${
+            viewMode === "sms"
+              ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
+              : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
+          }`}
+        >
+          <IconMessage size={18} />
+          <span>پیامک و یادآوری خرید ناتمام</span>
+        </button>
       </div>
 
       {/* ============================================================== */}
@@ -569,24 +587,17 @@ export default function CRMPage() {
                     </div>
                   </div>
 
-                  {/* Registered Addresses */}
-                  <div className="pt-3 border-t border-blue-100">
-                    <span className="text-xs font-bold text-gray-700 block mb-1.5 flex items-center gap-1">
-                      <IconMapPin size={15} className="text-blue-600" />
-                      <span>نشانی‌های ثبت‌شده ({formatPersianNumber(unifiedResult.addresses?.length || 0)}):</span>
+                  {/* Registered Addresses Summary Badge */}
+                  <div className="pt-3 border-t border-blue-100 flex items-center justify-between text-xs">
+                    <span className="text-gray-600 font-medium flex items-center gap-1.5">
+                      <IconMapPin size={16} className="text-blue-600" />
+                      <span>آدرس‌های ثبت‌شده:</span>
                     </span>
-                    {unifiedResult.addresses?.length === 0 ? (
-                      <p className="text-xs text-gray-400">آدرسی ثبت نشده است.</p>
-                    ) : (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                        {unifiedResult.addresses.map((addr: any) => (
-                          <div key={addr.id} className="p-2.5 bg-white rounded-xl border border-blue-100/80">
-                            <span className="font-bold text-gray-800">{addr.title}: </span>
-                            <span className="text-gray-600">{addr.state}، {addr.city}، {addr.address}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    <span className="font-bold text-blue-900 bg-white/80 px-2.5 py-1 rounded-xl border border-blue-200">
+                      {unifiedResult.addresses?.length > 0
+                        ? `${formatPersianNumber(unifiedResult.addresses.length)} آدرس فعال`
+                        : "فاقد آدرس ثبت‌شده"}
+                    </span>
                   </div>
                 </div>
 
@@ -626,6 +637,170 @@ export default function CRMPage() {
                     <span className="font-mono">{toPersianDateTime(unifiedResult.user.date).split("،")[0]}</span>
                   </div>
                 </div>
+              </div>
+
+              {/* ========================================================= */}
+              {/* DEDICATED CUSTOMER ADDRESSES & ORDER SNAPSHOTS (REQ 4,5,6,8) */}
+              {/* ========================================================= */}
+              <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-2xs space-y-6">
+                <div>
+                  <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-gray-100">
+                    <h3 className="text-base font-black text-gray-900 flex items-center gap-2">
+                      <IconMapPin size={22} className="text-blue-600" />
+                      <span>آدرس‌های مشتری و نشانی‌های تحویل کالا</span>
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs px-2.5 py-1 rounded-full bg-blue-50 text-blue-800 font-bold border border-blue-200">
+                        {formatPersianNumber(unifiedResult.addresses?.length || 0)} آدرس ثبت‌شده
+                      </span>
+                      {unifiedResult.orderAddresses?.length > 0 && (
+                        <span className="text-xs px-2.5 py-1 rounded-full bg-purple-50 text-purple-800 font-bold border border-purple-200">
+                          {formatPersianNumber(unifiedResult.orderAddresses.length)} نشانی در فاکتور سفارش‌ها
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    نمایش کامل تمام آدرس‌های ثبت‌شده مشتری بر اساس شناسه معتبر دیتابیس ({unifiedResult.user.id})، تفکیک آدرس‌های فعال و آرشیو تحویل سفارش‌ها.
+                  </p>
+                </div>
+
+                {/* 1. Active Registered Addresses */}
+                <div className="space-y-3">
+                  <h4 className="text-xs sm:text-sm font-bold text-gray-800 flex items-center gap-1.5">
+                    <IconHome size={16} className="text-blue-600" />
+                    <span>آدرس‌های فعال ثبت‌شده در حساب کاربری ({formatPersianNumber(unifiedResult.addresses?.length || 0)}):</span>
+                  </h4>
+
+                  {!unifiedResult.addresses || unifiedResult.addresses.length === 0 ? (
+                    <div className="p-6 rounded-2xl bg-gray-50 border border-dashed border-gray-300 text-center space-y-1.5">
+                      <IconMapPin size={32} className="text-gray-400 mx-auto" />
+                      <p className="text-xs sm:text-sm font-bold text-gray-700">آدرسی برای این مشتری ثبت نشده است</p>
+                      <p className="text-xs text-gray-400">این مشتری هنوز هیچ آدرسی را در حساب کاربری خود ثبت نکرده است.</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {unifiedResult.addresses.map((addr: any) => (
+                        <div
+                          key={addr.id}
+                          className={`p-4 rounded-2xl border text-xs sm:text-sm space-y-2.5 relative transition ${
+                            addr.isDefault
+                              ? "bg-emerald-50/40 border-emerald-300 ring-1 ring-emerald-300/40 shadow-xs"
+                              : "bg-gray-50/70 border-gray-200 hover:border-gray-300"
+                          }`}
+                        >
+                          {/* Header of address card */}
+                          <div className="flex items-center justify-between gap-2 pb-2 border-b border-black/5">
+                            <div className="flex items-center gap-1.5 font-bold text-gray-900">
+                              {addr.title === "محل کار" ? (
+                                <IconBriefcase size={16} className="text-blue-600" />
+                              ) : (
+                                <IconHome size={16} className="text-blue-600" />
+                              )}
+                              <span>عنوان: {addr.title || "منزل"}</span>
+                            </div>
+
+                            {addr.isDefault && (
+                              <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-600 text-white font-bold shadow-xs">
+                                <IconStarFilled size={12} />
+                                <span>آدرس پیش‌فرض تحویل</span>
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Recipient & Contact */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                            <div>
+                              <span className="text-gray-500 block text-[11px]">نام گیرنده:</span>
+                              <strong className="text-gray-900 font-bold">{addr.name}</strong>
+                            </div>
+                            <div>
+                              <span className="text-gray-500 block text-[11px]">شماره تماس گیرنده:</span>
+                              <a
+                                href={`tel:${addr.phone}`}
+                                className="font-mono dir-ltr text-blue-700 hover:underline font-bold inline-flex items-center gap-1"
+                              >
+                                <IconPhone size={12} />
+                                <span>{addr.phone}</span>
+                              </a>
+                            </div>
+                          </div>
+
+                          {/* Province & City */}
+                          <div className="text-xs">
+                            <span className="text-gray-500 text-[11px]">استان و شهر: </span>
+                            <span className="font-bold text-gray-800">{addr.state} - {addr.city}</span>
+                          </div>
+
+                          {/* Full Address */}
+                          <div className="text-xs bg-white/80 p-2.5 rounded-xl border border-gray-200/80 leading-relaxed">
+                            <span className="text-gray-500 text-[11px] block mb-0.5">آدرس کامل:</span>
+                            <p className="text-gray-800 font-medium">{addr.address}</p>
+                          </div>
+
+                          {/* Postal Code & Date */}
+                          <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-gray-500">
+                            <div>
+                              <span className="text-gray-400">کد پستی ۱۰ رقمی: </span>
+                              <strong className="font-mono text-gray-800 font-bold tracking-wider">
+                                {addr.zipcode ? formatPersianNumber(addr.zipcode) : "ثبت نشده"}
+                              </strong>
+                            </div>
+                            {addr.created_at && (
+                              <span className="text-gray-400 font-mono">
+                                تاریخ ثبت: {toPersianDateTime(addr.created_at).split("،")[0]}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. Historical Order Delivery Addresses (Requirement 8) */}
+                {unifiedResult.orderAddresses?.length > 0 && (
+                  <div className="space-y-3 pt-4 border-t border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs sm:text-sm font-bold text-gray-800 flex items-center gap-1.5">
+                        <IconHistory size={16} className="text-purple-600" />
+                        <span>تاریخچه آدرس‌های ثبت‌شده در فاکتور سفارش‌ها ({formatPersianNumber(unifiedResult.orderAddresses.length)}):</span>
+                      </h4>
+                      <span className="text-[11px] text-gray-400">آرشیو فاکتورها (مستقل از آدرس‌های فعال)</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                      {unifiedResult.orderAddresses.map((ordAddr: any, idx: number) => (
+                        <div key={idx} className="p-3 bg-purple-50/40 rounded-2xl border border-purple-100 space-y-1.5">
+                          <div className="flex items-center justify-between gap-1 pb-1 border-b border-purple-100/60">
+                            <span className="font-bold text-purple-950 font-mono">
+                              فاکتور سفارش #{formatPersianNumber(ordAddr.orderId)}
+                            </span>
+                            <span className="text-[10px] font-mono text-purple-700">
+                              {toPersianDateTime(ordAddr.orderDate).split("،")[0]}
+                            </span>
+                          </div>
+                          <div className="text-[11px] text-gray-700">
+                            <strong>گیرنده: </strong>
+                            <span>{ordAddr.name} ({ordAddr.phone})</span>
+                          </div>
+                          <div className="text-[11px] text-gray-700">
+                            <strong>مقصد: </strong>
+                            <span>{ordAddr.state}، {ordAddr.city}</span>
+                          </div>
+                          <p className="text-gray-800 bg-white/70 p-2 rounded-lg border border-purple-100 text-[11px] leading-relaxed">
+                            {ordAddr.address}
+                          </p>
+                          {ordAddr.zipcode && (
+                            <p className="text-[10px] text-gray-500 font-mono">
+                              کد پستی زمان ثبت: {formatPersianNumber(ordAddr.zipcode)}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Order History with Payment & Postal Tracking */}
@@ -1332,8 +1507,8 @@ export default function CRMPage() {
                             type="button"
                             onClick={() => {
                               setViewMode("unified");
-                              setUnifiedQuery(c.phone);
-                              searchUnifiedCustomerAndOrder(c.phone).then((res) => {
+                              setUnifiedQuery(c.id);
+                              searchUnifiedCustomerAndOrder(c.id).then((res) => {
                                 if (res.success) setUnifiedResult(res.data);
                               });
                             }}
@@ -1351,6 +1526,11 @@ export default function CRMPage() {
           </div>
         </div>
       )}
+
+      {/* ============================================================== */}
+      {/* 6. SMS WEB SERVICE & ABANDONED ORDER REMINDERS (REQUIREMENT 1) */}
+      {/* ============================================================== */}
+      {viewMode === "sms" && <SmsManagerTab />}
 
       {/* FAQ ADD / EDIT MODAL */}
       {showFaqModal && (

@@ -274,7 +274,30 @@ const CategoryItem = (props: Category & { open: boolean, refetch: any, search?: 
 								</div>
 							</div>
 							<div className={'center gap-2 flex-wrap'}>
-								<ActionIcon color={item.freeShipping ? 'green' : 'gray'} title={item.freeShipping ? 'ارسال رایگان غیرفعال شد' : 'ارسال رایگان'} onClick={async () => {
+								<button
+									type="button"
+									className={`px-2.5 py-1 rounded-md text-xs font-bold border transition-colors flex items-center gap-1.5 ${
+										item.forceAvailable
+											? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+											: 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
+									}`}
+									title={
+										item.forceAvailable
+											? 'موجودی این محصول مستقل است و همیشه موجود نمایش داده می‌شود (کلیک برای بازگشت به انبار کلی)'
+											: 'موجودی تابع تنظیمات کلی فروشگاه است (کلیک برای فعال‌سازی موجودی اختصاصی در انبار)'
+									}
+									onClick={async () => {
+										await handlePrismaQuery('product', 'update', {
+											where: { id: item.id },
+											data: { forceAvailable: !item.forceAvailable }
+										});
+										refetch();
+									}}
+								>
+									<span className={`w-2 h-2 rounded-full ${item.forceAvailable ? 'bg-emerald-500' : 'bg-gray-400'}`} />
+									{item.forceAvailable ? 'موجود اختصاصی در انبار' : 'موجودی عادی (انبار کلی)'}
+								</button>
+								<ActionIcon color={item.freeShipping ? 'green' : 'gray'} title={item.freeShipping ? 'ارسال رایگان فعال است (کلیک برای غیرفعال‌سازی)' : 'ارسال رایگان غیرفعال است (کلیک برای فعال‌سازی)'} onClick={async () => {
 									await handlePrismaQuery('product', 'update', {
 										where: { id: item.id },
 										data: { freeShipping: !item.freeShipping }
@@ -282,15 +305,6 @@ const CategoryItem = (props: Category & { open: boolean, refetch: any, search?: 
 									refetch();
 								}}>
 									<IconTruckDelivery size={'1rem'}/>
-								</ActionIcon>
-								<ActionIcon color={item.forceAvailable ? 'green' : 'gray'} title={item.forceAvailable ? 'اجبار به موجود غیرفعال شد' : 'اجبار به موجود'} onClick={async () => {
-									await handlePrismaQuery('product', 'update', {
-										where: { id: item.id },
-										data: { forceAvailable: !item.forceAvailable }
-									});
-									refetch();
-								}}>
-									<IconCheck size={'1rem'}/>
 								</ActionIcon>
 								<ActionIcon color={'blue'} title={'کپی'} onClick={() => {
 									setCopy(item as any);

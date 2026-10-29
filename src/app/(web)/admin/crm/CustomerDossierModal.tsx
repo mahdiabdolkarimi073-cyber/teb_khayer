@@ -16,6 +16,10 @@ import {
   IconCircleCheck,
   IconAlertTriangle,
   IconExternalLink,
+  IconHome,
+  IconBriefcase,
+  IconHistory,
+  IconStarFilled,
 } from "@tabler/icons-react";
 import { formatPersianCurrency, formatPersianNumber, toPersianDateTime } from "@/utils/format";
 import { getCustomerDossier } from "./crm.action";
@@ -181,34 +185,108 @@ export default function CustomerDossierModal({ userId, onClose }: CustomerDossie
 
               </div>
 
-              {/* Saved Addresses */}
-              <div>
-                <h4 className="font-bold text-gray-800 text-xs sm:text-sm flex items-center gap-1.5 mb-2.5">
-                  <IconMapPin size={16} className="text-blue-600" />
-                  <span>آدرس‌های ثبت‌شده مشتری ({formatPersianNumber(data.addresses.length)})</span>
-                </h4>
+              {/* Saved Addresses & Order Snapshots (Req 4, 5, 6, 8) */}
+              <div className="bg-gray-50/70 p-4 rounded-2xl border border-gray-200 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-bold text-gray-900 text-xs sm:text-sm flex items-center gap-1.5">
+                    <IconMapPin size={18} className="text-blue-600" />
+                    <span>آدرس‌های مشتری و نشانی‌های تحویل ({formatPersianNumber(data.addresses.length)})</span>
+                  </h4>
+                  {data.orderAddresses?.length > 0 && (
+                    <span className="text-[11px] text-purple-700 bg-purple-100/70 px-2 py-0.5 rounded-full font-bold">
+                      {formatPersianNumber(data.orderAddresses.length)} نشانی در سفارش‌ها
+                    </span>
+                  )}
+                </div>
+
                 {data.addresses.length === 0 ? (
-                  <p className="text-xs text-gray-400 bg-gray-50 p-3 rounded-lg border border-dashed border-gray-200">
-                    هیچ آدرسی در پروفایل این مشتری ثبت نشده است.
-                  </p>
+                  <div className="p-4 rounded-xl bg-white border border-dashed border-gray-300 text-center space-y-1">
+                    <IconMapPin size={24} className="text-gray-400 mx-auto" />
+                    <p className="text-xs font-bold text-gray-700">آدرسی برای این مشتری ثبت نشده است</p>
+                    <p className="text-[11px] text-gray-400">این مشتری هنوز هیچ آدرسی را در حساب کاربری خود ثبت نکرده است.</p>
+                  </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {data.addresses.map((addr: any) => (
                       <div
                         key={addr.id}
-                        className="bg-gray-50 p-3 rounded-lg border border-gray-200 text-xs space-y-1 relative"
+                        className={`p-3 rounded-xl border text-xs space-y-1.5 relative transition ${
+                          addr.isDefault
+                            ? "bg-emerald-50/50 border-emerald-300 ring-1 ring-emerald-200"
+                            : "bg-white border-gray-200"
+                        }`}
                       >
-                        {addr.isDefault && (
-                          <span className="absolute top-2 left-2 text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold">
-                            پیش‌فرض
+                        <div className="flex items-center justify-between gap-1 pb-1 border-b border-gray-100">
+                          <span className="font-bold text-gray-900 flex items-center gap-1">
+                            {addr.title === "محل کار" ? <IconBriefcase size={14} className="text-blue-600" /> : <IconHome size={14} className="text-blue-600" />}
+                            <span>{addr.title || "منزل"}</span>
                           </span>
-                        )}
-                        <p className="font-bold text-gray-800">{addr.title} - گیرنده: {addr.name}</p>
-                        <p className="text-gray-600">استان: {addr.state} | شهر: {addr.city}</p>
-                        <p className="text-gray-700 line-clamp-2">{addr.address}</p>
-                        <p className="text-gray-500 font-mono">کد پستی: {formatPersianNumber(addr.zipcode || "-")}</p>
+                          {addr.isDefault && (
+                            <span className="inline-flex items-center gap-0.5 text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold">
+                              <IconStarFilled size={10} />
+                              پیش‌فرض
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="text-gray-800">
+                          <strong>نام گیرنده: </strong>
+                          <span>{addr.name}</span>
+                        </div>
+
+                        <div className="text-gray-700">
+                          <strong>شماره تماس: </strong>
+                          <a href={`tel:${addr.phone}`} className="font-mono dir-ltr text-blue-700 font-bold hover:underline">
+                            {addr.phone}
+                          </a>
+                        </div>
+
+                        <p className="text-gray-600">
+                          <strong>استان و شهر: </strong>
+                          <span>{addr.state} - {addr.city}</span>
+                        </p>
+
+                        <div className="text-gray-800 bg-gray-50 p-2 rounded-lg border border-gray-150 leading-relaxed text-[11px]">
+                          <strong>آدرس کامل: </strong>
+                          <span>{addr.address}</span>
+                        </div>
+
+                        <div className="flex items-center justify-between text-[11px] text-gray-500 pt-1">
+                          <span>کد پستی: <strong className="font-mono text-gray-800 font-bold">{addr.zipcode ? formatPersianNumber(addr.zipcode) : "ثبت نشده"}</strong></span>
+                          {addr.created_at && (
+                            <span className="text-[10px] text-gray-400 font-mono">
+                              ثبت: {toPersianDateTime(addr.created_at).split("،")[0]}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     ))}
+                  </div>
+                )}
+
+                {/* Historical Order Delivery Addresses */}
+                {data.orderAddresses?.length > 0 && (
+                  <div className="pt-3 border-t border-gray-200/80 space-y-2">
+                    <h5 className="font-bold text-purple-900 text-xs flex items-center gap-1">
+                      <IconHistory size={14} className="text-purple-600" />
+                      <span>تاریخچه نشانی‌های ثبت‌شده در فاکتور سفارش‌ها ({formatPersianNumber(data.orderAddresses.length)}):</span>
+                    </h5>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                      {data.orderAddresses.map((ordAddr: any, idx: number) => (
+                        <div key={idx} className="p-2.5 bg-purple-50/50 rounded-xl border border-purple-100 space-y-1 text-[11px]">
+                          <div className="flex items-center justify-between font-bold text-purple-950 pb-1 border-b border-purple-100">
+                            <span>فاکتور #{formatPersianNumber(ordAddr.orderId)}</span>
+                            <span className="font-mono text-[10px] text-purple-700 font-normal">
+                              {toPersianDateTime(ordAddr.orderDate).split("،")[0]}
+                            </span>
+                          </div>
+                          <div>گیرنده: <strong>{ordAddr.name}</strong> ({ordAddr.phone})</div>
+                          <div>مقصد: {ordAddr.state}، {ordAddr.city}</div>
+                          <div className="bg-white/80 p-1.5 rounded border border-purple-100 text-gray-700">{ordAddr.address}</div>
+                          {ordAddr.zipcode && <div className="text-gray-500 font-mono">کد پستی: {formatPersianNumber(ordAddr.zipcode)}</div>}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

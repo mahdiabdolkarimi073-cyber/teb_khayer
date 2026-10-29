@@ -28,6 +28,7 @@ import {
   IconGardenCart,
   IconNotification,
   IconPhoneCall,
+  IconSearch,
 } from "@tabler/icons-react";
 import classes from "./HeaderMegaMenu.module.css";
 import AppConfig from "@/config/AppConfig";
@@ -135,6 +136,16 @@ export function WebHeader(parentProps: {
 
   const Btns = (props: any) => (
     <Group {...props}>
+      <Link
+        href="/category/all"
+        className="center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 hover:border-blue-400 bg-gray-50/80 hover:bg-blue-50/50 text-gray-700 transition-all text-xs"
+        title="جستجوی زنده و تصویری در محصولات طِب خیّر"
+      >
+        <IconSearch size={15} className="text-blue-600" />
+        <span className="font-bold">
+          جستجو در <span className="text-red-600 font-black">طِب خیّر</span>
+        </span>
+      </Link>
       <Link href={"tel:04533790667"} className={"center gap-2"}>
         <p>{parentProps?.phone || SettingKeyInfo["MAIN_PHONE"]?.default}</p>
         <IconPhoneCall className={"text-primary"} />

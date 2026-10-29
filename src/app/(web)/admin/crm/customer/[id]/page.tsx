@@ -12,6 +12,10 @@ import {
   IconMapPin,
   IconShoppingBag,
   IconBook2,
+  IconHome,
+  IconBriefcase,
+  IconHistory,
+  IconStarFilled,
 } from "@tabler/icons-react";
 
 interface PageProps {
@@ -107,24 +111,108 @@ export default async function CustomerDossierPage(props: PageProps) {
         </div>
       </div>
 
-      {/* Addresses */}
-      <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-2xs space-y-3">
-        <h3 className="font-bold text-gray-900 text-sm flex items-center gap-2">
-          <IconMapPin size={18} className="text-blue-600" />
-          <span>آدرس‌های تحویل کالا ({formatPersianNumber(data.addresses.length)})</span>
-        </h3>
+      {/* Addresses Section (Req 4, 5, 6, 8) */}
+      <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-2xs space-y-4">
+        <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+          <h3 className="font-bold text-gray-900 text-sm flex items-center gap-2">
+            <IconMapPin size={18} className="text-blue-600" />
+            <span>آدرس‌های مشتری و نشانی‌های تحویل کالا ({formatPersianNumber(data.addresses.length)})</span>
+          </h3>
+          {data.orderAddresses?.length > 0 && (
+            <span className="text-[11px] text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full font-bold border border-purple-200">
+              {formatPersianNumber(data.orderAddresses.length)} نشانی در فاکتور سفارش‌ها
+            </span>
+          )}
+        </div>
+
         {data.addresses.length === 0 ? (
-          <p className="text-xs text-gray-400">آدرسی ثبت نشده است.</p>
+          <div className="p-4 rounded-xl bg-gray-50 border border-dashed border-gray-300 text-center space-y-1">
+            <IconMapPin size={24} className="text-gray-400 mx-auto" />
+            <p className="text-xs font-bold text-gray-700">آدرسی برای این مشتری ثبت نشده است</p>
+            <p className="text-[11px] text-gray-400">این مشتری هنوز هیچ آدرسی را در حساب کاربری خود ثبت نکرده است.</p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {data.addresses.map((a: any) => (
-              <div key={a.id} className="p-3 bg-gray-50 rounded-xl border border-gray-200 text-xs space-y-1">
-                <p className="font-bold text-gray-800">{a.title} - گیرنده: {a.name}</p>
-                <p className="text-gray-600">{a.state} - {a.city}</p>
-                <p className="text-gray-700">{a.address}</p>
-                <p className="text-gray-500 font-mono">کد پستی: {formatPersianNumber(a.zipcode || "-")}</p>
+              <div
+                key={a.id}
+                className={`p-3.5 rounded-xl border text-xs space-y-1.5 transition ${
+                  a.isDefault
+                    ? "bg-emerald-50/40 border-emerald-300 ring-1 ring-emerald-200"
+                    : "bg-gray-50/70 border-gray-200"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-1 pb-1 border-b border-black/5">
+                  <span className="font-bold text-gray-900 flex items-center gap-1">
+                    {a.title === "محل کار" ? <IconBriefcase size={14} className="text-blue-600" /> : <IconHome size={14} className="text-blue-600" />}
+                    <span>{a.title || "منزل"}</span>
+                  </span>
+                  {a.isDefault && (
+                    <span className="inline-flex items-center gap-0.5 text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold">
+                      <IconStarFilled size={10} />
+                      پیش‌فرض
+                    </span>
+                  )}
+                </div>
+
+                <div className="text-gray-800">
+                  <strong>نام گیرنده: </strong>
+                  <span>{a.name}</span>
+                </div>
+
+                <div className="text-gray-700">
+                  <strong>شماره تماس: </strong>
+                  <a href={`tel:${a.phone}`} className="font-mono dir-ltr text-blue-700 font-bold hover:underline">
+                    {a.phone}
+                  </a>
+                </div>
+
+                <p className="text-gray-600">
+                  <strong>استان و شهر: </strong>
+                  <span>{a.state} - {a.city}</span>
+                </p>
+
+                <div className="text-gray-800 bg-white/80 p-2 rounded-lg border border-gray-200 leading-relaxed text-[11px]">
+                  <strong>آدرس کامل: </strong>
+                  <span>{a.address}</span>
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] text-gray-500 pt-1">
+                  <span>کد پستی: <strong className="font-mono text-gray-800 font-bold">{a.zipcode ? formatPersianNumber(a.zipcode) : "ثبت نشده"}</strong></span>
+                  {a.created_at && (
+                    <span className="text-[10px] text-gray-400 font-mono">
+                      ثبت: {toPersianDateTime(a.created_at).split("،")[0]}
+                    </span>
+                  )}
+                </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Historical Order Delivery Addresses */}
+        {data.orderAddresses?.length > 0 && (
+          <div className="pt-3 border-t border-gray-200 space-y-2">
+            <h4 className="font-bold text-purple-900 text-xs flex items-center gap-1">
+              <IconHistory size={14} className="text-purple-600" />
+              <span>تاریخچه نشانی‌های ثبت‌شده در فاکتور سفارش‌ها ({formatPersianNumber(data.orderAddresses.length)}):</span>
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              {data.orderAddresses.map((ordAddr: any, idx: number) => (
+                <div key={idx} className="p-2.5 bg-purple-50/50 rounded-xl border border-purple-100 space-y-1 text-[11px]">
+                  <div className="flex items-center justify-between font-bold text-purple-950 pb-1 border-b border-purple-100">
+                    <span>فاکتور #{formatPersianNumber(ordAddr.orderId)}</span>
+                    <span className="font-mono text-[10px] text-purple-700 font-normal">
+                      {toPersianDateTime(ordAddr.orderDate).split("،")[0]}
+                    </span>
+                  </div>
+                  <div>گیرنده: <strong>{ordAddr.name}</strong> ({ordAddr.phone})</div>
+                  <div>مقصد: {ordAddr.state}، {ordAddr.city}</div>
+                  <div className="bg-white/80 p-1.5 rounded border border-purple-100 text-gray-700">{ordAddr.address}</div>
+                  {ordAddr.zipcode && <div className="text-gray-500 font-mono">کد پستی: {formatPersianNumber(ordAddr.zipcode)}</div>}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

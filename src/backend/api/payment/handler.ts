@@ -3,6 +3,7 @@ import prisma from "@backend/modules/prisma/Prisma";
 import {NextResponse} from "next/server";
 import Payment from "@backend/modules/payment/Payment";
 import {paymentLog} from "@/utils/paymentLogger";
+import {SmsService} from "@backend/modules/sms/SmsService";
 
 const basePayload = {
 	"terminalid": "شناسه ترمینال",
@@ -116,6 +117,7 @@ export default class PaymentHandler extends Handler {
 			try {
 				await Payment.handlePaymentAction(payment);
 				paymentLog.info('CALLBACK', 'Payment actions completed', { paymentId: payment.id });
+				await SmsService.markOrderCompleted(payment.id);
 			} catch (actionError) {
 				paymentLog.error('CALLBACK', 'Payment actions FAILED, rolling back receipt', {
 					paymentId: payment.id,

@@ -5,6 +5,7 @@ import { ssrOptimize } from "@/utils/other";
 import { Order, OrderStatus } from "@prisma/client";
 import { ensureCRMTables } from "@/backend/modules/crm/crmDb";
 import { getVar, setVar } from "@backend/utils/setting";
+import { SmsService } from "@backend/modules/sms/SmsService";
 
 export const CANCELLATION_REASONS = [
   "تغییر نظر مشتری",
@@ -99,6 +100,9 @@ export async function cancelOrderWithReason(
       info,
     },
   });
+
+  // Mark abandoned cart reminder as canceled so customer doesn't receive buy reminder
+  await SmsService.markOrderCanceled(orderId);
 
   // 2. Insert or update OrderCancellation table
   try {

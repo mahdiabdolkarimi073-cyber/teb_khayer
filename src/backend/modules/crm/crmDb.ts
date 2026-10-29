@@ -155,6 +155,56 @@ export async function ensureCRMTables() {
       );
     `);
 
+    // 10. AbandonedOrderReminder (یادآوری پیامکی سفارشات ناتمام / رها شده)
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "AbandonedOrderReminder" (
+        "id" SERIAL PRIMARY KEY,
+        "orderId" INTEGER,
+        "paymentId" TEXT UNIQUE,
+        "userId" TEXT NOT NULL,
+        "userPhone" TEXT NOT NULL,
+        "customerName" TEXT,
+        "totalAmount" DOUBLE PRECISION,
+        "checkoutUrl" TEXT NOT NULL,
+        "status" TEXT NOT NULL DEFAULT 'PENDING',
+        "triggerAt" TIMESTAMPTZ NOT NULL,
+        "sentAt" TIMESTAMPTZ,
+        "smsText" TEXT,
+        "failureReason" TEXT,
+        "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+        "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+      CREATE INDEX IF NOT EXISTS "AbandonedOrderReminder_triggerAt_idx" ON "AbandonedOrderReminder" ("triggerAt", "status");
+      CREATE INDEX IF NOT EXISTS "AbandonedOrderReminder_userId_idx" ON "AbandonedOrderReminder" ("userId");
+    `);
+
+    // 11. SmsLog (لاگ کلیه پیامک‌های سیستم)
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "SmsLog" (
+        "id" SERIAL PRIMARY KEY,
+        "phone" TEXT NOT NULL,
+        "message" TEXT NOT NULL,
+        "status" TEXT NOT NULL,
+        "provider" TEXT,
+        "response" TEXT,
+        "created_at" TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+      CREATE INDEX IF NOT EXISTS "SmsLog_phone_idx" ON "SmsLog" ("phone");
+    `);
+
+    // 12. ProductShippingConfig (هزینه ارسال اختصاصی و تخفیف ارسال هر محصول)
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "ProductShippingConfig" (
+        "productId" TEXT PRIMARY KEY,
+        "shippingFee" DOUBLE PRECISION NOT NULL DEFAULT 0,
+        "shippingDiscount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+        "hasCustomShipping" BOOLEAN NOT NULL DEFAULT false,
+        "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+        "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+      CREATE INDEX IF NOT EXISTS "ProductShippingConfig_productId_idx" ON "ProductShippingConfig" ("productId");
+    `);
+
     initialized = true;
   } catch (error) {
     console.warn("CRM tables init warning:", error);

@@ -1,8 +1,21 @@
 "use client";
 
 import {Product, ProductCategory} from "@prisma/client";
-import React, {useMemo, useState} from "react";
-import {IconArrowLeft, IconBuildingStore, IconCheck, IconChevronLeft, IconHeart, IconInfoCircle, IconRefresh, IconShare, IconShieldCheck, IconShoppingCart, IconTruckDelivery} from "@tabler/icons-react";
+import React, {useEffect, useMemo, useState} from "react";
+import {
+  IconArrowLeft,
+  IconBuildingStore,
+  IconCheck,
+  IconChevronLeft,
+  IconHeart,
+  IconHeartFilled,
+  IconInfoCircle,
+  IconRefresh,
+  IconShare,
+  IconShieldCheck,
+  IconShoppingCart,
+  IconTruckDelivery
+} from "@tabler/icons-react";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import ProductCard from "@/app/(web)/ProductCard";
@@ -10,6 +23,9 @@ import {modal} from "@/utils/modal";
 import HowCanITrust from "@/app/(web)/product/[id]/HowCanITrust";
 import ProductImageGallery from "@/components/shop/ProductImageGallery";
 import {setLocalCart, useCart} from "@/utils/localCart";
+import {useAction} from "@/utils/server";
+import {getUserFromCookie} from "@/utils/serverComponents/user";
+import {handlePrismaQuery} from "@/app/(web)/admin/action";
 import classes from "./product-view.module.css";
 
 const ProductView = (props: {
@@ -31,6 +47,125 @@ const ProductView = (props: {
     return {label: label?.trim(), value: rest.join(":").trim()};
   }).filter((item) => item.label), [properties]);
 
+  const {result: user} = useAction(getUserFromCookie);
+  const [isLiked, setIsLiked] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+
+  // Sync favorites on mount or user change
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    if (user) {
+      handlePrismaQuery<any>("productLike", "findFirst", {
+        where: {
+          userId: user.id,
+          productId: product.id,
+        },
+      }).then((likedRecord) => {
+        if (likedRecord) {
+          setIsLiked(true);
+        } else {
+          // Check if user had it in guest favorites and sync to DB
+          try {
+            const guestFavs: string[] = JSON.parse(window.localStorage.getItem("guest_favorites") || "[]");
+            if (Array.isArray(guestFavs) && guestFavs.includes(product.id)) {
+              handlePrismaQuery("productLike", "create", {
+                data: {
+                  userId: user.id,
+                  productId: product.id,
+                },
+              }).then(() => setIsLiked(true));
+            }
+          } catch {
+            // ignore JSON parse errors
+          }
+        }
+      });
+    } else {
+      // Guest mode
+      try {
+        const guestFavs: string[] = JSON.parse(window.localStorage.getItem("guest_favorites") || "[]");
+        setIsLiked(Array.isArray(guestFavs) && guestFavs.includes(product.id));
+      } catch {
+        setIsLiked(false);
+      }
+    }
+  }, [user, product.id]);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleToggleLike = async () => {
+    if (user) {
+      if (isLiked) {
+        await handlePrismaQuery("productLike", "deleteMany", {
+          where: {
+            userId: user.id,
+            productId: product.id,
+          },
+        });
+        setIsLiked(false);
+        showToast("از علاقه‌مندی‌ها حذف شد");
+      } else {
+        await handlePrismaQuery("productLike", "create", {
+          data: {
+            userId: user.id,
+            productId: product.id,
+          },
+        });
+        setIsLiked(true);
+        showToast("به علاقه‌مندی‌ها اضافه شد ❤️");
+      }
+    } else {
+      // Guest mode via localStorage
+      try {
+        const guestFavs: string[] = JSON.parse(window.localStorage.getItem("guest_favorites") || "[]");
+        if (guestFavs.includes(product.id)) {
+          const updated = guestFavs.filter((id) => id !== product.id);
+          window.localStorage.setItem("guest_favorites", JSON.stringify(updated));
+          setIsLiked(false);
+          showToast("از علاقه‌مندی‌ها حذف شد");
+        } else {
+          guestFavs.push(product.id);
+          window.localStorage.setItem("guest_favorites", JSON.stringify(guestFavs));
+          setIsLiked(true);
+          showToast("به علاقه‌مندی‌ها اضافه شد ❤️");
+        }
+      } catch {
+        window.localStorage.setItem("guest_favorites", JSON.stringify([product.id]));
+        setIsLiked(true);
+        showToast("به علاقه‌مندی‌ها اضافه شد ❤️");
+      }
+    }
+  };
+
+  const handleShare = async () => {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    const shareData = {
+      title: name,
+      text: `${name} در فروشگاه طِب خیّر`,
+      url,
+    };
+    if (typeof navigator !== "undefined" && navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch {
+        // user canceled or browser dialog closed
+      }
+    }
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(url);
+        showToast("لینک محصول با موفقیت کپی شد 👌");
+      } catch {
+        showToast("امکان کپی خودکار لینک فراهم نشد");
+      }
+    }
+  };
+
   const updateCart = (nextQuantity: number) => {
     const safeQuantity = Math.max(1, Math.min(nextQuantity, stock || 1));
     setQuantity(safeQuantity);
@@ -42,6 +177,12 @@ const ProductView = (props: {
 
   return (
     <main className={classes.page}>
+      {toast && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-gray-900/90 text-white px-5 py-2.5 rounded-2xl shadow-xl text-xs sm:text-sm font-black flex items-center gap-2">
+          <span>{toast}</span>
+        </div>
+      )}
+
       <div className={classes.breadcrumbBar}>
         <div className={classes.breadcrumbInner}>
           <Link href="/">خانه</Link><IconChevronLeft size={14}/>
@@ -62,8 +203,27 @@ const ProductView = (props: {
             <ProductImageGallery images={images || []} alt={name}/>
           </div>
           <div className={classes.galleryActions}>
-            <button type="button" aria-label="افزودن به علاقه‌مندی‌ها"><IconHeart size={18}/>افزودن به علاقه‌مندی‌ها</button>
-            <button type="button" aria-label="اشتراک‌گذاری"><IconShare size={18}/>اشتراک‌گذاری</button>
+            <button
+              type="button"
+              onClick={handleToggleLike}
+              aria-label={isLiked ? "حذف از علاقه‌مندی‌ها" : "افزودن به علاقه‌مندی‌ها"}
+              className={isLiked ? "text-red-600 font-bold" : ""}
+            >
+              {isLiked ? (
+                <IconHeartFilled size={18} className="text-red-500 fill-red-500" />
+              ) : (
+                <IconHeart size={18}/>
+              )}
+              {isLiked ? "در علاقه‌مندی‌ها" : "افزودن به علاقه‌مندی‌ها"}
+            </button>
+            <button
+              type="button"
+              onClick={handleShare}
+              aria-label="اشتراک‌گذاری"
+            >
+              <IconShare size={18}/>
+              اشتراک‌گذاری
+            </button>
           </div>
         </div>
 
@@ -100,7 +260,7 @@ const ProductView = (props: {
               </div>
               {available && <span className={classes.stockHint}>{Number(stock).toLocaleString("fa")} عدد در انبار</span>}
             </div>
-            <button type="button" className={classes.addButton} disabled={!available} onClick={() => { updateCart(quantity); router.push("/dashboard/cart"); }}>
+            <button type="button" className={classes.addButton} disabled={!available} onClick={() => { updateCart(quantity); router.push(`/category?added=true&productId=${product.id}`); }}>
               <IconShoppingCart size={22}/>{available ? "افزودن به سبد خرید" : "ناموجود"}
             </button>
           </div>

@@ -2,6 +2,9 @@
 
 import prisma from "@backend/modules/prisma/Prisma";
 import { OrderStatus } from "@prisma/client";
+import { ensureCRMTables } from "@/backend/modules/crm/crmDb";
+import { SmsService } from "@backend/modules/sms/SmsService";
+import { setVar } from "@backend/utils/setting";
 
 export interface CustomerSegmentItem {
   id: string;
@@ -292,7 +295,10 @@ export async function getCustomerDossier(userId: string) {
     where: { id: userId },
     include: {
       addresses: {
-        orderBy: { created_at: "desc" },
+        orderBy: [
+          { isDefault: "desc" },
+          { created_at: "desc" },
+        ],
       },
       courses: {
         include: {
@@ -338,6 +344,35 @@ export async function getCustomerDossier(userId: string) {
     }
   }
 
+  // Extract historical snapshot delivery addresses from past orders (Requirement 8)
+  const orderAddressesMap = new Map<string, any>();
+  for (const o of user.orders) {
+    let rawInfo: any = {};
+    try {
+      rawInfo = typeof o.info === "string" ? JSON.parse(o.info as string) : (o.info || {});
+    } catch {
+      rawInfo = {};
+    }
+    const addr = rawInfo.address;
+    if (addr && typeof addr === "string" && addr.trim()) {
+      const key = `${rawInfo.state || ""}_${rawInfo.city || ""}_${addr.trim()}`;
+      if (!orderAddressesMap.has(key)) {
+        orderAddressesMap.set(key, {
+          orderId: o.id,
+          orderDate: o.created_at.toISOString(),
+          orderStatus: o.status,
+          name: rawInfo.name || user.name || "گیرنده نامشخص",
+          phone: rawInfo.phone ? String(rawInfo.phone) : (user.phone ? `0${user.phone}` : "-"),
+          state: rawInfo.state || "-",
+          city: rawInfo.city || "-",
+          address: addr.trim(),
+          zipcode: rawInfo.zipcode || rawInfo.postalCode || null,
+        });
+      }
+    }
+  }
+  const orderAddresses = Array.from(orderAddressesMap.values());
+
   // Fetch support tickets and last login for the customer
   let tickets: any[] = [];
   let lastLogin: any = null;
@@ -380,15 +415,18 @@ export async function getCustomerDossier(userId: string) {
     tickets,
     addresses: user.addresses.map((a) => ({
       id: a.id,
-      title: a.title,
+      title: a.title || "منزل",
       name: a.name,
       phone: a.phone,
       state: a.state,
       city: a.city,
       address: a.address,
-      zipcode: a.zipcode,
-      isDefault: a.isDefault,
+      zipcode: a.zipcode || null,
+      isDefault: Boolean(a.isDefault),
+      created_at: a.created_at ? a.created_at.toISOString() : null,
+      updated_at: a.updated_at ? a.updated_at.toISOString() : null,
     })),
+    orderAddresses,
     courses: user.courses.map((c) => ({
       id: c.id,
       courseId: c.courseId,
@@ -552,16 +590,27 @@ export async function searchUnifiedCustomerAndOrder(query: string) {
   let targetUserId: string | null = null;
   let matchedOrderId: number | null = null;
 
+  // 0. Try direct exact match on User ID first (Requirement 7)
+  const directUser = await prisma.user.findUnique({
+    where: { id: clean },
+    select: { id: true },
+  });
+  if (directUser) {
+    targetUserId = directUser.id;
+  }
+
   // 1. Try matching Order ID first if numeric
-  const numericVal = Number(clean.replace(/^0+/, ""));
-  if (!isNaN(numericVal) && clean.length <= 8) {
-    const matchedOrder = await prisma.order.findUnique({
-      where: { id: Number(clean) },
-      select: { id: true, userId: true },
-    });
-    if (matchedOrder) {
-      targetUserId = matchedOrder.userId;
-      matchedOrderId = matchedOrder.id;
+  if (!targetUserId) {
+    const numericVal = Number(clean.replace(/^0+/, ""));
+    if (!isNaN(numericVal) && clean.length <= 8) {
+      const matchedOrder = await prisma.order.findUnique({
+        where: { id: Number(clean) },
+        select: { id: true, userId: true },
+      });
+      if (matchedOrder) {
+        targetUserId = matchedOrder.userId;
+        matchedOrderId = matchedOrder.id;
+      }
     }
   }
 
@@ -618,4 +667,70 @@ export async function searchUnifiedCustomerAndOrder(query: string) {
     },
   };
 }
+
+export async function getSmsDashboardData() {
+  await ensureCRMTables();
+  const config = await SmsService.getConfig();
+
+  const [reminders, logs, stats] = await Promise.all([
+    prisma.$queryRawUnsafe<any[]>(`
+      SELECT * FROM "AbandonedOrderReminder"
+      ORDER BY "created_at" DESC
+      LIMIT 30
+    `),
+    prisma.$queryRawUnsafe<any[]>(`
+      SELECT * FROM "SmsLog"
+      ORDER BY "created_at" DESC
+      LIMIT 30
+    `),
+    prisma.$queryRawUnsafe<any[]>(`
+      SELECT 
+        COUNT(*) as total,
+        COUNT(CASE WHEN "status" = 'PENDING' THEN 1 END) as pending,
+        COUNT(CASE WHEN "status" = 'SENT' THEN 1 END) as sent,
+        COUNT(CASE WHEN "status" = 'COMPLETED' THEN 1 END) as completed,
+        COUNT(CASE WHEN "status" = 'CANCELED' THEN 1 END) as canceled
+      FROM "AbandonedOrderReminder"
+    `),
+  ]);
+
+  return {
+    config,
+    reminders: (reminders || []).map((r) => ({
+      ...r,
+      created_at: r.created_at ? new Date(r.created_at).toISOString() : null,
+      updated_at: r.updated_at ? new Date(r.updated_at).toISOString() : null,
+      triggerAt: r.triggerAt ? new Date(r.triggerAt).toISOString() : null,
+      sentAt: r.sentAt ? new Date(r.sentAt).toISOString() : null,
+    })),
+    logs: (logs || []).map((l) => ({
+      ...l,
+      created_at: l.created_at ? new Date(l.created_at).toISOString() : null,
+    })),
+    stats: stats?.[0] || { total: 0, pending: 0, sent: 0, completed: 0, canceled: 0 },
+  };
+}
+
+export async function saveSmsConfig(data: {
+  isEnabled: boolean;
+  provider: string;
+  apiKey: string;
+  lineNumber: string;
+  delayMinutes: number;
+  template: string;
+}) {
+  await setVar("SMS_ENABLED", data.isEnabled ? "true" : "false");
+  await setVar("SMS_PROVIDER", data.provider.trim());
+  await setVar("SMS_API_KEY", data.apiKey.trim());
+  await setVar("SMS_LINE_NUMBER", data.lineNumber.trim());
+  await setVar("SMS_REMINDER_DELAY_MINUTES", String(data.delayMinutes || 10));
+  await setVar("SMS_ABANDONED_TEMPLATE", data.template.trim());
+
+  return { success: true, message: "تنظیمات پیامک با موفقیت ذخیره شد." };
+}
+
+export async function manualProcessReminders() {
+  return await SmsService.processDueReminders();
+}
+
 

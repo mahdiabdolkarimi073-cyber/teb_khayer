@@ -10,6 +10,7 @@ import OrderProductCreateArgs = Prisma.OrderProductCreateArgs;
 import {getVar} from "@backend/utils/setting";
 import {paymentLog} from "@/utils/paymentLogger";
 import Payment from "@backend/modules/payment/Payment";
+import {SmsService} from "@backend/modules/sms/SmsService";
 
 type CheckoutData = Record<string, unknown>;
 
@@ -91,13 +92,89 @@ export async function createOrderPortal(
 		const discountCode = typeof fields.discountCode === "string" ? fields.discountCode : "";
 		const discount = await calculateDiscount(discountCode, productsTotal);
 		if (discountCode.trim() && !discount.amount) return {message: discount.message, status: 400};
-		const boxFee = +(await getVar<string>("PRODUCT_BOX_FEE") || "0");
-		const postFee = +(await getVar<string>("PRODUCT_POST_FEE") || "0");
-		const freeShippingThreshold = +(await getVar<string>("FREE_SHIPPING_THRESHOLD") || "0");
+
+		const [
+			boxFeeStr,
+			postFeeStr,
+			freeShippingThresholdStr,
+			deliveryEstimatedDaysSetting,
+			unifiedShippingEnabledStr,
+			unifiedShippingFeeStr,
+			unifiedShippingDiscountStr
+		] = await Promise.all([
+			getVar<string>("PRODUCT_BOX_FEE"),
+			getVar<string>("PRODUCT_POST_FEE"),
+			getVar<string>("FREE_SHIPPING_THRESHOLD"),
+			getVar<string>("DELIVERY_ESTIMATED_DAYS"),
+			getVar<string>("UNIFIED_SHIPPING_ENABLED"),
+			getVar<string>("UNIFIED_SHIPPING_FEE"),
+			getVar<string>("UNIFIED_SHIPPING_DISCOUNT"),
+		]);
+
+		const boxFee = +(boxFeeStr || "0");
+		const postFee = +(postFeeStr || "36000");
+		const freeShippingThreshold = +(freeShippingThresholdStr || "2000000");
+		const deliveryEstimatedDays = deliveryEstimatedDaysSetting || "۳ تا ۵ روز کاری";
+		const unifiedShippingEnabled = unifiedShippingEnabledStr === "true";
+		const unifiedShippingFee = +(unifiedShippingFeeStr || "39000");
+		const unifiedShippingDiscount = +(unifiedShippingDiscountStr || "0");
+
+		const shippingPaymentMethod = fields.shippingPaymentMethod === "postpaid" ? "postpaid" : "online";
+
 		const hasFreeShippingProduct = Object.values(fetchedProduct).some(p => p.freeShipping);
 		const qualifiesFreeShipping = hasFreeShippingProduct || (freeShippingThreshold > 0 && productsTotal >= freeShippingThreshold);
-		const effectivePostFee = qualifiesFreeShipping ? 0 : postFee;
-		const total = Math.max(0, productsTotal + boxFee + effectivePostFee - discount.amount);
+
+		let calculatedShippingFee = 0;
+		let originalShippingFee = 0;
+		let shippingDiscount = 0;
+		let shippingHierarchyApplied: "FREE_SHIPPING" | "UNIFIED" | "PRODUCT_CUSTOM" | "DEFAULT_POST" = "DEFAULT_POST";
+
+		if (qualifiesFreeShipping) {
+			calculatedShippingFee = 0;
+			originalShippingFee = 0;
+			shippingDiscount = 0;
+			shippingHierarchyApplied = "FREE_SHIPPING";
+		} else if (unifiedShippingEnabled) {
+			originalShippingFee = unifiedShippingFee;
+			shippingDiscount = unifiedShippingDiscount;
+			calculatedShippingFee = Math.max(0, unifiedShippingFee - unifiedShippingDiscount);
+			shippingHierarchyApplied = "UNIFIED";
+		} else {
+			const { getProductsShipping } = await import("@/app/(web)/admin/products/shipping.action");
+			const productShippingConfigs = await getProductsShipping(Object.keys(products));
+			const customProductEntries = Object.entries(productShippingConfigs).filter(([_, cfg]) => cfg.hasCustomShipping);
+
+			if (customProductEntries.length > 0) {
+				const fees = Object.keys(products).map(id => {
+					const cfg = productShippingConfigs[id];
+					if (cfg && cfg.hasCustomShipping) {
+						return Math.max(0, cfg.shippingFee - cfg.shippingDiscount);
+					}
+					return postFee;
+				});
+				const origFees = Object.keys(products).map(id => {
+					const cfg = productShippingConfigs[id];
+					if (cfg && cfg.hasCustomShipping) {
+						return cfg.shippingFee;
+					}
+					return postFee;
+				});
+				calculatedShippingFee = Math.max(...fees);
+				originalShippingFee = Math.max(...origFees);
+				shippingDiscount = Math.max(0, originalShippingFee - calculatedShippingFee);
+				shippingHierarchyApplied = "PRODUCT_CUSTOM";
+			} else {
+				calculatedShippingFee = postFee;
+				originalShippingFee = postFee;
+				shippingDiscount = 0;
+				shippingHierarchyApplied = "DEFAULT_POST";
+			}
+		}
+
+		const onlineShippingFee = (qualifiesFreeShipping || shippingPaymentMethod === "postpaid") ? 0 : calculatedShippingFee;
+		const postpaidFee = (!qualifiesFreeShipping && shippingPaymentMethod === "postpaid") ? calculatedShippingFee : 0;
+
+		const total = Math.max(0, productsTotal + boxFee + onlineShippingFee - discount.amount);
 
 		const paymentId = `pymt_${requestId}`;
 		const existingPayment = await prisma.payment.findUnique({where: {id: paymentId}});
@@ -125,15 +202,19 @@ export async function createOrderPortal(
 
 		const orderInfo = {
 			...fields,
-			shippingFee: effectivePostFee,
-			originalShippingFee: postFee,
+			shippingPaymentMethod,
+			shippingFee: onlineShippingFee,
+			postpaidFee,
+			calculatedShippingFee,
+			originalShippingFee,
+			shippingDiscount,
 			boxFee,
 			isFreeShipping: qualifiesFreeShipping,
-			freeShippingReason: hasFreeShippingProduct
-				? "حاوی محصول با ارسال رایگان"
-				: qualifiesFreeShipping
-				? "مبلغ سفارش بالاتر از سقف ارسال رایگان"
+			freeShippingReason: qualifiesFreeShipping
+				? (hasFreeShippingProduct ? "حاوی محصول با ارسال رایگان" : "مبلغ سفارش بالاتر از سقف ارسال رایگان")
 				: null,
+			deliveryEstimatedDays,
+			shippingHierarchyApplied,
 			productsTotal,
 			discountAmount: discount.amount,
 		};
@@ -174,6 +255,21 @@ export async function createOrderPortal(
 			await Payment.handlePaymentAction(paymentWithActions);
 			await prisma.payment.update({where: {id: payment.id}, data: {receipt: `COD_${payment.id}`}});
 			return {message: payment.successMsg, orderCompleted: true, redirect: "/dashboard/orders?status=current"};
+		}
+
+		if (paymentMethod !== "cashOnDelivery") {
+			try {
+				await SmsService.scheduleAbandonedOrderReminder({
+					orderId,
+					paymentId: payment.id,
+					userId: user.id,
+					userPhone: String(fields.phone || user.phone || ""),
+					customerName: String(fields.name || user.name || "مشتری گرامی"),
+					totalAmount: total,
+				});
+			} catch (scheduleError) {
+				paymentLog.warn('CHECKOUT', 'Failed to schedule abandoned order reminder', { error: String(scheduleError) });
+			}
 		}
 
 		const token = await payment.getToken();

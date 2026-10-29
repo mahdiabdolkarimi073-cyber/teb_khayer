@@ -162,7 +162,131 @@
   .fieldFull { grid-column: auto; }
   .paymentOptions { grid-template-columns: 1fr; gap: 8px; }
   .paymentOption { min-height: 56px; }
+  .shippingOptions { grid-template-columns: 1fr; gap: 8px; }
+  .shippingOption { min-height: 56px; }
   .actions { flex-direction: column-reverse; align-items: stretch; }
   .submit { width: 100%; min-width: 0; }
   .backLink { justify-content: center; }
 }
+
+.freeShippingCta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 13px;
+  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+  border: 1px solid #a7f3d0;
+  border-radius: 9px;
+  color: #065f46;
+}
+
+.freeShippingCtaHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.freeShippingCtaTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #047857;
+}
+
+.freeShippingCtaBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 12px;
+  background: #059669;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .15s ease;
+}
+
+.freeShippingCtaBtn:hover {
+  background: #047857;
+}
+
+.freeShippingCtaProgress {
+  width: 100%;
+  height: 6px;
+  background: #d1fae5;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.freeShippingCtaBar {
+  height: 100%;
+  background: #10b981;
+  border-radius: 999px;
+  transition: width .3s ease;
+}
+
+.freeShippingCtaText {
+  font-size: 10px;
+  line-height: 1.4;
+  color: #065f46;
+}
+
+.shippingMethodSection {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #edf2f7;
+}
+
+.shippingOptions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.shippingOption {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 68px;
+  border: 1px solid #e0e9f3;
+  border-radius: 8px;
+  padding: 10px;
+  color: #365374;
+  font-size: 11px;
+  cursor: pointer;
+  transition: border-color .2s ease, background-color .2s ease, box-shadow .2s ease;
+}
+
+.shippingOption:has(input:checked) {
+  border-color: #1685ee;
+  background: #f5faff;
+  box-shadow: inset 0 0 0 1px #1685ee;
+}
+
+.shippingOption input {
+  accent-color: #0875e1;
+}
+
+.deliveryEstimateRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 12px;
+  margin-top: 10px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 7px;
+  font-size: 11px;
+  color: #334155;
+  font-weight: 500;
+}
+
