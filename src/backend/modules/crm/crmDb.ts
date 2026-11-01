@@ -192,16 +192,20 @@ export async function ensureCRMTables() {
       CREATE INDEX IF NOT EXISTS "SmsLog_phone_idx" ON "SmsLog" ("phone");
     `);
 
-    // 12. ProductShippingConfig (هزینه ارسال اختصاصی و تخفیف ارسال هر محصول)
+    // 12. ProductShippingConfig (هزینه ارسال اختصاصی و تخفیف ارسال و بسته‌بندی هر محصول)
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "ProductShippingConfig" (
         "productId" TEXT PRIMARY KEY,
         "shippingFee" DOUBLE PRECISION NOT NULL DEFAULT 0,
         "shippingDiscount" DOUBLE PRECISION NOT NULL DEFAULT 0,
         "hasCustomShipping" BOOLEAN NOT NULL DEFAULT false,
+        "boxFee" DOUBLE PRECISION NOT NULL DEFAULT 0,
+        "hasCustomBox" BOOLEAN NOT NULL DEFAULT false,
         "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
         "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
       );
+      ALTER TABLE "ProductShippingConfig" ADD COLUMN IF NOT EXISTS "boxFee" DOUBLE PRECISION NOT NULL DEFAULT 0;
+      ALTER TABLE "ProductShippingConfig" ADD COLUMN IF NOT EXISTS "hasCustomBox" BOOLEAN NOT NULL DEFAULT false;
       CREATE INDEX IF NOT EXISTS "ProductShippingConfig_productId_idx" ON "ProductShippingConfig" ("productId");
     `);
 

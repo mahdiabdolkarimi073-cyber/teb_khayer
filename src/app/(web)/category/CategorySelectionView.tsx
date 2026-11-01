@@ -149,11 +149,11 @@ export function CategorySelectionView({
             </div>
 
             {/* Motivational headline */}
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <h1 className="text-lg sm:text-2xl font-black tracking-tight flex items-center gap-2">
                 <span>خریدت رو کامل‌تر کن تا رایگان ارسال بشه برات 😍</span>
               </h1>
-              <p className="text-xs sm:text-sm text-blue-100 max-w-2xl leading-relaxed">
+              <p className="text-xs sm:text-sm text-black font-bold max-w-2xl leading-relaxed bg-white/90 backdrop-blur-xs px-3.5 py-2 rounded-xl border border-white/60 shadow-2xs">
                 با افزودن محصولات مکمل و سوغات اصیل اردبیل مانند عسل سبلان و حلوای سیاه، هم سبد خریدت پربارتر می‌شه و هم هزینه‌ی ارسال برات کاملاً رایگان خواهد بود!
               </p>
             </div>

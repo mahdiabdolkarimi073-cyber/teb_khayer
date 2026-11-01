@@ -7,8 +7,8 @@ import {
   getAllOrders,
   getOrdersCount,
   getSenderSettings,
-  CANCELLATION_REASONS,
 } from "@/app/(web)/admin/orders/order.action";
+import { CANCELLATION_REASONS } from "@/app/(web)/admin/orders/order.types";
 import {
   ActionIcon,
   Badge,

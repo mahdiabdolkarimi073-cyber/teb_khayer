@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import { Button, TextInput, Textarea } from "@mantine/core";
-import { SenderInfoType, updateSenderSettings } from "@/app/(web)/admin/orders/order.action";
+import { updateSenderSettings } from "@/app/(web)/admin/orders/order.action";
+import type { SenderInfoType } from "@/app/(web)/admin/orders/order.types";
 import { closeLastModal } from "@/utils/modal";
 
 export function SenderSettingsModal({

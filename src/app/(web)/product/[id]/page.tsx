@@ -8,9 +8,11 @@ import {productMetadata} from "@/config/seo";
 import {JsonLd, productJsonLd, breadcrumbJsonLd} from "@/components/seo/JsonLd";
 
 const Page = async (props: any) => {
+	const rawId = props?.params?.id || "";
+	const cleanId = typeof rawId === "string" ? decodeURIComponent(rawId).split("?")[0].trim() : rawId;
 	const product = await prisma.product.findUnique({
 		where: {
-			id: props?.params?.id
+			id: cleanId
 		},
 		include: {
 			category: {
@@ -44,9 +46,11 @@ const Page = async (props: any) => {
 }
 
 export const generateMetadata = async (props: any): Promise<Metadata> => {
+	const rawId = props?.params?.id || "";
+	const cleanId = typeof rawId === "string" ? decodeURIComponent(rawId).split("?")[0].trim() : rawId;
 	const product = await prisma.product.findUnique({
 		where: {
-			id: props?.params?.id
+			id: cleanId
 		}
 	});
 	if (!product) return {};

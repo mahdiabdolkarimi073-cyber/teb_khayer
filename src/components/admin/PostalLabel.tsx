@@ -4,7 +4,8 @@ import React, { useRef, useState } from "react";
 import { IconPrinter, IconSettings, IconArrowRight, IconScissors, IconPackage } from "@tabler/icons-react";
 import { Button } from "@mantine/core";
 import { PostalBarcode } from "./PostalBarcode";
-import { SenderInfoType, updateSenderSettings } from "@/app/(web)/admin/orders/order.action";
+import { updateSenderSettings } from "@/app/(web)/admin/orders/order.action";
+import type { SenderInfoType } from "@/app/(web)/admin/orders/order.types";
 import { modal } from "@/utils/modal";
 import { SenderSettingsModal } from "./SenderSettingsModal";
 import { toPersianDate, formatPersianNumber, formatPersianCurrency } from "@/utils/format";
@@ -42,7 +43,29 @@ export function PostalLabel({
   showToolbar = true,
 }: PostalLabelProps) {
   const [sender, setSender] = useState<SenderInfoType>(initialSender);
+  const [scale, setScale] = useState(1);
+  const [fitToScreen, setFitToScreen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const printAreaRef = useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (typeof window !== "undefined") {
+        const screenW = window.innerWidth;
+        const availableW = Math.min(screenW - 24, 794);
+        if (availableW < 794) {
+          setScale(availableW / 794);
+          setIsMobile(true);
+        } else {
+          setScale(1);
+          setIsMobile(false);
+        }
+      }
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handlePrint = () => {
     if (typeof window !== "undefined") {
@@ -65,33 +88,52 @@ export function PostalLabel({
   const fullRecipientAddress = recipient.fullAddress || 
     [recipient.state, recipient.city, recipient.address].filter(Boolean).join("، ");
 
+  const activeScale = isMobile && fitToScreen ? scale : 1;
+
   return (
-    <div className="postal-label-wrapper w-full flex flex-col items-center">
+    <div className="postal-label-wrapper w-full flex flex-col items-center overflow-x-auto">
       {/* Screen Toolbar (hidden in print) */}
       {showToolbar && (
-        <div className="print:hidden w-full max-w-[210mm] mb-4 p-3 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
+        <div className="print:hidden w-full max-w-[210mm] mb-3 p-3 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="font-bold text-gray-800 text-sm">برچسب پستی سفارش #{order.id}</span>
-            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded font-mono">
-              سایز استاندارد A5 افقی (210×148mm)
+            <span className="text-[11px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded font-mono">
+              A5 افقی (210×148mm)
             </span>
+            {isMobile && (
+              <span className="text-[10px] text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded font-semibold">
+                نمای تطبیق موبایل
+              </span>
+            )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {isMobile && (
+              <Button
+                size="xs"
+                variant="subtle"
+                color="blue"
+                onClick={() => setFitToScreen(!fitToScreen)}
+              >
+                {fitToScreen ? "اندازه واقعی (۱۰۰٪)" : "تطبیق با صفحه"}
+              </Button>
+            )}
             <Button
               size="xs"
               variant="outline"
               color="gray"
               leftSection={<IconSettings size={15} />}
               onClick={handleEditSender}
+              className="flex-1 sm:flex-none"
             >
-              ویرایش اطلاعات فرستنده
+              ویرایش فرستنده
             </Button>
             <Button
               size="xs"
               color="dark"
               leftSection={<IconPrinter size={15} />}
               onClick={handlePrint}
+              className="flex-1 sm:flex-none"
             >
               چاپ یا ذخیره PDF
             </Button>
@@ -121,6 +163,13 @@ export function PostalLabel({
           .postal-label-sheet, .postal-label-sheet * {
             visibility: visible;
           }
+          .postal-label-scale-outer {
+            width: 210mm !important;
+            height: 148mm !important;
+            overflow: visible !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
           .postal-label-sheet {
             position: absolute !important;
             left: 0 !important;
@@ -131,6 +180,7 @@ export function PostalLabel({
             padding: 4mm 6mm !important;
             box-shadow: none !important;
             border: none !important;
+            transform: none !important;
           }
           .print\\:hidden {
             display: none !important;
@@ -138,20 +188,33 @@ export function PostalLabel({
         }
       `}</style>
 
-      {/* A5 Landscape Container (210mm x 148mm) */}
+      {/* Responsive Scaling Wrapper for Mobile View */}
       <div
-        ref={printAreaRef}
-        dir="rtl"
-        className="postal-label-sheet bg-white text-black font-sans box-border shadow-md border border-gray-300 print:shadow-none print:border-none"
+        className="postal-label-scale-outer w-full flex justify-center items-center overflow-x-auto print:overflow-visible print:w-auto print:h-auto"
         style={{
-          width: "210mm",
-          height: "148mm",
-          maxHeight: "148mm",
-          padding: "4mm 6mm",
-          position: "relative",
-          overflow: "hidden",
+          height: isMobile && fitToScreen ? `${Math.round(560 * activeScale)}px` : "auto",
+          width: isMobile && fitToScreen ? `${Math.round(794 * activeScale)}px` : "auto",
+          maxWidth: "100%",
         }}
       >
+        {/* A5 Landscape Container (210mm x 148mm) */}
+        <div
+          ref={printAreaRef}
+          dir="rtl"
+          className="postal-label-sheet bg-white text-black font-sans box-border shadow-md border border-gray-300 print:shadow-none print:border-none"
+          style={{
+            width: "210mm",
+            minWidth: "210mm",
+            height: "148mm",
+            minHeight: "148mm",
+            maxHeight: "148mm",
+            padding: "4mm 6mm",
+            position: "relative",
+            overflow: "hidden",
+            transform: isMobile && fitToScreen ? `scale(${activeScale})` : "none",
+            transformOrigin: "top center",
+          }}
+        >
         {/* ================= TOP HALF (Max 72mm height) ================= */}
         <div
           className="flex flex-col justify-between"
@@ -297,6 +360,7 @@ export function PostalLabel({
             [ نیمه پایینی کاغذ A5 جهت برش - خالی در پرینت نهایی ]
           </span>
         </div>
+      </div>
       </div>
     </div>
   );

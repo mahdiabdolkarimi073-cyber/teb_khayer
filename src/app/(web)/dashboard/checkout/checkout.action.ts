@@ -97,6 +97,7 @@ export async function createOrderPortal(
 			boxFeeStr,
 			postFeeStr,
 			freeShippingThresholdStr,
+			freeShippingEnabledStr,
 			deliveryEstimatedDaysSetting,
 			unifiedShippingEnabledStr,
 			unifiedShippingFeeStr,
@@ -105,29 +106,43 @@ export async function createOrderPortal(
 			getVar<string>("PRODUCT_BOX_FEE"),
 			getVar<string>("PRODUCT_POST_FEE"),
 			getVar<string>("FREE_SHIPPING_THRESHOLD"),
+			getVar<string>("FREE_SHIPPING_ENABLED"),
 			getVar<string>("DELIVERY_ESTIMATED_DAYS"),
 			getVar<string>("UNIFIED_SHIPPING_ENABLED"),
 			getVar<string>("UNIFIED_SHIPPING_FEE"),
 			getVar<string>("UNIFIED_SHIPPING_DISCOUNT"),
 		]);
 
-		const boxFee = +(boxFeeStr || "0");
-		const postFee = +(postFeeStr || "36000");
-		const freeShippingThreshold = +(freeShippingThresholdStr || "2000000");
+		const safeBoxFee = Number.isFinite(Number(boxFeeStr)) ? Number(boxFeeStr) : 0;
+		const safePostFee = Number.isFinite(Number(postFeeStr)) ? Number(postFeeStr) : 36000;
+		const rawThreshold = Number(freeShippingThresholdStr);
+		const hasValidThreshold = Number.isFinite(rawThreshold) && rawThreshold > 0;
+		const isFreeShippingGloballyEnabled = freeShippingEnabledStr !== "false" && hasValidThreshold;
+		const freeShippingThreshold = isFreeShippingGloballyEnabled ? rawThreshold : 0;
 		const deliveryEstimatedDays = deliveryEstimatedDaysSetting || "۳ تا ۵ روز کاری";
 		const unifiedShippingEnabled = unifiedShippingEnabledStr === "true";
-		const unifiedShippingFee = +(unifiedShippingFeeStr || "39000");
-		const unifiedShippingDiscount = +(unifiedShippingDiscountStr || "0");
+		const unifiedShippingFee = Number.isFinite(Number(unifiedShippingFeeStr)) ? Number(unifiedShippingFeeStr) : 39000;
+		const unifiedShippingDiscount = Number.isFinite(Number(unifiedShippingDiscountStr)) ? Number(unifiedShippingDiscountStr) : 0;
 
 		const shippingPaymentMethod = fields.shippingPaymentMethod === "postpaid" ? "postpaid" : "online";
 
-		const hasFreeShippingProduct = Object.values(fetchedProduct).some(p => p.freeShipping);
-		const qualifiesFreeShipping = hasFreeShippingProduct || (freeShippingThreshold > 0 && productsTotal >= freeShippingThreshold);
+		const hasFreeShippingProduct = Object.values(fetchedProduct).some(p => Boolean(p.freeShipping));
+		const qualifiesFreeShipping = hasFreeShippingProduct || (isFreeShippingGloballyEnabled && productsTotal >= freeShippingThreshold);
 
-		let calculatedShippingFee = 0;
-		let originalShippingFee = 0;
+		let calculatedShippingFee = safePostFee;
+		let originalShippingFee = safePostFee;
 		let shippingDiscount = 0;
 		let shippingHierarchyApplied: "FREE_SHIPPING" | "UNIFIED" | "PRODUCT_CUSTOM" | "DEFAULT_POST" = "DEFAULT_POST";
+		let hasCustomProductShipping = false;
+		let effectiveBoxFee = safeBoxFee;
+
+		let productShippingConfigs: Record<string, any> = {};
+		try {
+			const { getProductsShipping } = await import("@/app/(web)/admin/products/shipping.action");
+			productShippingConfigs = await getProductsShipping(Object.keys(products));
+		} catch (err) {
+			console.warn("Failed to get product shipping in checkout.action:", err);
+		}
 
 		if (qualifiesFreeShipping) {
 			calculatedShippingFee = 0;
@@ -140,41 +155,66 @@ export async function createOrderPortal(
 			calculatedShippingFee = Math.max(0, unifiedShippingFee - unifiedShippingDiscount);
 			shippingHierarchyApplied = "UNIFIED";
 		} else {
-			const { getProductsShipping } = await import("@/app/(web)/admin/products/shipping.action");
-			const productShippingConfigs = await getProductsShipping(Object.keys(products));
-			const customProductEntries = Object.entries(productShippingConfigs).filter(([_, cfg]) => cfg.hasCustomShipping);
+			const customProductEntries = Object.entries(productShippingConfigs).filter(([_, cfg]) => cfg && cfg.hasCustomShipping);
 
 			if (customProductEntries.length > 0) {
+				hasCustomProductShipping = true;
 				const fees = Object.keys(products).map(id => {
 					const cfg = productShippingConfigs[id];
 					if (cfg && cfg.hasCustomShipping) {
-						return Math.max(0, cfg.shippingFee - cfg.shippingDiscount);
+						return Math.max(0, Number(cfg.shippingFee || 0) - Number(cfg.shippingDiscount || 0));
 					}
-					return postFee;
+					return safePostFee;
 				});
 				const origFees = Object.keys(products).map(id => {
 					const cfg = productShippingConfigs[id];
 					if (cfg && cfg.hasCustomShipping) {
-						return cfg.shippingFee;
+						return Number(cfg.shippingFee || 0);
 					}
-					return postFee;
+					return safePostFee;
 				});
 				calculatedShippingFee = Math.max(...fees);
 				originalShippingFee = Math.max(...origFees);
 				shippingDiscount = Math.max(0, originalShippingFee - calculatedShippingFee);
 				shippingHierarchyApplied = "PRODUCT_CUSTOM";
 			} else {
-				calculatedShippingFee = postFee;
-				originalShippingFee = postFee;
+				calculatedShippingFee = safePostFee;
+				originalShippingFee = safePostFee;
 				shippingDiscount = 0;
 				shippingHierarchyApplied = "DEFAULT_POST";
 			}
 		}
 
+		// محاسبه هزینه بسته‌بندی:
+		// اگر محصولی دارای هزینه ارسال اختصاصی باشد، هزینه عمومی بسته‌بندی برای جلوگیری از دریافت مضاعف حذف می‌شود.
+		// همچنین اگر محصولی دارای هزینه بسته‌بندی اختصاصی باشد، اعمال می‌گردد.
+		if (hasCustomProductShipping) {
+			const customBoxes = Object.keys(products)
+				.filter(id => productShippingConfigs[id]?.hasCustomBox)
+				.map(id => Number(productShippingConfigs[id]?.boxFee || 0));
+			effectiveBoxFee = customBoxes.length > 0 ? Math.max(...customBoxes) : 0;
+		} else {
+			const customBoxes = Object.keys(products)
+				.filter(id => productShippingConfigs[id]?.hasCustomBox)
+				.map(id => Number(productShippingConfigs[id]?.boxFee || 0));
+			if (customBoxes.length > 0) {
+				effectiveBoxFee = Math.max(...customBoxes);
+			} else {
+				effectiveBoxFee = safeBoxFee;
+			}
+		}
+
+		if (!Number.isFinite(calculatedShippingFee) || calculatedShippingFee < 0) {
+			calculatedShippingFee = safePostFee;
+		}
+		if (!Number.isFinite(originalShippingFee) || originalShippingFee < 0) {
+			originalShippingFee = calculatedShippingFee;
+		}
+
 		const onlineShippingFee = (qualifiesFreeShipping || shippingPaymentMethod === "postpaid") ? 0 : calculatedShippingFee;
 		const postpaidFee = (!qualifiesFreeShipping && shippingPaymentMethod === "postpaid") ? calculatedShippingFee : 0;
 
-		const total = Math.max(0, productsTotal + boxFee + onlineShippingFee - discount.amount);
+		const total = Math.max(0, Math.round(Number(productsTotal || 0) + Number(effectiveBoxFee || 0) + Number(onlineShippingFee || 0) - Number(discount.amount || 0)));
 
 		const paymentId = `pymt_${requestId}`;
 		const existingPayment = await prisma.payment.findUnique({where: {id: paymentId}});
@@ -208,7 +248,7 @@ export async function createOrderPortal(
 			calculatedShippingFee,
 			originalShippingFee,
 			shippingDiscount,
-			boxFee,
+			boxFee: effectiveBoxFee,
 			isFreeShipping: qualifiesFreeShipping,
 			freeShippingReason: qualifiesFreeShipping
 				? (hasFreeShippingProduct ? "حاوی محصول با ارسال رایگان" : "مبلغ سفارش بالاتر از سقف ارسال رایگان")

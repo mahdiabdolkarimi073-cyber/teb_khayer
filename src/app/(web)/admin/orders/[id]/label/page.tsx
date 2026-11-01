@@ -25,8 +25,8 @@ export default async function OrderLabelPage({
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 sm:p-6 flex flex-col items-center">
-      <div className="print:hidden w-full max-w-[210mm] mb-3 flex items-center justify-between">
+    <div className="min-h-screen bg-gray-100 p-2 sm:p-6 flex flex-col items-center">
+      <div className="print:hidden w-full max-w-[210mm] mb-3 flex items-center justify-between px-1">
         <Link
           href="/admin/orders"
           className="inline-flex items-center gap-1.5 text-xs text-blue-700 hover:text-blue-900 font-semibold"

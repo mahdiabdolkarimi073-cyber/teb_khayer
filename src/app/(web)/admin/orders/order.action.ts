@@ -6,17 +6,7 @@ import { Order, OrderStatus } from "@prisma/client";
 import { ensureCRMTables } from "@/backend/modules/crm/crmDb";
 import { getVar, setVar } from "@backend/utils/setting";
 import { SmsService } from "@backend/modules/sms/SmsService";
-
-export const CANCELLATION_REASONS = [
-  "تغییر نظر مشتری",
-  "تأخیر در ارسال",
-  "ناموجودشدن کالا",
-  "مشکل پرداخت",
-  "ثبت اشتباه سفارش",
-  "سایر موارد",
-] as const;
-
-export type CancellationReasonType = (typeof CANCELLATION_REASONS)[number];
+import type { SenderInfoType, OrderLabelData } from "./order.types";
 
 export async function getAllOrders(skip = 0, status: OrderStatus | undefined, phone: number | undefined) {
   await ensureCRMTables();
@@ -245,13 +235,6 @@ export async function updateOrderTrackingCode(orderId: number, trackingCode: str
 
   return { success: true, message: "کد رهگیری با موفقیت ثبت و وضعیت سفارش به «ارسال شده» تغییر یافت." };
 }
-
-export type SenderInfoType = {
-  name: string;
-  phone: string;
-  address: string;
-  zipcode: string;
-};
 
 export async function getSenderSettings(): Promise<SenderInfoType> {
   const name = (await getVar<string>("SENDER_NAME")) || "فروشگاه آنلاین طِب خیّر";

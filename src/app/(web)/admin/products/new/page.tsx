@@ -32,6 +32,9 @@ const NewProduct = (props: {
 	const [hasCustomShipping, setHasCustomShipping] = useState(false);
 	const [shippingFee, setShippingFee] = useState<number>(0);
 	const [shippingDiscount, setShippingDiscount] = useState<number>(0);
+	// Per-product custom packaging fee state
+	const [hasCustomBox, setHasCustomBox] = useState(false);
+	const [boxFee, setBoxFee] = useState<number>(0);
 
 	useEffect(() => {
 		if (Product?.id) {
@@ -40,6 +43,8 @@ const NewProduct = (props: {
 					setHasCustomShipping(cfg.hasCustomShipping);
 					setShippingFee(cfg.shippingFee || 0);
 					setShippingDiscount(cfg.shippingDiscount || 0);
+					setHasCustomBox(cfg.hasCustomBox || false);
+					setBoxFee(cfg.boxFee || 0);
 				}
 			});
 		}
@@ -252,8 +257,32 @@ const NewProduct = (props: {
 								</span>
 							</div>
 						</div>
+						<div className="text-[11px] text-amber-700 bg-amber-50 p-2 rounded-lg border border-amber-200">
+							💡 با فعال بودن هزینه ارسال اختصاصی این محصول، هزینه بسته‌بندی عمومی به فاکتور اضافه نخواهد شد تا از دریافت هزینه تکراری از مشتری جلوگیری شود.
+						</div>
 					</div>
 				)}
+
+				{/* تنظیم اختصاصی هزینه بسته‌بندی محصول */}
+				<div className="pt-2 border-t border-blue-200/60 mt-2 space-y-2">
+					<Checkbox
+						label="تعیین هزینه بسته‌بندی اختصاصی برای این محصول"
+						checked={hasCustomBox}
+						onChange={(e) => setHasCustomBox(e.currentTarget.checked)}
+					/>
+					{hasCustomBox && (
+						<div className="pt-1">
+							<NumberInput
+								label="هزینه بسته‌بندی اختصاصی (تومان)"
+								value={boxFee}
+								min={0}
+								onChange={(val) => setBoxFee(Number(val) || 0)}
+								formatter={(value) => !Number.isNaN(parseFloat(value)) ? value.toLocaleString("fa-IR") : ''}
+								thousandSeparator
+							/>
+						</div>
+					)}
+				</div>
 			</div>
 
 			<div className={'flex flex-wrap items-center gap-6 border rounded-xl p-3 bg-gray-50'}>
@@ -311,7 +340,9 @@ const NewProduct = (props: {
 							await saveProductShipping(targetProductId, {
 								hasCustomShipping,
 								shippingFee,
-								shippingDiscount
+								shippingDiscount,
+								hasCustomBox,
+								boxFee
 							});
 						}
 

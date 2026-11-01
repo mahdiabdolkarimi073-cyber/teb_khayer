@@ -20,6 +20,7 @@ import {
   IconSparkles,
   IconPackage,
   IconCheck,
+  IconBuildingStore,
 } from "@tabler/icons-react";
 import styles from "./cart.module.css";
 import { isFreeShipping, productShowsFreeBadge, remainingForFreeShipping } from "@/utils/freeShipping";
@@ -124,14 +125,28 @@ const Page = () => {
             <div className={styles.emptyIconCircle}>
               <IconShoppingCart size={36} />
             </div>
-            <h1 className={styles.emptyTitle}>سبد خرید شما در حال حاضر خالی است</h1>
+            <h1 className={`${styles.emptyTitle} text-lg sm:text-2xl font-black text-gray-900`}>
+              برم تو فروشگاه یه چرخی بزنم حال و هوام عوض شه ✨
+            </h1>
             <p className={styles.emptyDesc}>
-              محصولات اصیل گیاهی، عسل طبیعی سبلان، حلوای سیاه سنتی اردبیل و سوغات ناب طِب خیّر در انتظار شما هستند.
+              محصولات اصیل گیاهی، عسل طبیعی سبلان، حلوای سیاه سنتی اردبیل، روغن‌های ارگانیک و سوغات ناب طِب خیّر در انتظار شما هستند.
             </p>
-            <Link href="/category" className={styles.emptyCta}>
-              <span>مشاهده محصولات و شروع خرید</span>
-              <IconArrowLeft size={16} />
-            </Link>
+            <div className="flex flex-wrap items-center justify-center gap-3 mt-3">
+              <Link
+                href="/?openShopPopup=true#shop-popup"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 hover:from-blue-700 hover:to-indigo-900 text-white font-black text-sm px-6 py-3.5 rounded-xl shadow-md hover:shadow-lg transition-all"
+              >
+                <IconBuildingStore size={20} />
+                <span>وب سایت طِب خیّر</span>
+                <IconArrowLeft size={16} />
+              </Link>
+              <Link
+                href="/category/all"
+                className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-sm px-5 py-3.5 rounded-xl border border-gray-200 transition-all"
+              >
+                <span>مشاهده همه محصولات</span>
+              </Link>
+            </div>
           </div>
 
           {/* Popular Categories Grid */}

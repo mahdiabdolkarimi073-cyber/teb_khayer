@@ -193,14 +193,15 @@ const AllProductView = (props: {
           setVisualSearchMessage(result.message);
           setVisualFeatures(result.detectedFeatures || null);
         } else {
-          setVisualMatches([]);
-          setVisualSearchMessage(result.message || "هیچ محصول مشابهی برای این تصویر در فروشگاه یافت نشد.");
+          setVisualMatches(null);
+          setVisualSearchMessage(result.message || "جستجوی تصویری در حال حاضر موقتاً در دسترس نیست. لطفاً از جستجوی نام محصول استفاده کنید.");
           setVisualFeatures(null);
         }
       } catch (err) {
         console.error("Visual search error:", err);
         setVisualSearchPending(false);
-        setVisualSearchMessage("ارتباط با سرویس تحلیل تصویر برقرار نشد. لطفاً دوباره تلاش کنید.");
+        setVisualMatches(null);
+        setVisualSearchMessage("جستجوی تصویری در حال حاضر موقتاً در دسترس نیست. لطفاً از جستجوی نام محصول استفاده کنید.");
       }
     };
 
@@ -420,8 +421,8 @@ const AllProductView = (props: {
               <div className={styles.visualSearchCopy}>
                 <div className={styles.visualSearchTitle}>
                   <IconSparkles size={18} />
-                  <span>تحلیل بصری و هوشمند محصول</span>
-                  {visualMatches && (
+                  <span>جستجوی تصویری محصول</span>
+                  {visualMatches && visualMatches.length > 0 && (
                     <span className={styles.visualSearchTitleBadge}>
                       {visualMatches.length.toLocaleString("fa-IR")} محصول منطبق
                     </span>

@@ -54,7 +54,8 @@ const Page = () => {
   const boxFee = Number(fees?.boxFee || 0);
   const postFee = Number(fees?.postFee || 36000);
   const cashOnDeliveryEnabled = fees?.cashOnDeliveryEnabled === true;
-  const freeShippingThreshold = fees?.freeShippingThreshold || 2000000;
+  const isFreeShippingGloballyEnabled = fees?.freeShippingEnabled !== false && Number(fees?.freeShippingThreshold || 0) > 0;
+  const freeShippingThreshold = isFreeShippingGloballyEnabled ? Number(fees?.freeShippingThreshold || 0) : 0;
   const deliveryEstimatedDays = fees?.deliveryEstimatedDays || "۳ تا ۵ روز کاری";
   const unifiedShipping = fees?.unifiedShipping;
   const productShippingConfigs = fees?.productShippingConfigs || {};
@@ -73,10 +74,11 @@ const Page = () => {
   const localInfo = typeof window !== "undefined" ? JSON.parse(window.localStorage.getItem("localInfo") || "{}") : {};
   const productsTotal = items.reduce((sum, item) => sum + Number(item.product.price || 0) * item.quantity, 0);
 
-  // Free shipping check
-  const freeShipping = isFreeShipping(items, freeShippingThreshold);
-  const remainingForFreeShipping = Math.max(0, freeShippingThreshold - productsTotal);
-  const freeShippingProgress = Math.min(100, Math.round((productsTotal / freeShippingThreshold) * 100));
+  // Free shipping check: only active if product has freeShipping or if globally enabled with valid threshold
+  const hasFreeShippingItem = items.some((it) => Boolean(it.product.freeShipping));
+  const freeShipping = hasFreeShippingItem || (isFreeShippingGloballyEnabled && freeShippingThreshold > 0 && productsTotal >= freeShippingThreshold);
+  const remainingForFreeShipping = isFreeShippingGloballyEnabled && freeShippingThreshold > 0 ? Math.max(0, freeShippingThreshold - productsTotal) : 0;
+  const freeShippingProgress = isFreeShippingGloballyEnabled && freeShippingThreshold > 0 ? Math.min(100, Math.round((productsTotal / freeShippingThreshold) * 100)) : 0;
 
   // Base shipping fee computation following hierarchy
   const { baseShippingFee, originalShippingFee, shippingDiscount, shippingMethodType } = useMemo(() => {
@@ -104,14 +106,14 @@ const Page = () => {
       const feesArr = items.map((it) => {
         const cfg = productShippingConfigs[it.product.id];
         if (cfg && cfg.hasCustomShipping) {
-          return Math.max(0, cfg.shippingFee - cfg.shippingDiscount);
+          return Math.max(0, Number(cfg.shippingFee || 0) - Number(cfg.shippingDiscount || 0));
         }
         return postFee;
       });
       const origArr = items.map((it) => {
         const cfg = productShippingConfigs[it.product.id];
         if (cfg && cfg.hasCustomShipping) {
-          return cfg.shippingFee;
+          return Number(cfg.shippingFee || 0);
         }
         return postFee;
       });
@@ -132,10 +134,27 @@ const Page = () => {
     };
   }, [freeShipping, unifiedShipping, productShippingConfigs, items, postFee]);
 
+  // Effective packaging fee:
+  // If custom product shipping is active, exclude general boxFee. Use custom packaging fee if set.
+  const hasCustomProductShipping = shippingMethodType === "PRODUCT_CUSTOM";
+  const effectiveBoxFee = useMemo(() => {
+    const customBoxes = items
+      .filter((it) => productShippingConfigs[it.product.id]?.hasCustomBox)
+      .map((it) => Number(productShippingConfigs[it.product.id]?.boxFee || 0));
+
+    if (hasCustomProductShipping) {
+      return customBoxes.length > 0 ? Math.max(...customBoxes) : 0;
+    }
+    if (customBoxes.length > 0) {
+      return Math.max(...customBoxes);
+    }
+    return boxFee;
+  }, [hasCustomProductShipping, items, productShippingConfigs, boxFee]);
+
   const onlinePayableShipping = freeShipping || shippingPaymentMethod === "postpaid" ? 0 : baseShippingFee;
   const postpaidShipping = !freeShipping && shippingPaymentMethod === "postpaid" ? baseShippingFee : 0;
 
-  const total = productsTotal + boxFee + onlinePayableShipping;
+  const total = productsTotal + effectiveBoxFee + onlinePayableShipping;
   const payableTotal = Math.max(0, total - discountAmount);
 
   const saveCurrentForm = () => {
@@ -414,10 +433,10 @@ const Page = () => {
 
                 <input type="hidden" name="shippingPaymentMethod" value={shippingPaymentMethod} />
 
-                {/* نمایش زمان تقریبی ارسال سفارش */}
+                {/* نمایش زمان تقریبی تحویل سفارش */}
                 <div className={styles.deliveryEstimateRow}>
                   <IconClock size={16} className="text-blue-600 shrink-0" />
-                  <span>زمان تقریبی ارسال سفارش: <strong>{deliveryEstimatedDays}</strong></span>
+                  <span>زمان تقریبی تحویل سفارش: <strong>{deliveryEstimatedDays}</strong></span>
                 </div>
               </div>
 
@@ -596,7 +615,11 @@ const Page = () => {
 
               <div className={styles.totalRow}>
                 <span>هزینه بسته‌بندی</span>
-                <strong>{formatPrice(boxFee)}</strong>
+                {effectiveBoxFee === 0 && hasCustomProductShipping ? (
+                  <strong className="text-emerald-700 font-bold">رایگان (همراه ارسال اختصاصی)</strong>
+                ) : (
+                  <strong>{formatPrice(effectiveBoxFee)}</strong>
+                )}
               </div>
 
               {discountAmount > 0 && (
@@ -612,7 +635,7 @@ const Page = () => {
               </div>
 
               <div className="text-xs text-gray-600 border-t pt-2 mt-1">
-                <span>زمان تقریبی ارسال سفارش: </span>
+                <span>زمان تقریبی تحویل سفارش: </span>
                 <strong className="text-gray-900">{deliveryEstimatedDays}</strong>
               </div>
             </div>

@@ -32,8 +32,24 @@ const ProductView = (props: {
   product: Product & {category?: ProductCategory & {products?: Product[]}},
   saleEnabled?: boolean
 }) => {
-  const {product, saleEnabled = true} = props;
-  const {categoryId, images, name, price, originalPrice, discountPercent, isSpecial, isBestSeller, freeShipping, properties, stock, forceAvailable} = product;
+  const {categoryId, name, price, originalPrice, discountPercent, properties, stock, forceAvailable} = product;
+  const isSpecial = Boolean(product?.isSpecial);
+  const isBestSeller = Boolean(product?.isBestSeller);
+  const freeShipping = Boolean(product?.freeShipping);
+
+  const safeImages: string[] = useMemo(() => {
+    if (Array.isArray(product?.images)) return product.images;
+    if (typeof product?.images === "string") {
+      try {
+        const parsed = JSON.parse(product.images);
+        if (Array.isArray(parsed)) return parsed;
+        return [product.images];
+      } catch {
+        return [product.images];
+      }
+    }
+    return [];
+  }, [product?.images]);
   const cart = useCart();
   const router = useRouter();
   const productCart = cart[product.id];
@@ -142,11 +158,12 @@ const ProductView = (props: {
   };
 
   const handleShare = async () => {
-    const url = typeof window !== "undefined" ? window.location.href : "";
+    const origin = typeof window !== "undefined" && window.location.origin ? window.location.origin : "";
+    const cleanUrl = `${origin}/product/${product.id}`;
     const shareData = {
       title: name,
       text: `${name} در فروشگاه طِب خیّر`,
-      url,
+      url: cleanUrl,
     };
     if (typeof navigator !== "undefined" && navigator.share && navigator.canShare && navigator.canShare(shareData)) {
       try {
@@ -158,8 +175,8 @@ const ProductView = (props: {
     }
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       try {
-        await navigator.clipboard.writeText(url);
-        showToast("لینک محصول با موفقیت کپی شد 👌");
+        await navigator.clipboard.writeText(cleanUrl);
+        showToast("لینک اشتراک‌گذاری محصول با موفقیت کپی شد 👌");
       } catch {
         showToast("امکان کپی خودکار لینک فراهم نشد");
       }
@@ -200,8 +217,25 @@ const ProductView = (props: {
               {freeShipping && <span className={classes.bFree}>ارسال رایگان</span>}
               {hasDiscount && <span className={classes.bDisc}>٪{Number(discountPercent).toLocaleString("fa")} تخفیف</span>}
             </div>
-            <ProductImageGallery images={images || []} alt={name}/>
+            <ProductImageGallery images={safeImages} alt={name}/>
           </div>
+
+          {/* گزینه ارسال در محل زیر تصویر محصول و بالای دکمه اشتراک‌گذاری */}
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center justify-between text-xs text-emerald-900 shadow-2xs mt-1">
+            <div className="flex items-center gap-2.5">
+              <span className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
+                <IconTruckDelivery size={18} />
+              </span>
+              <div>
+                <strong className="block font-bold text-gray-900 text-xs">ارسال در محل</strong>
+                <span className="text-[11px] text-emerald-700">امکان ارسال و تحویل فوری با پیک در محل</span>
+              </div>
+            </div>
+            <span className="px-2.5 py-1 rounded-full bg-emerald-600 text-white font-bold text-[10px] shrink-0">
+              فعال
+            </span>
+          </div>
+
           <div className={classes.galleryActions}>
             <button
               type="button"

@@ -22,6 +22,7 @@ import {
   IconUserCircle,
   IconX,
   IconDownload,
+  IconDroplet,
 } from "@tabler/icons-react";
 import AppDownloadModal from "@/app/(web)/AppDownloadModal";
 import styles from "./home.module.css";
@@ -57,9 +58,6 @@ function HeroBanner() {
         <span className={styles.eyebrow}>به فروشگاه اینترنتی طِب خیّر خوش آمدید</span>
         <h1>سلامت، آرامش و زندگی بهتر<br />با محصولاتی با کیفیت ما</h1>
         <p>ما در طِب خیّر با ارائه محصولات متنوع و باکیفیت، به بهبود سبک زندگی شما کمک می‌کنیم.</p>
-        <Button component={Link} href="/category/all" className={styles.primaryButton} rightSection={<IconArrowLeft size={18} />} aria-label="مشاهده محصولات">
-          مشاهده محصولات
-        </Button>
       </div>
       <div className={styles.heroBenefits} role="list">
         <Benefit icon={IconTruckDelivery} title="ارسال سریع" text="به سراسر کشور" />
@@ -83,6 +81,24 @@ function Benefit({ icon: Icon, title, text }: { icon: typeof IconTruckDelivery; 
 
 function ShopPopup({ cardClass, icon: Icon, title, text }: { cardClass: string; icon: typeof IconUserCircle; title: string; text: string }) {
   const [opened, setOpened] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const checkHashAndParams = () => {
+      const hash = window.location.hash;
+      const search = window.location.search;
+      if (hash === "#shop-popup" || hash === "#products-souvenirs" || search.includes("openShopPopup=true")) {
+        setOpened(true);
+        setTimeout(() => {
+          const el = document.getElementById("services-section");
+          if (el) el.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      }
+    };
+    checkHashAndParams();
+    window.addEventListener("hashchange", checkHashAndParams);
+    return () => window.removeEventListener("hashchange", checkHashAndParams);
+  }, []);
 
   useEffect(() => {
     if (!opened) return;
@@ -134,6 +150,14 @@ function ShopPopup({ cardClass, icon: Icon, title, text }: { cardClass: string; 
                 <div className={styles.shopPopupCardBody}>
                   <h4>سوغات محلی</h4>
                   <p>سوغات سنتی و محلی مناطق مختلف ایران</p>
+                </div>
+                <span className={styles.shopPopupArrow}><IconArrowLeft size={20} /></span>
+              </Link>
+              <Link href="/category/pcat_6c3e00bd-cda8-44df-b312-545fce7c9787" className={`${styles.shopPopupCard} ${styles.shopPopupOil}`} onClick={() => setOpened(false)}>
+                <div className={styles.shopPopupCardIcon}><IconDroplet size={32} stroke={1.7} /></div>
+                <div className={styles.shopPopupCardBody}>
+                  <h4>روغن خوراکی ارگانیک</h4>
+                  <p>انواع روغن‌های ارگانیک، زیتون، کنجد و فرابکر گیاهی</p>
                 </div>
                 <span className={styles.shopPopupArrow}><IconArrowLeft size={20} /></span>
               </Link>
@@ -200,7 +224,7 @@ function SupportMenu({ cardClass, icon: Icon, title, text }: { cardClass: string
 
 function QuickServices() {
   return (
-    <section className={styles.servicesGrid} aria-label="خدمات طِب خیّر">
+    <section id="services-section" className={styles.servicesGrid} aria-label="خدمات طِب خیّر">
       {quickServices.map(({ title, text, icon: Icon, tone, isSupport, isShopPopup }) => {
         if (isSupport) {
           return (

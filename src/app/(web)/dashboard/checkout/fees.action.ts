@@ -9,6 +9,7 @@ export async function getCheckoutFees(productIds?: string[]) {
 		postFee,
 		cashOnDeliveryEnabled,
 		freeShippingThreshold,
+		freeShippingEnabledSetting,
 		deliveryEstimatedDays,
 		unifiedShippingEnabled,
 		unifiedShippingFee,
@@ -18,6 +19,7 @@ export async function getCheckoutFees(productIds?: string[]) {
 		getVar<string>("PRODUCT_POST_FEE"),
 		getVar<string>("CASH_ON_DELIVERY_ENABLED"),
 		getVar<string>("FREE_SHIPPING_THRESHOLD"),
+		getVar<string>("FREE_SHIPPING_ENABLED"),
 		getVar<string>("DELIVERY_ESTIMATED_DAYS"),
 		getVar<string>("UNIFIED_SHIPPING_ENABLED"),
 		getVar<string>("UNIFIED_SHIPPING_FEE"),
@@ -33,11 +35,16 @@ export async function getCheckoutFees(productIds?: string[]) {
 		}
 	}
 
+	const thresholdNum = Number(freeShippingThreshold);
+	const isThresholdValid = !Number.isNaN(thresholdNum) && thresholdNum > 0;
+	const isFreeShippingGloballyEnabled = freeShippingEnabledSetting !== "false" && (freeShippingThreshold == null || isThresholdValid);
+
 	return {
 		boxFee: boxFee || "0",
 		postFee: postFee || "36000",
 		cashOnDeliveryEnabled: cashOnDeliveryEnabled === "true",
-		freeShippingThreshold: Number(freeShippingThreshold || 2000000),
+		freeShippingEnabled: isFreeShippingGloballyEnabled,
+		freeShippingThreshold: isThresholdValid ? thresholdNum : 0,
 		deliveryEstimatedDays: deliveryEstimatedDays || "۳ تا ۵ روز کاری",
 		unifiedShipping: {
 			enabled: unifiedShippingEnabled === "true",

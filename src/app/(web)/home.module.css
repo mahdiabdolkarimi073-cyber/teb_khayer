@@ -57,34 +57,34 @@
 .appSection { max-width: 1400px; margin: 0 auto 40px; padding: 38px 7%; border-radius: 14px; -webkit-border-radius: 14px; -moz-border-radius: 14px; background: #eef7ff; display: flex; align-items: center; gap: 70px; min-height: 360px; }
 .appImageWrap { flex: 1; width: 100%; max-width: 520px; height: 320px; overflow: hidden; border-radius: 28px; -webkit-border-radius: 28px; -moz-border-radius: 28px; background: #d6e8fa; }.appImageWrap img { display: block; width: 100%; height: 100%; object-fit: cover; -webkit-object-fit: cover; }.appCopy { flex: 1; }.appCopy h2 { font-size: 34px; margin: 0 0 10px; color: #092b54; }.appCopy p { color: #526e88; line-height: 2; max-width: 560px; margin-bottom: 18px; }.appStats { display: flex; gap: 25px; margin-top: 25px; flex-wrap: wrap; }.appStats span { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #123d68; }
 
-/* Enhanced App Download Button with Elegant Glow & Shimmer Animation */
+/* Premium Brand Glow Animation for Teb Khayyer App Download */
 .appDownloadButton {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #1067cb 0%, #197fe8 50%, #1067cb 100%) !important;
-  background-size: 200% auto;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  box-shadow: 0 0 0 0 rgba(18, 110, 216, 0.45), 0 10px 24px rgba(18, 110, 216, 0.3) !important;
-  animation: appButtonPulse 2.8s ease-in-out infinite, appButtonShimmer 6s ease-in-out infinite;
-  will-change: box-shadow, transform, filter;
+  background: linear-gradient(135deg, #094074 0%, #126ed8 50%, #1982fc 100%) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 0 18px rgba(18, 110, 216, 0.55), 0 0 35px rgba(20, 184, 166, 0.25), 0 8px 24px rgba(9, 43, 84, 0.3) !important;
+  animation: appBrandGlow 3s ease-in-out infinite alternate;
+  will-change: box-shadow, filter, transform;
   cursor: pointer;
+  transition: transform .25s ease, box-shadow .25s ease;
 }
 
 .appDownloadButton::after {
   content: "";
   position: absolute;
-  top: -50%;
-  left: -60%;
-  width: 45%;
-  height: 200%;
+  top: -60%;
+  left: -80%;
+  width: 50%;
+  height: 220%;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0.45) 50%,
     transparent 100%
   );
   transform: rotate(25deg);
-  animation: appButtonSheen 3.6s ease-in-out infinite;
+  animation: appGlowSweep 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   pointer-events: none;
 }
 
@@ -94,37 +94,27 @@
   color: #fff;
 }
 
-@keyframes appButtonPulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(18, 110, 216, 0.45), 0 10px 24px rgba(18, 110, 216, 0.3);
+@keyframes appBrandGlow {
+  0% {
+    box-shadow: 0 0 12px rgba(18, 110, 216, 0.45), 0 0 24px rgba(14, 165, 233, 0.25), 0 8px 20px rgba(9, 43, 84, 0.25);
     filter: brightness(1);
   }
   50% {
-    transform: scale(1.025);
-    box-shadow: 0 0 0 10px rgba(18, 110, 216, 0), 0 16px 32px rgba(18, 110, 216, 0.48);
-    filter: brightness(1.08);
-  }
-}
-
-@keyframes appButtonShimmer {
-  0% {
-    background-position: 0% center;
-  }
-  50% {
-    background-position: 100% center;
+    box-shadow: 0 0 28px rgba(25, 127, 232, 0.85), 0 0 52px rgba(20, 184, 166, 0.45), 0 12px 28px rgba(9, 43, 84, 0.35);
+    filter: brightness(1.09);
   }
   100% {
-    background-position: 0% center;
+    box-shadow: 0 0 18px rgba(18, 110, 216, 0.6), 0 0 35px rgba(56, 189, 248, 0.35), 0 10px 24px rgba(9, 43, 84, 0.3);
+    filter: brightness(1.03);
   }
 }
 
-@keyframes appButtonSheen {
-  0%, 35% {
-    left: -60%;
+@keyframes appGlowSweep {
+  0%, 25% {
+    left: -80%;
   }
-  65%, 100% {
-    left: 140%;
+  60%, 100% {
+    left: 160%;
   }
 }
 
@@ -140,8 +130,8 @@
 .appDownloadButton:hover {
   background: #0d5dbb !important;
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 0 0 4px rgba(18, 110, 216, 0.25), 0 16px 32px rgba(18, 110, 216, 0.42) !important;
-  filter: brightness(1.12);
+  box-shadow: 0 0 32px rgba(25, 127, 232, 0.9), 0 0 60px rgba(20, 184, 166, 0.55), 0 16px 32px rgba(9, 43, 84, 0.42) !important;
+  filter: brightness(1.15);
 }
 
 .appDownloadButton:active {
@@ -479,6 +469,13 @@
 .shopPopupSouvenir .shopPopupCardIcon,
 .shopPopupSouvenir .shopPopupArrow { background: #ed812d; }
 .shopPopupSouvenir .shopPopupCardBody h4 { color: #c2691a; }
+.shopPopupOil {
+  background: #fefce8;
+  border-color: #fef08a;
+}
+.shopPopupOil .shopPopupCardIcon,
+.shopPopupOil .shopPopupArrow { background: #ca8a04; }
+.shopPopupOil .shopPopupCardBody h4 { color: #854d0e; }
 
 @media (max-width: 480px) {
   .shopPopupBody { padding: 16px 18px 22px; gap: 12px; }

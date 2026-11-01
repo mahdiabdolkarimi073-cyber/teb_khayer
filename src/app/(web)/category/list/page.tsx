@@ -58,9 +58,7 @@ const Page = async (props: PageProps) => {
     },
   });
 
-  const categories = rawCategories.filter(
-    (c) => c.products?.length > 0 || (c.children && c.children.length > 0)
-  );
+  const categories = rawCategories;
 
   const serializeProduct = (p: any) => ({
     id: String(p.id),
@@ -167,5 +165,8 @@ const Page = async (props: PageProps) => {
     </div>
   );
 };
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default Page;

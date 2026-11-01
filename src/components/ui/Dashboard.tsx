@@ -104,20 +104,23 @@ const DashboardContent = (props: DashboardType) => {
             )}
             <div className={'md:flex border flex-nowrap max-w-[100%] justify-between items-stretch gap-2'}>
                 <details
-                    onClick={(e) => {
-                        setOpen(pre => !pre);
-                        e.stopPropagation();
-                        e.preventDefault();
-                    }}
-                    {...(detailsOpened ? {open: true} : {})}
+                    open={detailsOpened}
+                    className="w-full md:w-auto"
                 >
-                    <summary className={'block sm:hidden cursor-pointer'}>
+                    <summary
+                        className={'block sm:hidden cursor-pointer list-none select-none'}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setOpen(pre => !pre);
+                        }}
+                    >
                         <div className={'center justify-between p-2'}>
                             <div className={'center gap-2'}>
                                 {RIcon(ActiveIcon)}
                                 <p className="font-semibold text-sm">{ActiveName}</p>
                             </div>
-                            <Burger color={'blue'} opened={open} onChange={() => setOpen(pre => !pre)} />
+                            <Burger color={'blue'} opened={open} />
                         </div>
                     </summary>
                     {sections.length !== 0 && (
@@ -136,8 +139,10 @@ const DashboardContent = (props: DashboardType) => {
                                                     fullWidth
                                                     variant={isParentActive ? "light" : "subtle"}
                                                     color="blue"
+                                                    type="button"
                                                     onClick={(e) => {
                                                         e.preventDefault();
+                                                        e.stopPropagation();
                                                         toggleSection(section.path);
                                                     }}
                                                 >

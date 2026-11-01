@@ -12,6 +12,7 @@ import {
 import { useState } from "react";
 import empty from "../../../public/empty.png";
 import Image from "next/image";
+import { IconArrowLeft, IconBuildingStore } from "@tabler/icons-react";
 
 const CartList = (props: any) => {
   const [second, setSecond] = useState(false);
@@ -100,11 +101,19 @@ const CartList = (props: any) => {
             </Link>
           ))
         ) : (
-          <div>
-            <Image src={empty} alt="empty bag" width={480} height={360} />
-            <p className=" border-2 border-[#672be3] bg-[#b18fff] rounded-lg py-2 mx-5 text-center">
-              سبد خرید من خالی هست چرا 😕
+          <div className="flex flex-col items-center justify-center p-6 text-center space-y-3 bg-gradient-to-b from-gray-50 to-white rounded-2xl border border-gray-200 shadow-2xs">
+            <Image src={empty} alt="سبد خرید خالی" width={260} height={200} className="max-w-[220px] h-auto opacity-90" />
+            <p className="text-sm font-bold text-gray-800 bg-blue-50/90 border border-blue-200 rounded-xl py-2.5 px-4 shadow-2xs">
+              برم تو فروشگاه یه چرخی بزنم حال و هوام عوض شه ✨
             </p>
+            <Link
+              href="/?openShopPopup=true#shop-popup"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-black text-xs px-5 py-2.5 rounded-xl shadow-xs hover:shadow-md transition-all"
+            >
+              <IconBuildingStore size={16} />
+              <span>وب سایت طِب خیّر</span>
+              <IconArrowLeft size={14} />
+            </Link>
           </div>
         )}
       </div>

@@ -27,11 +27,8 @@ export class SmsService {
     const apiKey = (await getVar<string>("SMS_API_KEY", process.env.SMS_API_KEY || "")) || "";
     const lineNumber = (await getVar<string>("SMS_LINE_NUMBER", process.env.SMS_LINE_NUMBER || "")) || "";
     const delayMinutes = Number((await getVar<string>("SMS_REMINDER_DELAY_MINUTES", "10")) || 10);
-    const template =
-      (await getVar<string>(
-        "SMS_ABANDONED_TEMPLATE",
-        "{name} عزیز، خرید شما در طِب خیّر ناتمام ماند! جهت تکمیل سفارش خود روی لینک زیر کلیک کنید:\n{link}\nکد سفارش: {orderId}"
-      )) || "{name} عزیز، خرید شما در طِب خیّر ناتمام ماند! جهت تکمیل سفارش خود روی لینک زیر کلیک کنید:\n{link}\nکد سفارش: {orderId}";
+    const defaultTemplate = "{name} جان، انتخاب خوبی کردی، نذار از دستت بره تا موجوده خریدت رو تکمیل کن\n{link}";
+    const template = (await getVar<string>("SMS_ABANDONED_TEMPLATE", defaultTemplate)) || defaultTemplate;
 
     const isReady = Boolean(isEnabled && apiKey.trim());
 
@@ -313,22 +310,15 @@ export class SmsService {
         continue;
       }
 
-      // 2. Verify if associated order is canceled or already completed
+      // 2. Verify if associated order is already paid/delivered
       if (reminder.orderId) {
         const order = await prisma.order.findUnique({
           where: { id: reminder.orderId },
         });
 
         if (order) {
-          if (order.status === "CANCELED") {
-            await prisma.$executeRawUnsafe(
-              `UPDATE "AbandonedOrderReminder" SET "status" = 'CANCELED', "updated_at" = now() WHERE "id" = $1`,
-              reminder.id
-            );
-            completedOrCanceled++;
-            continue;
-          }
-          if (order.status !== "PENDING") {
+          // If order is already paid, shipped, or delivered, do NOT send abandoned reminder
+          if (order.status === "PAID" || order.status === "SENDED" || order.status === "DELIVERED") {
             await prisma.$executeRawUnsafe(
               `UPDATE "AbandonedOrderReminder" SET "status" = 'COMPLETED', "updated_at" = now() WHERE "id" = $1`,
               reminder.id
@@ -356,15 +346,30 @@ export class SmsService {
         continue;
       }
 
-      // 4. Construct SMS text from template
-      const smsMessage = this.renderTemplate(config.template, {
-        name: reminder.customerName || "همراه",
-        orderId: reminder.orderId,
-        link: reminder.checkoutUrl,
-        amount: reminder.totalAmount,
-      });
+      // 4. Find the product link from the order or fallback to checkout
+      const baseUrl = process.env.APP_URL || (process.env.NODE_ENV === "production" ? "https://teb-khayyer.ir" : "http://localhost:3000");
+      let itemLink = reminder.checkoutUrl || `${baseUrl}/dashboard/checkout`;
 
-      // 5. Send or log SMS
+      if (reminder.orderId) {
+        try {
+          const orderProduct = await prisma.orderProduct.findFirst({
+            where: { orderId: reminder.orderId },
+            select: { productId: true },
+          });
+          if (orderProduct?.productId) {
+            itemLink = `${baseUrl}/product/${orderProduct.productId}`;
+          }
+        } catch (e) {
+          console.warn("Could not fetch product link for reminder:", e);
+        }
+      }
+
+      // 5. Construct SMS message according to user request:
+      // «(نام مشتری) جان، انتخاب خوبی کردی، نذار از دستت بره تا موجوده خریدت رو تکمیل کن» به همراه لینک محصول
+      const customerName = (reminder.customerName || "همراه").trim();
+      const smsMessage = `${customerName} جان، انتخاب خوبی کردی، نذار از دستت بره تا موجوده خریدت رو تکمیل کن\n${itemLink}`;
+
+      // 6. Send or log SMS
       const sendRes = await this.sendSms({
         to: reminder.userPhone,
         message: smsMessage,
