@@ -9,12 +9,11 @@ export const metadata = {
   title: "چاپ برچسب نشانی مرسوله پستی - طِب خیّر",
 };
 
-export default async function OrderLabelPage({
-  params,
-}: {
-  params: { id: string };
+export default async function OrderLabelPage(props: {
+  params: Promise<{ id: string }> | { id: string };
 }) {
-  const orderId = Number(params?.id);
+  const resolvedParams = await Promise.resolve(props.params);
+  const orderId = Number(resolvedParams?.id);
   if (!orderId || isNaN(orderId)) {
     notFound();
   }

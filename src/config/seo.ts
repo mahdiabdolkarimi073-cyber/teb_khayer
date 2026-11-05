@@ -36,26 +36,51 @@ export const baseMetadata: Metadata = {
   manifest: "/manifest.json",
 };
 
-export function productMetadata(product: {name: string; description_text: string; images: string[]; price: number; stock: number; id: string}): Metadata {
-  const image = product.images?.[0] || "/logo.webp";
+export function productMetadata(product: {
+  name: string;
+  description_text?: string | null;
+  images?: any;
+  price?: number;
+  stock?: number;
+  id: string;
+}): Metadata {
+  let firstImage = "/logo.webp";
+  if (Array.isArray(product.images) && product.images.length > 0 && typeof product.images[0] === "string") {
+    firstImage = product.images[0];
+  } else if (typeof product.images === "string") {
+    try {
+      const parsed = JSON.parse(product.images);
+      if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === "string") {
+        firstImage = parsed[0];
+      } else {
+        firstImage = product.images;
+      }
+    } catch {
+      firstImage = product.images.trim() || "/logo.webp";
+    }
+  }
+
+  const absoluteImageUrl = firstImage.startsWith("http") ? firstImage : `${SITE_URL}${firstImage.startsWith("/") ? "" : "/"}${firstImage}`;
+  const description = product.description_text || `${product.name} - فروشگاه طب خیّر`;
+
   return {
     title: product.name,
-    description: product.description_text || product.name,
-    keywords: product.name.split(" "),
+    description: description,
+    keywords: product.name.split(" ").filter((w) => w.length > 1),
     alternates: {canonical: `${SITE_URL}/product/${product.id}`},
     openGraph: {
       type: "website",
       locale: "fa_IR",
       url: `${SITE_URL}/product/${product.id}`,
       title: product.name,
-      description: product.description_text || product.name,
-      images: [{url: image, alt: product.name}],
+      description: description,
+      images: [{url: absoluteImageUrl, alt: product.name}],
     },
     twitter: {
       card: "summary_large_image",
       title: product.name,
-      description: product.description_text || product.name,
-      images: [image],
+      description: description,
+      images: [absoluteImageUrl],
     },
   };
 }

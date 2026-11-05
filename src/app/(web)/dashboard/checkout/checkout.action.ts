@@ -289,33 +289,47 @@ export async function createOrderPortal(
 			});
 		}
 
-		if (paymentMethod === "cashOnDelivery") {
+		if (total === 0 || paymentMethod === "cashOnDelivery") {
 			const paymentWithActions = await prisma.payment.findUnique({where: {id: payment.id}, include: {actions: true}});
 			if (!paymentWithActions) return {message: "خطا در ثبت سفارش", status: 500};
 			await Payment.handlePaymentAction(paymentWithActions);
-			await prisma.payment.update({where: {id: payment.id}, data: {receipt: `COD_${payment.id}`}});
-			return {message: payment.successMsg, orderCompleted: true, redirect: "/dashboard/orders?status=current"};
+			await prisma.payment.update({
+				where: {id: payment.id},
+				data: {receipt: total === 0 ? `FREE_${payment.id}` : `COD_${payment.id}`}
+			});
+			return {message: payment.successMsg || "سفارش شما با موفقیت ثبت شد", orderCompleted: true, redirect: "/dashboard/orders?status=current"};
 		}
 
-		if (paymentMethod !== "cashOnDelivery") {
-			try {
-				await SmsService.scheduleAbandonedOrderReminder({
-					orderId,
-					paymentId: payment.id,
-					userId: user.id,
-					userPhone: String(fields.phone || user.phone || ""),
-					customerName: String(fields.name || user.name || "مشتری گرامی"),
-					totalAmount: total,
-				});
-			} catch (scheduleError) {
-				paymentLog.warn('CHECKOUT', 'Failed to schedule abandoned order reminder', { error: String(scheduleError) });
-			}
+		try {
+			await SmsService.scheduleAbandonedOrderReminder({
+				orderId,
+				paymentId: payment.id,
+				userId: user.id,
+				userPhone: String(fields.phone || user.phone || ""),
+				customerName: String(fields.name || user.name || "مشتری گرامی"),
+				totalAmount: total,
+			});
+		} catch (scheduleError) {
+			paymentLog.warn('CHECKOUT', 'Failed to schedule abandoned order reminder', { error: String(scheduleError) });
 		}
 
-		const token = await payment.getToken();
+		let token: string;
+		try {
+			token = await payment.getToken();
+		} catch (gatewayErr: any) {
+			paymentLog.error('CHECKOUT', 'Gateway error', { error: gatewayErr?.message || String(gatewayErr) });
+			return {
+				message: gatewayErr?.message || "خطا در ارتباط با درگاه پرداخت بانکی. لطفاً مجدداً تلاش کنید.",
+				status: 502
+			};
+		}
+
 		return {message: "درحال انتقال...", token, paymentId: payment.id};
-	} catch (error) {
+	} catch (error: any) {
 		paymentLog.error('CHECKOUT', 'Unexpected error', {error: error instanceof Error ? error.message : String(error), stack: error instanceof Error ? error.stack : undefined});
-		return {message: 'خطا در ثبت سفارش. لطفاً دوباره تلاش کنید.', status: 500};
+		return {
+			message: error?.message ? `خطا در ثبت سفارش: ${error.message}` : 'خطا در ثبت سفارش. لطفاً دوباره تلاش کنید.',
+			status: 500
+		};
 	}
 }

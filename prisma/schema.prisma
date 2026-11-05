@@ -317,6 +317,54 @@ enum SettingKey {
   /// @name پرداخت در محل فعال است
   /// @default false
   CASH_ON_DELIVERY_ENABLED
+  /// @name نام فروشگاه / فرستنده برچسب پستی
+  /// @default "فروشگاه آنلاین طِب خیّر"
+  SENDER_NAME
+  /// @name تلفن فرستنده برچسب پستی
+  /// @default "045-33790667"
+  SENDER_PHONE
+  /// @name نشانی کامل فرستنده برچسب پستی
+  /// @default "اردبیل، میدان شریعتی، مجتمع خیّر، طبقه ۲، فروشگاه طِب خیّر"
+  SENDER_ADDRESS
+  /// @name کد پستی ۱۰ رقمی فرستنده
+  /// @default "5613612345"
+  SENDER_ZIPCODE
+  /// @name زمان تقریبی تحویل سفارش
+  /// @default "۳ تا ۵ روز کاری"
+  DELIVERY_ESTIMATED_DAYS
+  /// @name هزینه ارسال یکپارچه فروشگاه فعال است
+  /// @default false
+  UNIFIED_SHIPPING_ENABLED
+  /// @name مبلغ هزینه ارسال یکپارچه (تومان)
+  /// @default 39000
+  UNIFIED_SHIPPING_FEE
+  /// @name تخفیف هزینه ارسال یکپارچه (تومان)
+  /// @default 0
+  UNIFIED_SHIPPING_DISCOUNT
+  /// @name ارسال رایگان فعال است
+  /// @default true
+  FREE_SHIPPING_ENABLED
+  /// @name ارسال خودکار پیامک فعال است
+  /// @default false
+  SMS_ENABLED
+  /// @name سامانه وب‌سرویس پیامکی
+  /// @default "sms.ir"
+  SMS_PROVIDER
+  /// @name کلید وب‌سرویس پیامک (API Key)
+  /// @default ""
+  SMS_API_KEY
+  /// @name شماره خط اختصاصی پیامک
+  /// @default ""
+  SMS_LINE_NUMBER
+  /// @name زمان انتظار ارسال پیامک یادآوری خرید (دقیقه)
+  /// @default 10
+  SMS_REMINDER_DELAY_MINUTES
+  /// @name قالب پیامک یادآوری خرید ناتمام
+  /// @default "{name} عزیز، خرید شما در طِب خیّر ناتمام ماند! جهت تکمیل سفارش خود روی لینک زیر کلیک کنید:\n{link}\nکد پیگیری: {orderId}"
+  SMS_ABANDONED_TEMPLATE
+  /// @name تنظیمات سئو و متادیتای صفحات
+  /// @default "{}"
+  SEO_PAGE_META
   /// @name متن نماد اعتماد الکترونیکی
   /// @default "طِب خیّر دارای نماد الکترونیکی (اینماد) از وزارت صنعت، معدن و تجارت می‌باشد. این نماد نشان‌دهنده اصالت و اعتبار فروشگاه آنلاین ماست."
   TRUST_ENAMAD
@@ -447,3 +495,10 @@ model BackupLog {
   message    String?
   created_at DateTime @default(now())
 }
+
+model UserCartSync {
+  userId     String   @id
+  cartData   Json     @default("{}")
+  updated_at DateTime @default(now()) @updatedAt
+}
+

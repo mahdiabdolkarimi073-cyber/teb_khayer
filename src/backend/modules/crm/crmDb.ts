@@ -17,8 +17,16 @@ let initialized = false;
 export async function ensureCRMTables() {
   if (initialized) return;
 
-  try {
-    // 1. SupportTicket
+  const runSafe = async (label: string, fn: () => Promise<any>) => {
+    try {
+      await fn();
+    } catch (err) {
+      console.warn(`CRM table init warning (${label}):`, err);
+    }
+  };
+
+  // 1. SupportTicket
+  await runSafe("SupportTicket", async () => {
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "SupportTicket" (
         "id" SERIAL PRIMARY KEY,
@@ -40,8 +48,10 @@ export async function ensureCRMTables() {
       CREATE INDEX IF NOT EXISTS "SupportTicket_userId_idx" ON "SupportTicket" ("userId");
       CREATE INDEX IF NOT EXISTS "SupportTicket_status_idx" ON "SupportTicket" ("status");
     `);
+  });
 
-    // 2. SupportMessage (Conversation thread)
+  // 2. SupportMessage (Conversation thread)
+  await runSafe("SupportMessage", async () => {
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "SupportMessage" (
         "id" SERIAL PRIMARY KEY,
@@ -53,8 +63,10 @@ export async function ensureCRMTables() {
       );
       CREATE INDEX IF NOT EXISTS "SupportMessage_ticketId_idx" ON "SupportMessage" ("ticketId");
     `);
+  });
 
-    // 3. SupportFAQ (پرسش‌های متداول)
+  // 3. SupportFAQ (پرسش‌های متداول)
+  await runSafe("SupportFAQ", async () => {
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "SupportFAQ" (
         "id" SERIAL PRIMARY KEY,
@@ -78,8 +90,10 @@ export async function ensureCRMTables() {
         ('آیا امکان پرداخت در محل وجود دارد؟', 'در حال حاضر به منظور تسریع در ارسال و بسته‌بندی، تمامی پرداخت‌ها از طریق درگاه امن شتابی به صورت آنلاین انجام می‌پذیرد.', 'پرداخت و فاکتور', 4)
       `);
     }
+  });
 
-    // 4. OrderCancellation
+  // 4. OrderCancellation
+  await runSafe("OrderCancellation", async () => {
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "OrderCancellation" (
         "id" SERIAL PRIMARY KEY,
@@ -92,8 +106,10 @@ export async function ensureCRMTables() {
       );
       CREATE INDEX IF NOT EXISTS "OrderCancellation_userId_idx" ON "OrderCancellation" ("userId");
     `);
+  });
 
-    // 5. CustomerAdminNote (یادداشت‌های داخلی مدیریت)
+  // 5. CustomerAdminNote (یادداشت‌های داخلی مدیریت)
+  await runSafe("CustomerAdminNote", async () => {
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "CustomerAdminNote" (
         "id" SERIAL PRIMARY KEY,
@@ -105,8 +121,10 @@ export async function ensureCRMTables() {
       );
       CREATE INDEX IF NOT EXISTS "CustomerAdminNote_userId_idx" ON "CustomerAdminNote" ("userId");
     `);
+  });
 
-    // 6. CustomerActivityLog (سوابق و آخرین اقدامات)
+  // 6. CustomerActivityLog (سوابق و آخرین اقدامات)
+  await runSafe("CustomerActivityLog", async () => {
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "CustomerActivityLog" (
         "id" SERIAL PRIMARY KEY,
@@ -118,8 +136,10 @@ export async function ensureCRMTables() {
       );
       CREATE INDEX IF NOT EXISTS "CustomerActivityLog_userId_idx" ON "CustomerActivityLog" ("userId");
     `);
+  });
 
-    // 7. UserNotification (سیستم اطلاع‌رسانی به مشتری)
+  // 7. UserNotification (سیستم اطلاع‌رسانی به مشتری)
+  await runSafe("UserNotification", async () => {
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "UserNotification" (
         "id" SERIAL PRIMARY KEY,
@@ -132,8 +152,10 @@ export async function ensureCRMTables() {
       );
       CREATE INDEX IF NOT EXISTS "UserNotification_userId_idx" ON "UserNotification" ("userId");
     `);
+  });
 
-    // 8. UserLoginLog
+  // 8. UserLoginLog
+  await runSafe("UserLoginLog", async () => {
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "UserLoginLog" (
         "id" SERIAL PRIMARY KEY,
@@ -145,8 +167,10 @@ export async function ensureCRMTables() {
       );
       CREATE INDEX IF NOT EXISTS "UserLoginLog_userId_idx" ON "UserLoginLog" ("userId");
     `);
+  });
 
-    // 9. UserCartSync
+  // 9. UserCartSync (حفظ سبد خرید در سرور)
+  await runSafe("UserCartSync", async () => {
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "UserCartSync" (
         "userId" TEXT PRIMARY KEY,
@@ -154,8 +178,10 @@ export async function ensureCRMTables() {
         "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
       );
     `);
+  });
 
-    // 10. AbandonedOrderReminder (یادآوری پیامکی سفارشات ناتمام / رها شده)
+  // 10. AbandonedOrderReminder (یادآوری پیامکی سفارشات ناتمام / رها شده)
+  await runSafe("AbandonedOrderReminder", async () => {
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "AbandonedOrderReminder" (
         "id" SERIAL PRIMARY KEY,
@@ -177,8 +203,10 @@ export async function ensureCRMTables() {
       CREATE INDEX IF NOT EXISTS "AbandonedOrderReminder_triggerAt_idx" ON "AbandonedOrderReminder" ("triggerAt", "status");
       CREATE INDEX IF NOT EXISTS "AbandonedOrderReminder_userId_idx" ON "AbandonedOrderReminder" ("userId");
     `);
+  });
 
-    // 11. SmsLog (لاگ کلیه پیامک‌های سیستم)
+  // 11. SmsLog (لاگ کلیه پیامک‌های سیستم)
+  await runSafe("SmsLog", async () => {
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "SmsLog" (
         "id" SERIAL PRIMARY KEY,
@@ -191,8 +219,10 @@ export async function ensureCRMTables() {
       );
       CREATE INDEX IF NOT EXISTS "SmsLog_phone_idx" ON "SmsLog" ("phone");
     `);
+  });
 
-    // 12. ProductShippingConfig (هزینه ارسال اختصاصی و تخفیف ارسال و بسته‌بندی هر محصول)
+  // 12. ProductShippingConfig (هزینه ارسال اختصاصی و تخفیف ارسال و بسته‌بندی هر محصول)
+  await runSafe("ProductShippingConfig", async () => {
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "ProductShippingConfig" (
         "productId" TEXT PRIMARY KEY,
@@ -208,10 +238,7 @@ export async function ensureCRMTables() {
       ALTER TABLE "ProductShippingConfig" ADD COLUMN IF NOT EXISTS "hasCustomBox" BOOLEAN NOT NULL DEFAULT false;
       CREATE INDEX IF NOT EXISTS "ProductShippingConfig_productId_idx" ON "ProductShippingConfig" ("productId");
     `);
+  });
 
-    initialized = true;
-  } catch (error) {
-    console.warn("CRM tables init warning:", error);
-    initialized = true;
-  }
+  initialized = true;
 }

@@ -1,6 +1,7 @@
 import prisma from "@backend/modules/prisma/Prisma";
 import { SettingKeyInfo } from "@/generated/SettingKey.enum";
 import {arabicToEnglishNumber} from "@/utils/other";
+import { SettingKey } from "@prisma/client";
 
 function settingValueToString(value: unknown): string | undefined {
     if (value == null) return undefined;
@@ -11,10 +12,10 @@ function settingValueToString(value: unknown): string | undefined {
     return undefined;
 }
 
-export async function getVar<T>(key: string, defaultValue: string | number | boolean | undefined = undefined): Promise<T> {
+export async function getVar<T>(key: SettingKey | string, defaultValue: string | number | boolean | undefined = undefined): Promise<T> {
     const value = (await prisma.setting.findFirst({
         where: {
-            key
+            key: key as SettingKey
         }
     }))?.value;
 
@@ -29,11 +30,11 @@ export async function getVar<T>(key: string, defaultValue: string | number | boo
     return (resolved === undefined ? resolved : arabicToEnglishNumber(resolved)) as T;
 }
 
-export async function setVar(key: string, value: string) {
+export async function setVar(key: SettingKey | string, value: string) {
     value = arabicToEnglishNumber(typeof value === "string" ? value : settingValueToString(value) ?? "");
     const pre = await prisma.setting.findUnique({
         where: {
-            key
+            key: key as SettingKey
         }
     });
 
@@ -43,14 +44,14 @@ export async function setVar(key: string, value: string) {
                 id: pre.id
             },
             data: {
-                key,
+                key: key as SettingKey,
                 value
             }
         })
     } else {
         await prisma.setting.create({
             data: {
-                key,
+                key: key as SettingKey,
                 value
             }
         })

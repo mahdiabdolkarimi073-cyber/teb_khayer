@@ -7,27 +7,45 @@ export function formatPersianNumber(value: number): string {
   return (value || 0).toLocaleString("fa");
 }
 
-export function toPersianDate(date: Date | string): string {
-  const d = new Date(date);
-  return d.toLocaleDateString("fa-IR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+export function toPersianDate(date: Date | string | null | undefined): string {
+  if (!date) return "-";
+  try {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return "-";
+    return d.toLocaleDateString("fa-IR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  } catch {
+    return "-";
+  }
 }
 
-export function toPersianDateTime(date: Date | string): string {
-  const d = new Date(date);
-  return d.toLocaleDateString("fa-IR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }) + " - " + d.toLocaleTimeString("fa-IR", {hour: "2-digit", minute: "2-digit"});
+export function toPersianDateTime(date: Date | string | null | undefined): string {
+  if (!date) return "-";
+  try {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return "-";
+    return d.toLocaleDateString("fa-IR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }) + " - " + d.toLocaleTimeString("fa-IR", {hour: "2-digit", minute: "2-digit"});
+  } catch {
+    return "-";
+  }
 }
 
-export function toShortPersianDate(date: Date | string): string {
-  const d = new Date(date);
-  return d.toLocaleDateString("fa-IR");
+export function toShortPersianDate(date: Date | string | null | undefined): string {
+  if (!date) return "-";
+  try {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return "-";
+    return d.toLocaleDateString("fa-IR");
+  } catch {
+    return "-";
+  }
 }
 
 export function startOfDay(date: Date): Date {

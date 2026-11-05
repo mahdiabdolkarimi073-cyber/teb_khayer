@@ -28,7 +28,10 @@ import {getUserFromCookie} from "@/utils/serverComponents/user";
 import {handlePrismaQuery} from "@/app/(web)/admin/action";
 import classes from "./product-view.module.css";
 
-const ProductView = (props: {
+const ProductView = ({
+  product,
+  saleEnabled,
+}: {
   product: Product & {category?: ProductCategory & {products?: Product[]}},
   saleEnabled?: boolean
 }) => {
@@ -173,13 +176,35 @@ const ProductView = (props: {
         // user canceled or browser dialog closed
       }
     }
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
+    let copied = false;
+    if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
       try {
         await navigator.clipboard.writeText(cleanUrl);
-        showToast("لینک اشتراک‌گذاری محصول با موفقیت کپی شد 👌");
+        copied = true;
       } catch {
-        showToast("امکان کپی خودکار لینک فراهم نشد");
+        copied = false;
       }
+    }
+    if (!copied && typeof document !== "undefined") {
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = cleanUrl;
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        copied = true;
+      } catch {
+        copied = false;
+      }
+    }
+    if (copied) {
+      showToast("لینک اشتراک‌گذاری محصول کپی شد 👌");
+    } else {
+      showToast("امکان کپی خودکار فراهم نشد: " + cleanUrl);
     }
   };
 

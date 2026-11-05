@@ -2,6 +2,7 @@
 
 import prisma from "@backend/modules/prisma/Prisma";
 import {getUserFromCookie} from "@/utils/serverComponents/user";
+import { getVar, setVar } from "@backend/utils/setting";
 
 async function requireAdmin() {
   const user = await getUserFromCookie();
@@ -25,14 +26,23 @@ const STATIC_PAGES = [
 
 export async function getSeoPages(): Promise<SeoMeta[]> {
   await requireAdmin();
-  const settings = await prisma.setting.findMany();
-  const seoSettings = settings.filter((s) => s.key.toString().startsWith("SEO_"));
+  let seoMap: Record<string, SeoMeta> = {};
+  try {
+    const raw = await getVar<string>("SEO_PAGE_META", "{}");
+    seoMap = typeof raw === "string" ? JSON.parse(raw) : (raw || {});
+  } catch {
+    seoMap = {};
+  }
 
   return STATIC_PAGES.map((page) => {
-    const stored = seoSettings.find((s) => s.key.toString() === `SEO_${page.path}`);
+    const stored = seoMap[page.path];
     if (stored) {
-      const parts = stored.value.split("|||");
-      return {path: page.path, title: parts[0] || page.title, description: parts[1] || page.description, keywords: parts[2] || page.keywords};
+      return {
+        path: page.path,
+        title: stored.title || page.title,
+        description: stored.description || page.description,
+        keywords: stored.keywords || page.keywords,
+      };
     }
     return page;
   });
@@ -40,14 +50,15 @@ export async function getSeoPages(): Promise<SeoMeta[]> {
 
 export async function saveSeoPage(meta: SeoMeta): Promise<void> {
   await requireAdmin();
-  const key = `SEO_${meta.path}` as any;
-  const value = `${meta.title}|||${meta.description}|||${meta.keywords}`;
-  const existing = await prisma.setting.findUnique({where: {key}});
-  if (existing) {
-    await prisma.setting.update({where: {key}, data: {value}});
-  } else {
-    await prisma.setting.create({data: {key, value}});
+  let seoMap: Record<string, SeoMeta> = {};
+  try {
+    const raw = await getVar<string>("SEO_PAGE_META", "{}");
+    seoMap = typeof raw === "string" ? JSON.parse(raw) : (raw || {});
+  } catch {
+    seoMap = {};
   }
+  seoMap[meta.path] = meta;
+  await setVar("SEO_PAGE_META", JSON.stringify(seoMap));
 }
 
 export async function getPagesWithoutMetadata() {

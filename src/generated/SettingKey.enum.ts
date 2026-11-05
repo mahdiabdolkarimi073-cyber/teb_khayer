@@ -43,15 +43,25 @@
   SMS_LINE_NUMBER: "شماره خط اختصاصی پیامک",
   SMS_REMINDER_DELAY_MINUTES: "زمان انتظار ارسال پیامک یادآوری خرید (دقیقه)",
   SMS_ABANDONED_TEMPLATE: "قالب پیامک یادآوری خرید ناتمام",
-  DELIVERY_ESTIMATED_DAYS: "زمان تقریبی ارسال سفارش",
+  DELIVERY_ESTIMATED_DAYS: "زمان تقریبی تحویل سفارش",
   UNIFIED_SHIPPING_ENABLED: "هزینه ارسال یکپارچه فروشگاه فعال است",
   UNIFIED_SHIPPING_FEE: "مبلغ هزینه ارسال یکپارچه (تومان)",
   UNIFIED_SHIPPING_DISCOUNT: "تخفیف هزینه ارسال یکپارچه (تومان)",
+  FREE_SHIPPING_ENABLED: "ارسال رایگان فعال است",
+  SEO_PAGE_META: "تنظیمات سئو و متادیتای صفحات",
  }
   export type SettingKeyEnumType = typeof SettingKeyEnum;
   export const SettingKeyInfo = {
+  FREE_SHIPPING_ENABLED: {
+    name: "ارسال رایگان فعال است",
+    default: "true"
+  },
+  SEO_PAGE_META: {
+    name: "تنظیمات سئو و متادیتای صفحات",
+    default: "{}"
+  },
   DELIVERY_ESTIMATED_DAYS: {
-    name: "زمان تقریبی ارسال سفارش",
+    name: "زمان تقریبی تحویل سفارش",
     default: "۳ تا ۵ روز کاری"
   },
   UNIFIED_SHIPPING_ENABLED: {

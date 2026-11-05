@@ -7,8 +7,11 @@ import {getVar} from "@backend/utils/setting";
 import {productMetadata} from "@/config/seo";
 import {JsonLd, productJsonLd, breadcrumbJsonLd} from "@/components/seo/JsonLd";
 
-const Page = async (props: any) => {
-	const rawId = props?.params?.id || "";
+const Page = async (props: {
+	params?: Promise<{ id?: string }> | { id?: string };
+}) => {
+	const resolvedParams = props?.params ? await Promise.resolve(props.params) : {};
+	const rawId = resolvedParams?.id || "";
 	const cleanId = typeof rawId === "string" ? decodeURIComponent(rawId).split("?")[0].trim() : rawId;
 	const product = await prisma.product.findUnique({
 		where: {
@@ -45,8 +48,11 @@ const Page = async (props: any) => {
 	)
 }
 
-export const generateMetadata = async (props: any): Promise<Metadata> => {
-	const rawId = props?.params?.id || "";
+export const generateMetadata = async (props: {
+	params?: Promise<{ id?: string }> | { id?: string };
+}): Promise<Metadata> => {
+	const resolvedParams = props?.params ? await Promise.resolve(props.params) : {};
+	const rawId = resolvedParams?.id || "";
 	const cleanId = typeof rawId === "string" ? decodeURIComponent(rawId).split("?")[0].trim() : rawId;
 	const product = await prisma.product.findUnique({
 		where: {

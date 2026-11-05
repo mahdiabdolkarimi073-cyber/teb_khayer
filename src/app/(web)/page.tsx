@@ -82,6 +82,37 @@ function Benefit({ icon: Icon, title, text }: { icon: typeof IconTruckDelivery; 
 function ShopPopup({ cardClass, icon: Icon, title, text }: { cardClass: string; icon: typeof IconUserCircle; title: string; text: string }) {
   const [opened, setOpened] = useState(false);
 
+  const cleanUrlState = () => {
+    if (typeof window === "undefined") return;
+    try {
+      const url = new URL(window.location.href);
+      let changed = false;
+      if (url.searchParams.has("openShopPopup")) {
+        url.searchParams.delete("openShopPopup");
+        changed = true;
+      }
+      if (url.hash === "#shop-popup" || url.hash === "#products-souvenirs") {
+        url.hash = "";
+        changed = true;
+      }
+      if (changed) {
+        const cleanPath = url.pathname + (url.search ? url.search : "");
+        window.history.replaceState(null, "", cleanPath);
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  const closePopup = () => {
+    setOpened(false);
+    cleanUrlState();
+  };
+
+  const openPopup = () => {
+    setOpened(true);
+  };
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     const checkHashAndParams = () => {
@@ -92,7 +123,8 @@ function ShopPopup({ cardClass, icon: Icon, title, text }: { cardClass: string; 
         setTimeout(() => {
           const el = document.getElementById("services-section");
           if (el) el.scrollIntoView({ behavior: "smooth" });
-        }, 100);
+          cleanUrlState();
+        }, 150);
       }
     };
     checkHashAndParams();
@@ -103,14 +135,20 @@ function ShopPopup({ cardClass, icon: Icon, title, text }: { cardClass: string; 
   useEffect(() => {
     if (!opened) return;
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpened(false);
+      if (event.key === "Escape") closePopup();
     };
+    const handlePopState = () => {
+      closePopup();
+    };
+
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("popstate", handlePopState);
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("popstate", handlePopState);
     };
   }, [opened]);
 
@@ -119,7 +157,7 @@ function ShopPopup({ cardClass, icon: Icon, title, text }: { cardClass: string; 
       <button
         type="button"
         className={`${styles.serviceCard} ${cardClass}`}
-        onClick={() => setOpened(true)}
+        onClick={openPopup}
         aria-label={title}
       >
         <div className={styles.serviceIcon}><Icon size={24} stroke={1.8} aria-hidden="true" /></div>
@@ -127,9 +165,9 @@ function ShopPopup({ cardClass, icon: Icon, title, text }: { cardClass: string; 
         <span className={styles.circleArrow}><IconArrowLeft size={15} aria-hidden="true" /></span>
       </button>
       {opened && (
-        <div className={styles.shopPopupBackdrop} role="presentation" onMouseDown={() => setOpened(false)}>
+        <div className={styles.shopPopupBackdrop} role="presentation" onMouseDown={closePopup}>
           <div className={styles.shopPopup} role="dialog" aria-modal="true" aria-label="انتخاب دسته‌بندی محصولات" onMouseDown={(e) => e.stopPropagation()}>
-            <button type="button" className={styles.shopPopupClose} onClick={() => setOpened(false)} aria-label="بستن">
+            <button type="button" className={styles.shopPopupClose} onClick={closePopup} aria-label="بستن">
               <IconX size={22} />
             </button>
             <div className={styles.shopPopupHeader}>
@@ -137,7 +175,7 @@ function ShopPopup({ cardClass, icon: Icon, title, text }: { cardClass: string; 
               <p>لطفاً یکی از گزینه‌های زیر را انتخاب کنید</p>
             </div>
             <div className={styles.shopPopupBody}>
-              <Link href="/category/all" className={`${styles.shopPopupCard} ${styles.shopPopupHerbal}`} onClick={() => setOpened(false)}>
+              <Link href="/category/all" className={`${styles.shopPopupCard} ${styles.shopPopupHerbal}`} onClick={closePopup}>
                 <div className={styles.shopPopupCardIcon}><IconLeaf size={32} stroke={1.7} /></div>
                 <div className={styles.shopPopupCardBody}>
                   <h4>محصولات گیاهی</h4>
@@ -145,7 +183,7 @@ function ShopPopup({ cardClass, icon: Icon, title, text }: { cardClass: string; 
                 </div>
                 <span className={styles.shopPopupArrow}><IconArrowLeft size={20} /></span>
               </Link>
-              <Link href="/souvenirs" className={`${styles.shopPopupCard} ${styles.shopPopupSouvenir}`} onClick={() => setOpened(false)}>
+              <Link href="/souvenirs" className={`${styles.shopPopupCard} ${styles.shopPopupSouvenir}`} onClick={closePopup}>
                 <div className={styles.shopPopupCardIcon}><IconGift size={32} stroke={1.7} /></div>
                 <div className={styles.shopPopupCardBody}>
                   <h4>سوغات محلی</h4>
@@ -153,7 +191,7 @@ function ShopPopup({ cardClass, icon: Icon, title, text }: { cardClass: string; 
                 </div>
                 <span className={styles.shopPopupArrow}><IconArrowLeft size={20} /></span>
               </Link>
-              <Link href="/category/pcat_6c3e00bd-cda8-44df-b312-545fce7c9787" className={`${styles.shopPopupCard} ${styles.shopPopupOil}`} onClick={() => setOpened(false)}>
+              <Link href="/category/pcat_6c3e00bd-cda8-44df-b312-545fce7c9787" className={`${styles.shopPopupCard} ${styles.shopPopupOil}`} onClick={closePopup}>
                 <div className={styles.shopPopupCardIcon}><IconDroplet size={32} stroke={1.7} /></div>
                 <div className={styles.shopPopupCardBody}>
                   <h4>روغن خوراکی ارگانیک</h4>

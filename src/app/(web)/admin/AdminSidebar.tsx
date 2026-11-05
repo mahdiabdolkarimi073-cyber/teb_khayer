@@ -20,6 +20,7 @@ const sections = [
 ];
 
 const lowerSections = [
+  {name: "پنل و وب‌سرویس پیامک", path: "/sms", icon: "✉"},
   {name: "سئو", path: "/seo", icon: "◎"},
   {name: "ارتباطات و هوش مصنوعی", path: "/integrations", icon: "ϟ"},
   {name: "باسلام", path: "/basalam", icon: "◈"},
